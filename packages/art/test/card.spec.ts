@@ -108,6 +108,12 @@ describe('renderCard', () => {
     expect(card()).toContain('53%');
   });
 
+  it('counts the bytes of the other languages in that share', () => {
+    expect(card({ otherLanguagesBytes: 90_000 })).toContain(
+      'TypeScript</tspan><tspan fill="#8b97a3"> 48%',
+    );
+  });
+
   it('falls back to the period label when contributions are hidden', () => {
     const svg = card({ metrics: { ...makeSnapshot().metrics, contributions: null } });
     expect(svg).toContain('Hasta noviembre de 2026');

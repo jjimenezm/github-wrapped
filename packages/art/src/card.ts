@@ -162,7 +162,10 @@ function summaryLine(card: Card, maxWidth: number, fontSize: number): string {
       { text: ` ${copy.activeDays(snapshot.activeDays)}` },
     ]);
   }
-  const totalBytes = snapshot.languages.reduce((sum, l) => sum + Math.max(0, l.bytes), 0);
+  const totalBytes = snapshot.languages.reduce(
+    (sum, l) => sum + Math.max(0, l.bytes),
+    Math.max(0, snapshot.otherLanguagesBytes),
+  );
   const top = [...snapshot.languages].sort((a, b) => b.bytes - a.bytes)[0];
   if (top && totalBytes > 0) {
     groups.push([
