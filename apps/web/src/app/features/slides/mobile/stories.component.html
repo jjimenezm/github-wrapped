@@ -1,0 +1,62 @@
+@let s = snapshot();
+
+<ol class="segments" [attr.aria-label]="'slides.label' | transloco">
+  @for (slide of slides(); track slide; let i = $index) {
+    <li [class.done]="i <= index()" [attr.aria-current]="i === index() ? 'step' : null">
+      <span class="gw-visually-hidden">{{
+        'slides.step' | transloco: { current: i + 1, total: slides().length }
+      }}</span>
+    </li>
+  }
+</ol>
+
+<header class="who">
+  <img class="avatar" [src]="s.avatarUrl" alt="" width="40" height="40" />
+  <span class="login">&#64;{{ s.login }}</span>
+  <gw-icon class="mark" name="mark-github" />
+  <gw-chip class="who-period">{{ chip() }}</gw-chip>
+</header>
+
+<!-- Taps and swipes are a shortcut; the buttons and arrow keys below cover them. -->
+<!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events, @angular-eslint/template/interactive-supports-focus -->
+<div
+  #viewport
+  class="viewport"
+  [attr.data-direction]="direction()"
+  (click)="onTap($event)"
+  (pointerdown)="onPointerDown($event)"
+  (pointerup)="onPointerUp($event)"
+>
+  @switch (current()) {
+    @case ('summary') {
+      <gw-summary-slide class="slide" [snapshot]="s" />
+    }
+    @case ('projects') {
+      <gw-projects-slide class="slide" [featured]="s.featured" />
+    }
+  }
+</div>
+
+<p class="gw-visually-hidden" aria-live="polite">
+  {{ 'slides.step' | transloco: { current: index() + 1, total: slides().length } }}
+</p>
+
+<nav class="controls">
+  <gw-icon-button
+    icon="arrow-left"
+    variant="ghost"
+    [label]="'slides.previous' | transloco"
+    [disabled]="index() === 0"
+    (press)="previous()"
+  />
+  <button
+    type="button"
+    class="gw-button"
+    [class.gw-button--primary]="isLast()"
+    [class.gw-button--secondary]="!isLast()"
+    (click)="next()"
+  >
+    {{ (isLast() ? 'slides.choose' : 'slides.next') | transloco }}
+    <gw-icon name="arrow-right" />
+  </button>
+</nav>

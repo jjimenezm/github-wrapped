@@ -35,9 +35,52 @@
     "cancel": "Cancel"
   },
   "slides": {
-    "pending": {
+    "label": "Your year on GitHub",
+    "step": "Slide {{ current }} of {{ total }}",
+    "previous": "Previous",
+    "next": "Next",
+    "choose": "Choose my card",
+    "summary": {
       "contributions": "contributions",
-      "back": "Look up someone else"
+      "contributionsSource": "See your contributions on GitHub",
+      "versus": "vs. {{ period }}",
+      "activeDays": "{{ count }} active days",
+      "source": "See {{ metric }} on GitHub",
+      "metrics": {
+        "commits": "commits",
+        "mergedPRs": "merged PRs",
+        "reviews": "code reviews",
+        "issues": "issues opened",
+        "private": "in private repos"
+      },
+      "updated": "Public GitHub data · updated {{ date }}"
+    },
+    "weekly": {
+      "title": "Weekly activity",
+      "peak": "max {{ max }} · wk {{ week }}",
+      "label": "Contributions per week: the peak was {{ max }}, in week {{ week }}.",
+      "empty": "Contributions per week: no activity in the period."
+    },
+    "languages": {
+      "title": "Languages (by bytes in your repos)",
+      "other": "Other"
+    },
+    "projects": {
+      "eyebrow": "Featured projects",
+      "title": "Your most active projects this year",
+      "stars": "{{ count }} stars",
+      "commits": "{{ count }} commits",
+      "demo": "Demo",
+      "repo": "Repo",
+      "demoLabel": "Demo of {{ name }}",
+      "repoLabel": "Repo {{ name }} on GitHub"
+    }
+  },
+  "publish": {
+    "pending": {
+      "title": "Your wrap is ready",
+      "body": "Soon you'll be able to pick your card and publish it.",
+      "back": "Back to the slides"
     }
   },
   "sample": {

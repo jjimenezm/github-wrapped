@@ -1,0 +1,69 @@
+@let s = snapshot();
+
+<p class="period">{{ period() }}</p>
+
+@if (s.metrics.contributions !== null) {
+  <p class="total">
+    <gw-count-up class="total-value" [value]="s.metrics.contributions" />
+    <span class="total-label">{{ 'slides.summary.contributions' | transloco }}</span>
+    <a
+      class="source-link"
+      [href]="contributionsSource()"
+      target="_blank"
+      rel="noopener noreferrer"
+      [attr.aria-label]="'slides.summary.contributionsSource' | transloco"
+    >
+      <gw-icon name="arrow-up-right" />
+    </a>
+  </p>
+}
+
+@if (delta() || context()) {
+  <p class="context">
+    @if (delta(); as d) {
+      <span class="delta gw-mono" [class.delta--up]="d.up">{{ d.text }}</span
+      >&nbsp;
+    }
+    {{ context() }}
+  </p>
+}
+
+@if (cards().length) {
+  <ul class="metrics">
+    @for (card of cards(); track card.key) {
+      <li class="metric" [class.metric--private]="!card.source">
+        <gw-icon class="metric-icon" [name]="card.icon" />
+        <span class="metric-text">
+          <strong class="metric-value gw-mono">{{ card.value }}</strong
+          >&ngsp;<span class="metric-label">{{ card.label }}</span>
+        </span>
+        @if (card.source; as source) {
+          <a
+            class="source-link"
+            [href]="source.href"
+            target="_blank"
+            rel="noopener noreferrer"
+            [attr.aria-label]="source.label"
+          >
+            <gw-icon name="arrow-up-right" />
+          </a>
+        }
+      </li>
+    }
+  </ul>
+}
+
+<section class="panel panel--chart">
+  <gw-weekly-chart [weekly]="s.weekly" [period]="s.period" />
+</section>
+
+@if (s.languages.length) {
+  <section class="panel">
+    <gw-language-bar [languages]="s.languages" [otherBytes]="s.otherLanguagesBytes" />
+  </section>
+}
+
+<p class="source">
+  <gw-icon name="info" />
+  {{ updated() }}
+</p>

@@ -1,0 +1,152 @@
+/* Same size container as the summary: short phones tighten the cards instead of scrolling. */
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: clamp(4px, 1.4cqh, 12px) var(--gw-space-4) var(--gw-space-3);
+}
+
+.eyebrow {
+  margin: 0;
+  color: var(--gw-text-soft);
+  font: 600 var(--gw-text-xs) / 1.2 var(--gw-font-sans);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.title {
+  margin: var(--gw-space-2) 0 clamp(10px, 2.4cqh, 20px);
+  font: 600 var(--gw-text-xl) / 1.2 var(--gw-font-sans);
+  letter-spacing: var(--gw-tracking-snug);
+}
+
+.projects {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(8px, 1.8cqh, 14px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.project {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(6px, 1.2cqh, 10px);
+  padding: clamp(10px, 2cqh, 16px) var(--gw-space-4);
+  border: 1px solid var(--gw-hair);
+  border-radius: var(--gw-radius-lg);
+  background: var(--gw-glass);
+}
+
+.project-head {
+  display: flex;
+  align-items: center;
+  gap: var(--gw-space-2);
+  min-width: 0;
+}
+
+.project-icon {
+  flex: none;
+  color: var(--gw-text-soft);
+}
+
+.project-name {
+  overflow: hidden;
+  font-size: var(--gw-text-md);
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.project-stars {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  color: var(--gw-text-soft);
+  font-size: var(--gw-text-sm);
+}
+
+.project-description {
+  display: -webkit-box;
+  margin: 0;
+  overflow: hidden;
+  color: var(--gw-text-soft);
+  font-size: var(--gw-text-sm);
+  line-height: 1.4;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+.project-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.project-links {
+  display: flex;
+  align-items: center;
+  gap: var(--gw-space-1);
+  margin-left: calc(-1 * var(--gw-space-2));
+  font-size: var(--gw-text-sm);
+}
+
+.project-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: var(--gw-hit);
+  padding: 0 var(--gw-space-2);
+  border-radius: var(--gw-radius-sm);
+  color: var(--gw-text);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.project-link:hover {
+  background: var(--gw-glass);
+}
+
+/* A green dot says the demo is live, the one place green means "ready" here. */
+.project-link--live::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  margin-right: 3px;
+  border-radius: 50%;
+  background: var(--gw-growth);
+  box-shadow: 0 0 0 3px var(--gw-growth-halo);
+}
+
+.project-commits {
+  margin-left: auto;
+  color: var(--gw-text-muted);
+  font-size: var(--gw-text-xs);
+}
+
+/*
+ * Short phones: one line of description is enough to tell the repos apart, and the chips
+ * (which repeat what the description says) give way so three repos fit without scrolling.
+ */
+@container slide (max-height: 560px) {
+  .title {
+    font-size: var(--gw-text-lg);
+  }
+
+  .project-description {
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
+  }
+
+  .project-chips {
+    display: none;
+  }
+
+  .project-links {
+    margin-block: -6px;
+  }
+}

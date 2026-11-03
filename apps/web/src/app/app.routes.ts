@@ -10,7 +10,13 @@ export const routes: Routes = [
     path: 'slides',
     canActivate: [requirePreview],
     loadComponent: () =>
-      import('./features/slides/slides-pending.component').then((m) => m.SlidesPendingComponent),
+      import('./features/slides/slides-page.component').then((m) => m.SlidesPageComponent),
+  },
+  {
+    path: 'publish',
+    canActivate: [requirePreview],
+    loadComponent: () =>
+      import('./features/publish/publish-pending.component').then((m) => m.PublishPendingComponent),
   },
   {
     // Internal sample of the visual primitives; development builds only.

@@ -1,0 +1,61 @@
+<p class="eyebrow">{{ 'slides.projects.eyebrow' | transloco }}</p>
+<h2 class="title">{{ 'slides.projects.title' | transloco }}</h2>
+
+<ul class="projects">
+  @for (repo of projects(); track repo.url) {
+    <li class="project">
+      <div class="project-head">
+        <gw-icon class="project-icon" name="repo" />
+        <span class="project-name gw-mono">{{ repo.name }}</span>
+        @if (repo.stars > 0) {
+          <span
+            class="project-stars gw-mono"
+            role="img"
+            [attr.aria-label]="'slides.projects.stars' | transloco: { count: repo.starCount }"
+          >
+            <gw-icon name="star" />
+            {{ repo.starCount }}
+          </span>
+        }
+      </div>
+
+      <p class="project-description">{{ repo.description }}</p>
+
+      @if (repo.chips.length) {
+        <div class="project-chips">
+          @for (chip of repo.chips; track chip) {
+            <gw-chip>{{ chip }}</gw-chip>
+          }
+        </div>
+      }
+
+      <div class="project-links">
+        @if (repo.demoUrl) {
+          <a
+            class="project-link project-link--live"
+            [href]="repo.demoUrl"
+            target="_blank"
+            rel="noopener noreferrer"
+            [attr.aria-label]="'slides.projects.demoLabel' | transloco: { name: repo.name }"
+          >
+            {{ 'slides.projects.demo' | transloco }}
+            <gw-icon name="arrow-up-right" />
+          </a>
+        }
+        <a
+          class="project-link"
+          [href]="repo.url"
+          target="_blank"
+          rel="noopener noreferrer"
+          [attr.aria-label]="'slides.projects.repoLabel' | transloco: { name: repo.name }"
+        >
+          {{ 'slides.projects.repo' | transloco }}
+          <gw-icon name="arrow-up-right" />
+        </a>
+        <span class="project-commits gw-mono">{{
+          'slides.projects.commits' | transloco: { count: repo.commitCount }
+        }}</span>
+      </div>
+    </li>
+  }
+</ul>

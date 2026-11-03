@@ -1,6 +1,5 @@
 import type { Locale } from '@wrapped/shared';
-
-const INTL_LOCALE: Record<Locale, string> = { es: 'es-CL', en: 'en-US' };
+import { INTL_LOCALE } from './intl';
 
 /** "30 segundos" / "30 seconds" under a minute, else whole minutes rounded up ("2 minutos"). */
 export function formatWait(seconds: number, locale: Locale): string {

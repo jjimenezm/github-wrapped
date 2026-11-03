@@ -1,0 +1,125 @@
+/* A fixed-height screen: segments, who, the slide (which flexes), then the controls. */
+:host {
+  display: flex;
+  flex-direction: column;
+  height: var(--gw-screen-h);
+  padding-top: var(--gw-space-3);
+}
+
+/* The reveal: the year arrives out of a soft focus, once, in 800ms. */
+@media (prefers-reduced-motion: no-preference) {
+  :host {
+    animation: reveal 800ms var(--gw-ease-out);
+  }
+}
+
+@keyframes reveal {
+  from {
+    opacity: 0;
+    filter: blur(8px);
+    transform: scale(0.97);
+  }
+}
+
+.segments {
+  display: flex;
+  gap: 6px;
+  margin: 0;
+  padding: 0 var(--gw-space-4);
+  list-style: none;
+}
+
+.segments li {
+  flex: 1;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--gw-hair-strong);
+  transition: background-color var(--gw-dur) var(--gw-ease-out);
+}
+
+.segments li.done {
+  background: var(--gw-text);
+}
+
+.who {
+  display: flex;
+  align-items: center;
+  gap: var(--gw-space-3);
+  padding: var(--gw-space-3) var(--gw-space-4) var(--gw-space-2);
+}
+
+.avatar {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--gw-hair-strong);
+  border-radius: 50%;
+  background: var(--gw-ink-raised);
+}
+
+.login {
+  overflow: hidden;
+  font-size: var(--gw-text-md);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mark {
+  flex: none;
+  color: var(--gw-text-soft);
+  --gw-icon-size: 18px;
+}
+
+.who-period {
+  margin-left: auto;
+}
+
+/* The slides size themselves against this box (cqh), not the window. */
+.viewport {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow: hidden;
+  container: slide / size;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .viewport[data-direction='forward'] .slide {
+    animation: enter-forward var(--gw-dur-slow) var(--gw-ease-out);
+  }
+
+  .viewport[data-direction='back'] .slide {
+    animation: enter-back var(--gw-dur-slow) var(--gw-ease-out);
+  }
+}
+
+@keyframes enter-forward {
+  from {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+}
+
+@keyframes enter-back {
+  from {
+    opacity: 0;
+    transform: translateX(-16px);
+  }
+}
+
+.controls {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gw-space-3);
+  padding: var(--gw-space-2) var(--gw-space-4) var(--gw-space-3);
+}
+
+.controls .gw-button {
+  min-height: 48px;
+}

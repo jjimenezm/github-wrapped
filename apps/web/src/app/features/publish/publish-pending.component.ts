@@ -1,14 +1,12 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { formatNumber, periodLabel } from '@wrapped/shared';
-import { LocaleService } from '../../core/i18n/locale.service';
 import { PreviewStore } from '../../core/preview/preview.store';
 import { WordmarkComponent } from '../../ui/wordmark/wordmark.component';
 
-/** Stand-in for the slides until the Stories land: proves the lookup arrived, with a way back. */
+/** Stand-in for choosing a card until that screen lands, with a way back to the slides. */
 @Component({
-  selector: 'gw-slides-pending',
+  selector: 'gw-publish-pending',
   imports: [RouterLink, TranslocoPipe, WordmarkComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -16,13 +14,10 @@ import { WordmarkComponent } from '../../ui/wordmark/wordmark.component';
     @if (snapshot(); as s) {
       <main class="body">
         <p class="login gw-mono">&#64;{{ s.login }}</p>
-        <h1>
-          <span class="gw-mono">{{ contributions() }}</span>
-          {{ 'slides.pending.contributions' | transloco }}
-        </h1>
-        <p class="period">{{ period() }}</p>
-        <a class="gw-button gw-button--secondary" routerLink="/">{{
-          'slides.pending.back' | transloco
+        <h1>{{ 'publish.pending.title' | transloco }}</h1>
+        <p class="note">{{ 'publish.pending.body' | transloco }}</p>
+        <a class="gw-button gw-button--secondary" routerLink="/slides">{{
+          'publish.pending.back' | transloco
         }}</a>
       </main>
     }
@@ -48,21 +43,15 @@ import { WordmarkComponent } from '../../ui/wordmark/wordmark.component';
       padding: 0 var(--gw-space-6) var(--gw-space-12);
     }
     .login,
-    .period {
+    .note {
       margin: 0;
       color: var(--gw-text-muted);
       font-size: var(--gw-text-sm);
     }
     h1 {
       margin: 0;
-      font: 600 var(--gw-text-xl) / 1.2 var(--gw-font-sans);
-      letter-spacing: var(--gw-tracking-snug);
-    }
-    h1 .gw-mono {
-      display: block;
-      font-size: var(--gw-text-display);
-      letter-spacing: -0.04em;
-      line-height: 1.05;
+      font: 600 var(--gw-text-3xl) / 1.12 var(--gw-font-sans);
+      letter-spacing: var(--gw-tracking-tight);
     }
     a {
       align-self: flex-start;
@@ -70,15 +59,6 @@ import { WordmarkComponent } from '../../ui/wordmark/wordmark.component';
     }
   `,
 })
-export class SlidesPendingComponent {
-  private readonly locale = inject(LocaleService).locale;
-
+export class PublishPendingComponent {
   protected readonly snapshot = inject(PreviewStore).snapshot;
-  protected readonly contributions = computed(() =>
-    formatNumber(this.snapshot()?.metrics.contributions ?? 0, this.locale()),
-  );
-  protected readonly period = computed(() => {
-    const s = this.snapshot();
-    return s ? periodLabel(s.period, this.locale()) : '';
-  });
 }

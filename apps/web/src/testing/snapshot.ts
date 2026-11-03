@@ -1,4 +1,19 @@
-import type { WrapSnapshot } from '@wrapped/shared';
+import type { FeaturedRepo, WrapSnapshot } from '@wrapped/shared';
+
+/** A featured repo for specs; override only what the test is about. */
+export function demoRepo(name: string, overrides: Partial<FeaturedRepo> = {}): FeaturedRepo {
+  return {
+    name,
+    description: `${name} description`,
+    url: `https://github.com/ana-dev/${name}`,
+    demoUrl: null,
+    stars: 0,
+    commits: 10,
+    topics: [],
+    languages: [],
+    ...overrides,
+  };
+}
 
 /** A complete, believable snapshot for specs; override only what the test is about. */
 export function demoSnapshot(overrides: Partial<WrapSnapshot> = {}): WrapSnapshot {
