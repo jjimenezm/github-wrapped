@@ -4,6 +4,7 @@
     "module": "CommonJS",
     "moduleResolution": "Node10",
     "noEmit": true,
+    "lib": ["ES2023", "DOM"],
     "types": ["jest"]
   },
   "include": ["src", "test"]

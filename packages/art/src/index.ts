@@ -1,4 +1,3 @@
-/** The three generative card styles a person can choose to share (R5). */
-export const CARD_STYLES = ['huella', 'cordillera', 'constelacion'] as const;
-
-export type CardStyle = (typeof CARD_STYLES)[number];
+// Card styles are a domain type, so they live in @wrapped/shared; art re-exports them for its consumers.
+export { CARD_STYLES } from '@wrapped/shared';
+export type { CardStyle } from '@wrapped/shared';
