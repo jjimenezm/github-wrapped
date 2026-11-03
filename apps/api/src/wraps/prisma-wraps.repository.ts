@@ -2,12 +2,13 @@ import type { OnModuleDestroy } from '@nestjs/common';
 import { Prisma, PrismaClient, type Wrap } from '@prisma/client';
 import type { WrapSnapshot } from '@wrapped/shared';
 import { ConcurrentUpdateError, WrapExistsError } from './wrap.errors';
-import type {
-  ExpectedVersions,
-  NewWrap,
-  WrapChanges,
-  WrapRecord,
-  WrapsRepository,
+import {
+  isWrapId,
+  type ExpectedVersions,
+  type NewWrap,
+  type WrapChanges,
+  type WrapRecord,
+  type WrapsRepository,
 } from './wraps.repository';
 
 /** Row to record, field by field, so a new column never leaks into the domain unnoticed. */
@@ -62,6 +63,12 @@ export class PrismaWrapsRepository implements WrapsRepository, OnModuleDestroy {
       if (isUniqueViolation(error)) throw new WrapExistsError();
       throw error;
     }
+  }
+
+  async findById(id: string): Promise<WrapRecord | null> {
+    if (!isWrapId(id)) return null;
+    const row = await this.prisma.wrap.findUnique({ where: { id } });
+    return row ? toRecord(row) : null;
   }
 
   async findByOwner(githubUserId: number, year: number): Promise<WrapRecord | null> {

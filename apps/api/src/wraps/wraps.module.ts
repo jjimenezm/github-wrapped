@@ -10,6 +10,7 @@ import {
 import { OwnerGuard, SessionGuard } from '../auth/guards';
 import { SessionService } from '../auth/session.service';
 import { APP_CONFIG, type AppConfig } from '../config';
+import { FilesController } from '../files/files.controller';
 import { WRAP_FILES, WrapFiles } from '../files/wrap-files';
 import { GithubModule } from '../github/github.module';
 import {
@@ -33,7 +34,7 @@ const logger = new Logger('WrapsModule');
 
 @Module({
   imports: [GithubModule],
-  controllers: [PreviewController, WrapsController, AuthController],
+  controllers: [PreviewController, WrapsController, AuthController, FilesController],
   providers: [
     PreviewService,
     WrapsService,

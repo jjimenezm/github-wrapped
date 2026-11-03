@@ -1,4 +1,5 @@
 import type { OnModuleDestroy } from '@nestjs/common';
+import { IMAGES_JOB_OPTIONS, IMAGES_QUEUE, imagesJobId, type ImagesJob } from '@wrapped/shared';
 import { Queue } from 'bullmq';
 
 /** The renders the api asks for. The renderer (another service) does the work and reports back. */
@@ -13,16 +14,9 @@ export interface RenderQueue {
 }
 
 export const RENDER_QUEUE = Symbol('RENDER_QUEUE');
-export const IMAGES_QUEUE = 'images';
 
-/** BullMQ forbids `:` in custom ids, and one id per version makes a repeated request harmless. */
-export const imagesJobId = (wrapId: string, imagesVersion: number) =>
-  `images-${wrapId}-${imagesVersion}`;
-
-export interface ImagesJob {
-  wrapId: string;
-  imagesVersion: number;
-}
+// The job shape and ids are shared with the renderer, which consumes the same queue.
+export { imagesJobId, type ImagesJob } from '@wrapped/shared';
 
 export class BullRenderQueue implements RenderQueue, OnModuleDestroy {
   constructor(readonly images: Queue<ImagesJob>) {}
@@ -37,13 +31,7 @@ export class BullRenderQueue implements RenderQueue, OnModuleDestroy {
     await this.images.add(
       'render',
       { wrapId, imagesVersion },
-      {
-        jobId: imagesJobId(wrapId, imagesVersion),
-        attempts: 3,
-        backoff: { type: 'exponential', delay: 5_000 },
-        removeOnComplete: 1_000,
-        removeOnFail: 1_000,
-      },
+      { ...IMAGES_JOB_OPTIONS, jobId: imagesJobId(wrapId, imagesVersion) },
     );
   }
 

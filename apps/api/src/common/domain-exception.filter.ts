@@ -1,6 +1,7 @@
 import { Catch, HttpStatus, type ArgumentsHost, type ExceptionFilter } from '@nestjs/common';
 import type { Response } from 'express';
 import { OAuthStateError, UnauthenticatedError } from '../auth/session.service';
+import { FileNotFoundError } from '../files/files.controller';
 import {
   GithubRateLimitError,
   GithubUnavailableError,
@@ -43,6 +44,7 @@ const MAPPINGS: Mapping[] = [
   [NotOwnerError, body(HttpStatus.FORBIDDEN, 'NOT_OWNER')],
   [UserNotFoundError, body(HttpStatus.NOT_FOUND, 'USER_NOT_FOUND')],
   [WrapNotFoundError, body(HttpStatus.NOT_FOUND, 'WRAP_NOT_FOUND')],
+  [FileNotFoundError, body(HttpStatus.NOT_FOUND, 'FILE_NOT_FOUND')],
   [WrapDeletedError, body(HttpStatus.GONE, 'WRAP_DELETED')],
   [YearFrozenError, body(HttpStatus.CONFLICT, 'YEAR_FROZEN')],
   [ImagesNotFailedError, body(HttpStatus.CONFLICT, 'IMAGES_NOT_FAILED')],

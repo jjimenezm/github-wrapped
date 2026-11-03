@@ -49,6 +49,13 @@ export function describeWrapsRepository(
       expect(await repo.findByOwner(4242, 2025)).toBeNull();
     });
 
+    it('finds a wrap by id, and nothing for an unknown or malformed id', async () => {
+      const created = await repo.create(newWrap());
+      expect(await repo.findById(created.id)).toEqual(created);
+      expect(await repo.findById('3f0c8a52-1b9e-4c7a-9d10-5e2f6b7a8c9d')).toBeNull();
+      expect(await repo.findById('not-a-uuid')).toBeNull();
+    });
+
     it('keeps the snapshot and the dates as they were written', async () => {
       const created = await repo.create(newWrap());
       const found = await repo.findByOwner(4242, 2026);

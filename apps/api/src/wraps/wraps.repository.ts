@@ -36,8 +36,13 @@ export type WrapChanges = Partial<Omit<WrapRecord, 'id' | 'githubUserId' | 'year
 /** The versions the caller read; the update only applies if they are still current. */
 export type ExpectedVersions = Pick<WrapRecord, 'dataVersion' | 'imagesVersion'>;
 
+/** Wrap ids are UUIDs; anything else is answered as "not found" without touching storage. */
+export const isWrapId = (id: string) =>
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(id);
+
 export interface WrapsRepository {
   create(wrap: NewWrap): Promise<WrapRecord>;
+  findById(id: string): Promise<WrapRecord | null>;
   findByOwner(githubUserId: number, year: number): Promise<WrapRecord | null>;
   /** By current login, or by the previous one (`moved`), most recently changed first. */
   findByLogin(loginKey: string, year: number): Promise<{ wrap: WrapRecord; moved: boolean } | null>;
@@ -72,6 +77,11 @@ export class InMemoryWrapsRepository implements WrapsRepository {
     this.wraps.set(wrap.id, wrap);
     this.touch(wrap.id);
     return Promise.resolve(copy(wrap));
+  }
+
+  findById(id: string): Promise<WrapRecord | null> {
+    const wrap = isWrapId(id) ? this.wraps.get(id) : undefined;
+    return Promise.resolve(wrap ? copy(wrap) : null);
   }
 
   findByOwner(githubUserId: number, year: number): Promise<WrapRecord | null> {
