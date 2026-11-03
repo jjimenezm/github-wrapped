@@ -1,0 +1,82 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: var(--gw-screen-h);
+}
+
+.bar {
+  display: flex;
+  flex: none;
+  align-items: center;
+  height: 64px;
+  padding: var(--gw-space-2) var(--gw-space-5) 0;
+}
+
+.body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 var(--gw-space-6) var(--gw-space-12);
+}
+
+/* Red only for what went wrong; a wait is the cold light, not an error. */
+.badge {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border: 1px solid rgb(248 113 113 / 0.25);
+  border-radius: var(--gw-radius-lg);
+  background: rgb(248 113 113 / 0.1);
+  color: var(--gw-danger);
+  --gw-icon-size: 22px;
+}
+
+.badge--wait {
+  border-color: rgb(184 208 220 / 0.25);
+  background: rgb(184 208 220 / 0.08);
+  color: var(--gw-ice);
+}
+
+h1 {
+  margin: var(--gw-space-5) 0 0;
+  font: 600 var(--gw-text-2xl) / 1.2 var(--gw-font-sans);
+  letter-spacing: var(--gw-tracking-tight);
+}
+
+.text {
+  max-width: 36ch;
+  margin: var(--gw-space-3) 0 0;
+  color: var(--gw-text-soft);
+  font-size: var(--gw-text-base);
+  text-wrap: pretty;
+}
+
+.link {
+  display: inline-flex;
+  align-self: flex-start;
+  align-items: center;
+  gap: 6px;
+  min-height: var(--gw-hit);
+  margin-top: var(--gw-space-2);
+  color: var(--gw-text);
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-color: rgb(231 236 240 / 0.35);
+  text-underline-offset: 4px;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gw-space-3);
+  margin-top: var(--gw-space-8);
+}
+
+.note {
+  margin: 0;
+  color: var(--gw-text-muted);
+  font-size: var(--gw-text-sm);
+  text-align: center;
+}

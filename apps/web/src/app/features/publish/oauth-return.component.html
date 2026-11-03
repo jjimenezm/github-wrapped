@@ -1,0 +1,45 @@
+<header class="bar"><gw-wordmark /></header>
+
+<main class="body">
+  <span
+    class="badge"
+    [class.badge--wait]="kind === 'tooSoon' || kind === 'rateLimited'"
+    aria-hidden="true"
+  >
+    <gw-icon [name]="kind === 'tooSoon' || kind === 'rateLimited' ? 'sync' : 'alert'" />
+  </span>
+  <h1>{{ 'publish.return.' + kind + '.title' | transloco: params() }}</h1>
+  <p class="text">{{ 'publish.return.' + kind + '.body' | transloco: params() }}</p>
+
+  @if (kind === 'wrongAccount') {
+    <a class="link" href="https://github.com/" target="_blank" rel="noopener noreferrer">
+      {{ 'publish.return.openGithub' | transloco }}
+      <gw-icon name="link-external" />
+    </a>
+  }
+
+  <div class="actions">
+    @if (canRetry) {
+      <button type="button" class="gw-button gw-button--primary" (click)="retry()">
+        {{ 'publish.return.retry' | transloco }}
+      </button>
+    }
+    @if (showsPublicPage) {
+      <a class="gw-button gw-button--primary" [href]="publicPath">
+        {{ 'publish.return.viewPublic' | transloco }}
+      </a>
+    }
+    @if (kind === 'wrongAccount') {
+      @if (signedOut()) {
+        <p class="note" role="status">{{ 'publish.return.signedOut' | transloco }}</p>
+      } @else {
+        <button type="button" class="gw-button gw-button--secondary" (click)="signOut()">
+          {{ 'publish.return.signOut' | transloco }}
+        </button>
+      }
+    }
+    <a class="gw-button gw-button--quiet" routerLink="/">
+      {{ 'publish.return.home' | transloco }}
+    </a>
+  </div>
+</main>

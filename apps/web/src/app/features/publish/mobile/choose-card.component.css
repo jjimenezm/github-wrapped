@@ -1,0 +1,62 @@
+/* One screen, no scroll: the carousel takes whatever height the copy and the button leave. */
+:host {
+  display: flex;
+  flex-direction: column;
+  height: var(--gw-screen-h);
+}
+
+.bar {
+  display: flex;
+  flex: none;
+  align-items: center;
+  height: 56px;
+  padding: var(--gw-space-2) var(--gw-space-3) 0;
+}
+
+.intro {
+  flex: none;
+  padding: 0 var(--gw-space-6);
+}
+
+h1 {
+  margin: 0;
+  font: 600 var(--gw-text-2xl) / 1.15 var(--gw-font-sans);
+  letter-spacing: var(--gw-tracking-tight);
+}
+
+.lead {
+  margin: var(--gw-space-2) 0 0;
+  color: var(--gw-text-muted);
+  font-size: var(--gw-text-base);
+}
+
+.carousel {
+  flex: 1;
+  margin: var(--gw-space-4) 0 var(--gw-space-2);
+}
+
+.actions {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  gap: var(--gw-space-3);
+  padding: 0 var(--gw-space-6) var(--gw-space-5);
+}
+
+/* Narrow phones (360px): the long call to action stays on one line. */
+@media (max-width: 380px) {
+  .actions .gw-button {
+    padding-inline: var(--gw-space-3);
+    font-size: var(--gw-text-sm);
+    white-space: nowrap;
+  }
+}
+
+.fine {
+  margin: 0;
+  color: var(--gw-text-muted);
+  font-size: var(--gw-text-xs);
+  line-height: 1.45;
+  text-align: center;
+  text-wrap: pretty;
+}

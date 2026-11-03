@@ -1,0 +1,91 @@
+/* Same frame as the chooser: one screen, the carousel takes the height that is left. */
+:host {
+  display: flex;
+  flex-direction: column;
+  height: var(--gw-screen-h);
+}
+
+.bar {
+  display: flex;
+  flex: none;
+  align-items: center;
+  height: 56px;
+  padding: var(--gw-space-2) var(--gw-space-3) 0;
+}
+
+.back {
+  display: grid;
+  place-items: center;
+  width: var(--gw-hit);
+  height: var(--gw-hit);
+  border-radius: 50%;
+  color: var(--gw-text-soft);
+}
+
+.back:hover {
+  background: var(--gw-glass);
+  color: var(--gw-text);
+}
+
+.intro {
+  flex: none;
+  padding: 0 var(--gw-space-6);
+}
+
+h1 {
+  margin: 0;
+  font: 600 var(--gw-text-2xl) / 1.15 var(--gw-font-sans);
+  letter-spacing: var(--gw-tracking-tight);
+}
+
+.lead {
+  margin: var(--gw-space-2) 0 0;
+  color: var(--gw-text-muted);
+  font-size: var(--gw-text-base);
+}
+
+.carousel {
+  flex: 1;
+  margin: var(--gw-space-4) 0 var(--gw-space-2);
+}
+
+.actions {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  gap: var(--gw-space-3);
+  padding: 0 var(--gw-space-6) var(--gw-space-5);
+}
+
+.hint {
+  margin: 0;
+  color: var(--gw-text-soft);
+  font-size: var(--gw-text-sm);
+  text-align: center;
+  text-wrap: pretty;
+}
+
+.error {
+  display: flex;
+  gap: var(--gw-space-2);
+  align-items: flex-start;
+  margin: 0;
+  color: var(--gw-danger-text);
+  font-size: var(--gw-text-sm);
+  line-height: 1.4;
+}
+
+.error gw-icon {
+  flex: none;
+  margin-top: 2px;
+}
+
+.error--page {
+  padding: var(--gw-space-8) var(--gw-space-6);
+}
+
+.loading {
+  display: grid;
+  flex: 1;
+  place-items: center;
+}

@@ -97,3 +97,73 @@ describe('WrapApiService.preview', () => {
     expect(await result).toMatchObject({ status: 0, code: 'NETWORK' });
   });
 });
+
+describe('WrapApiService for published wraps', () => {
+  let api: WrapApiService;
+  let http: HttpTestingController;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideHttpClientTesting()],
+    });
+    api = TestBed.inject(WrapApiService);
+    http = TestBed.inject(HttpTestingController);
+  });
+
+  afterEach(() => http.verify());
+
+  it('reads a public wrap by login and year', async () => {
+    const result = firstValueFrom(api.publicWrap('ana-dev', 2026));
+
+    http.expectOne('/api/wraps/ana-dev/2026').flush({ login: 'ana-dev', year: 2026 });
+
+    expect(await result).toMatchObject({ login: 'ana-dev', year: 2026 });
+  });
+
+  it('asks who is signed in, with the session cookie', async () => {
+    const result = firstValueFrom(api.session());
+
+    const request = http.expectOne('/api/auth/session');
+    expect(request.request.withCredentials).toBe(true);
+    request.flush({ githubUserId: 1, login: 'ana-dev' });
+
+    expect(await result).toEqual({ githubUserId: 1, login: 'ana-dev' });
+  });
+
+  it('changes the card of a wrap the session owns', async () => {
+    const result = firstValueFrom(api.changeCard('ana-dev', 2026, 'cordillera'));
+
+    const request = http.expectOne('/api/wraps/ana-dev/2026/card');
+    expect(request.request.method).toBe('PUT');
+    expect(request.request.body).toEqual({ cardStyle: 'cordillera' });
+    expect(request.request.withCredentials).toBe(true);
+    request.flush({ login: 'ana-dev', year: 2026, cardStyle: 'cordillera' });
+
+    expect(await result).toMatchObject({ cardStyle: 'cordillera' });
+  });
+
+  it('reports an expired session with its code', async () => {
+    const result = firstValueFrom(api.changeCard('ana-dev', 2026, 'huella')).catch(
+      (error: unknown) => error,
+    );
+
+    http
+      .expectOne('/api/wraps/ana-dev/2026/card')
+      .flush(
+        { statusCode: 401, code: 'UNAUTHENTICATED', message: 'Sign in' },
+        { status: 401, statusText: 'Unauthorized' },
+      );
+
+    expect(await result).toMatchObject({ status: 401, code: 'UNAUTHENTICATED' });
+  });
+
+  it('logs out', async () => {
+    const result = firstValueFrom(api.logout());
+
+    const request = http.expectOne('/api/auth/logout');
+    expect(request.request.method).toBe('POST');
+    request.flush(null, { status: 204, statusText: 'No Content' });
+
+    await expect(result).resolves.toBeNull();
+  });
+});

@@ -1,0 +1,40 @@
+<!-- Swipes and taps are a shortcut; the dots below and the arrow keys do the same. -->
+<!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events -->
+<div
+  class="cc"
+  role="group"
+  [attr.aria-label]="'publish.carousel' | transloco"
+  [class.cc--dragging]="dragging()"
+  (pointerdown)="onPointerDown($event)"
+  (pointermove)="onPointerMove($event)"
+  (pointerup)="onPointerUp($event)"
+  (pointercancel)="endDrag()"
+  (click)="onTap($event)"
+>
+  <div class="cc-track" [style.--cc-index]="index()" [style.--cc-drag]="drag() + 'px'">
+    @for (card of cards(); track card.style; let i = $index) {
+      <div
+        class="cc-slide"
+        [class.cc-slide--active]="i === index()"
+        [attr.data-index]="i"
+        [attr.aria-hidden]="i === index() ? null : 'true'"
+        [innerHTML]="card.svg"
+      ></div>
+    }
+  </div>
+</div>
+
+<div class="cc-dots">
+  @for (style of styles; track style; let i = $index) {
+    <button
+      type="button"
+      [attr.aria-label]="'publish.styles.' + style | transloco"
+      [attr.aria-current]="i === index() ? 'true' : null"
+      (click)="select(i)"
+    >
+      <span></span>
+    </button>
+  }
+</div>
+
+<p class="cc-label" aria-live="polite">{{ 'publish.styles.' + selected() | transloco }}</p>

@@ -18,5 +18,7 @@ coverage/
 
 # tooling
 .superpowers/
+# local design-hook cache and ignore list, anywhere in the tree
+.impeccable/
 .DS_Store
 *.log

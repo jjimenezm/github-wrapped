@@ -77,10 +77,74 @@
     }
   },
   "publish": {
-    "pending": {
+    "styles": {
+      "huella": "Fingerprint",
+      "cordillera": "Ridgeline",
+      "constelacion": "Constellation"
+    },
+    "carousel": "Cards to share",
+    "choose": {
       "title": "Your wrap is ready",
-      "body": "Soon you'll be able to pick your card and publish it.",
-      "back": "Back to the slides"
+      "lead": "Swipe and pick the card you want to share.",
+      "back": "Back to the slides",
+      "publish": "Continue with GitHub to publish",
+      "fine": "It goes live at {{ path }}. Only you can change or delete it."
+    },
+    "change": {
+      "title": "Change card",
+      "lead": "Pick another card for your page and your link preview.",
+      "back": "Back",
+      "save": "Save card",
+      "continue": "Continue with GitHub",
+      "expired": "Your session expired. GitHub will confirm you are @{{ login }}, and the card is saved when you come back.",
+      "errors": {
+        "notOwner": "This account is not @{{ login }}. Sign in as @{{ login }} to change the card.",
+        "deleted": "This wrap was deleted. You can create it again from the start.",
+        "notFound": "We couldn't find that wrap.",
+        "failed": "We couldn't save the card. Try again."
+      }
+    },
+    "return": {
+      "wrongAccount": {
+        "title": "This account is not @{{ login }}",
+        "body": "You signed in to GitHub with another account, so nothing was published. Switch to @{{ login }} on github.com (from your avatar menu) and try again: signing out here doesn't change your GitHub account."
+      },
+      "tooSoon": {
+        "title": "You already published today",
+        "body": "You can publish again once a day. Next time: {{ when }}."
+      },
+      "frozen": {
+        "title": "The {{ year }} wrap is closed",
+        "body": "After January 31 it can't be published again, but your page is still there."
+      },
+      "notFound": {
+        "title": "We couldn't find that wrap",
+        "body": "It may not be published yet. Create it from the start."
+      },
+      "deleted": {
+        "title": "That wrap was deleted",
+        "body": "You can create it again from the start."
+      },
+      "rateLimited": {
+        "title": "Too many tries in a row",
+        "body": "Wait {{ wait }} and try again."
+      },
+      "failed": {
+        "title": "We couldn't publish your wrap",
+        "body": "Something failed between GitHub and us. Nothing was published."
+      },
+      "openGithub": "Open github.com",
+      "signOut": "Sign out",
+      "signedOut": "You signed out of wrapped.",
+      "viewPublic": "See your published page",
+      "retry": "Try again",
+      "home": "Back to the start"
+    },
+    "share": {
+      "title": "Your wrap is live",
+      "body": "The share screen is coming soon.",
+      "change": "Change card",
+      "home": "Look up someone else"
     }
   },
   "sample": {

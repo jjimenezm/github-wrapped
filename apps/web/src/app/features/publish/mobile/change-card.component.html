@@ -1,0 +1,55 @@
+<header class="bar">
+  <a class="back" [routerLink]="sharePath" [attr.aria-label]="'publish.change.back' | transloco">
+    <gw-icon name="arrow-left" />
+  </a>
+</header>
+
+<div class="intro">
+  <h1>{{ 'publish.change.title' | transloco }}</h1>
+  <p class="lead">{{ 'publish.change.lead' | transloco }}</p>
+</div>
+
+@if (wrap(); as w) {
+  <gw-card-carousel
+    class="carousel"
+    qr="code"
+    [snapshot]="w.snapshot"
+    [locale]="w.locale"
+    [selected]="selected()"
+    (selectedChange)="pick($event)"
+  />
+
+  <div class="actions">
+    @if (error(); as key) {
+      <p class="error" role="alert">
+        <gw-icon name="alert" />
+        {{ 'publish.change.errors.' + key | transloco: { login } }}
+      </p>
+    }
+    @if (signedIn() === false) {
+      <p class="hint">{{ 'publish.change.expired' | transloco: { login } }}</p>
+      <button type="button" class="gw-button gw-button--primary" (click)="save()">
+        <gw-icon name="mark-github" />
+        {{ 'publish.change.continue' | transloco }}
+      </button>
+    } @else {
+      <button
+        type="button"
+        class="gw-button gw-button--primary"
+        [disabled]="selected() === w.cardStyle || saving() || signedIn() === null"
+        (click)="save()"
+      >
+        {{ 'publish.change.save' | transloco }}
+      </button>
+    }
+  </div>
+} @else if (loadFailed()) {
+  <p class="error error--page" role="alert">
+    <gw-icon name="alert" />
+    {{ 'publish.change.errors.notFound' | transloco }}
+  </p>
+} @else {
+  <div class="loading">
+    <gw-grid-loader [label]="'loader.label' | transloco" />
+  </div>
+}

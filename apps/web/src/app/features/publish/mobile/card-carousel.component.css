@@ -1,0 +1,120 @@
+/*
+ * A size container: the card takes the room it is given (as wide as 72% of the row, as tall as
+ * the height allows at 4:5) and the neighbors peek in from both sides.
+ */
+:host {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 0;
+  container-type: size;
+  --cc-gap: 14px;
+  --cc-w: min(72cqw, calc((100cqh - 64px) * 0.8));
+}
+
+.cc {
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  overflow: hidden;
+  cursor: grab;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.cc--dragging {
+  cursor: grabbing;
+}
+
+.cc-track {
+  display: flex;
+  align-items: center;
+  gap: var(--cc-gap);
+  height: 100%;
+  transform: translateX(
+    calc(
+      50cqw - var(--cc-w) / 2 - var(--cc-index) * (var(--cc-w) + var(--cc-gap)) +
+        var(--cc-drag, 0px)
+    )
+  );
+}
+
+.cc-slide {
+  flex: none;
+  width: var(--cc-w);
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border-radius: var(--gw-radius-xl);
+  opacity: 0.45;
+  transform: scale(0.88);
+  cursor: pointer;
+}
+
+.cc-slide--active {
+  opacity: 1;
+  transform: none;
+  box-shadow:
+    0 24px 56px rgb(0 0 0 / 0.45),
+    0 0 0 1px var(--gw-hair-strong);
+  cursor: default;
+}
+
+.cc-slide ::ng-deep svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .cc-track,
+  .cc-slide {
+    transition:
+      transform 500ms var(--gw-ease-out),
+      opacity 500ms var(--gw-ease-out);
+  }
+
+  /* The track follows the finger; the snap animates only after letting go. */
+  .cc--dragging .cc-track {
+    transition: none;
+  }
+}
+
+.cc-dots {
+  display: flex;
+  gap: 2px;
+  margin-top: var(--gw-space-3);
+}
+
+.cc-dots button {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.cc-dots span {
+  width: 6px;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--gw-hair-strong);
+  transition:
+    width var(--gw-dur) var(--gw-ease-out),
+    background-color var(--gw-dur) var(--gw-ease-out);
+}
+
+.cc-dots button[aria-current='true'] span {
+  width: 18px;
+  background: var(--gw-text);
+}
+
+.cc-label {
+  margin: 2px 0 0;
+  color: var(--gw-text-soft);
+  font-size: var(--gw-text-sm);
+  font-weight: 500;
+}

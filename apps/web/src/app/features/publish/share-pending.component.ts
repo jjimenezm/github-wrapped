@@ -1,26 +1,27 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { PreviewStore } from '../../core/preview/preview.store';
+import { wrapPath } from '../../core/routing/wrap-url';
 import { WordmarkComponent } from '../../ui/wordmark/wordmark.component';
 
-/** Stand-in for choosing a card until that screen lands, with a way back to the slides. */
+/** Stand-in for the share screen (`/@login/year/share`) until it lands, with "Cambiar tarjeta". */
 @Component({
-  selector: 'gw-publish-pending',
+  selector: 'gw-share-pending',
   imports: [RouterLink, TranslocoPipe, WordmarkComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <header class="bar"><gw-wordmark /></header>
-    @if (snapshot(); as s) {
-      <main class="body">
-        <p class="login gw-mono">&#64;{{ s.login }}</p>
-        <h1>{{ 'publish.pending.title' | transloco }}</h1>
-        <p class="note">{{ 'publish.pending.body' | transloco }}</p>
-        <a class="gw-button gw-button--secondary" routerLink="/slides">{{
-          'publish.pending.back' | transloco
-        }}</a>
-      </main>
-    }
+    <main class="body">
+      <p class="login gw-mono">&#64;{{ login }} · {{ year }}</p>
+      <h1>{{ 'publish.share.title' | transloco }}</h1>
+      <p class="note">{{ 'publish.share.body' | transloco }}</p>
+      <a class="gw-button gw-button--secondary" [routerLink]="cardPath">{{
+        'publish.share.change' | transloco
+      }}</a>
+      <a class="gw-button gw-button--quiet" routerLink="/">{{
+        'publish.share.home' | transloco
+      }}</a>
+    </main>
   `,
   styles: `
     :host {
@@ -53,12 +54,15 @@ import { WordmarkComponent } from '../../ui/wordmark/wordmark.component';
       font: 600 var(--gw-text-3xl) / 1.12 var(--gw-font-sans);
       letter-spacing: var(--gw-tracking-tight);
     }
-    a {
-      align-self: flex-start;
-      margin-top: var(--gw-space-6);
+    .note {
+      margin-bottom: var(--gw-space-5);
     }
   `,
 })
-export class PublishPendingComponent {
-  protected readonly snapshot = inject(PreviewStore).snapshot;
+export class SharePendingComponent {
+  private readonly params = inject(ActivatedRoute).snapshot.paramMap;
+
+  protected readonly login = this.params.get('login') ?? '';
+  protected readonly year = Number(this.params.get('year'));
+  protected readonly cardPath = wrapPath(this.login, this.year, 'card');
 }

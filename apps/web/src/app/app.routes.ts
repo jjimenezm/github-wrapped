@@ -1,9 +1,19 @@
 import { isDevMode } from '@angular/core';
 import { Routes } from '@angular/router';
 import { requirePreview } from './core/preview/preview.store';
+import { hasOAuthError } from './core/routing/oauth-error';
+import { wrapMatcher } from './core/routing/wrap-url';
 import { EntryComponent } from './features/entry/mobile/entry.component';
 
 export const routes: Routes = [
+  {
+    // Back from GitHub without a publication: same URL as the entry, its own screen.
+    path: '',
+    pathMatch: 'full',
+    canMatch: [hasOAuthError],
+    loadComponent: () =>
+      import('./features/publish/oauth-return.component').then((m) => m.OAuthReturnComponent),
+  },
   // The landing screen ships in the main bundle: it is what every visitor sees first.
   { path: '', pathMatch: 'full', component: EntryComponent },
   {
@@ -16,7 +26,17 @@ export const routes: Routes = [
     path: 'publish',
     canActivate: [requirePreview],
     loadComponent: () =>
-      import('./features/publish/publish-pending.component').then((m) => m.PublishPendingComponent),
+      import('./features/publish/mobile/choose-card.component').then((m) => m.ChooseCardComponent),
+  },
+  {
+    matcher: wrapMatcher('share'),
+    loadComponent: () =>
+      import('./features/publish/share-pending.component').then((m) => m.SharePendingComponent),
+  },
+  {
+    matcher: wrapMatcher('card'),
+    loadComponent: () =>
+      import('./features/publish/mobile/change-card.component').then((m) => m.ChangeCardComponent),
   },
   {
     // Internal sample of the visual primitives; development builds only.

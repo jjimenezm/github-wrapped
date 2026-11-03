@@ -1,0 +1,33 @@
+@if (store.snapshot(); as s) {
+  <header class="bar">
+    <gw-icon-button
+      icon="arrow-left"
+      variant="ghost"
+      [label]="'publish.choose.back' | transloco"
+      (press)="back()"
+    />
+  </header>
+
+  <div class="intro">
+    <h1>{{ 'publish.choose.title' | transloco }}</h1>
+    <p class="lead">{{ 'publish.choose.lead' | transloco }}</p>
+  </div>
+
+  <gw-card-carousel
+    class="carousel"
+    [snapshot]="s"
+    [locale]="locale()"
+    [selected]="store.style()"
+    (selectedChange)="store.setStyle($event)"
+  />
+
+  <div class="actions">
+    <button type="button" class="gw-button gw-button--primary" (click)="publish()">
+      <gw-icon name="mark-github" />
+      {{ 'publish.choose.publish' | transloco }}
+    </button>
+    <p class="fine">
+      {{ 'publish.choose.fine' | transloco: { path: wrapPath(s.login, s.period.year) } }}
+    </p>
+  </div>
+}

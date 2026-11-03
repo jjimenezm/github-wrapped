@@ -20,6 +20,17 @@ export function formatShortDate(iso: string, locale: Locale): string {
     .replace(/\./g, '');
 }
 
+/** "4 de noviembre, 12:30" / "November 4 at 12:30 PM", in the visitor's own time zone. */
+export function formatDateTime(iso: string, locale: Locale): string {
+  return new Intl.DateTimeFormat(INTL_LOCALE[locale], {
+    day: 'numeric',
+    month: 'long',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: locale === 'en',
+  }).format(new Date(iso));
+}
+
 /** "ene" / "Jan" for a zero-based month: always three letters, so axis labels line up. */
 export function shortMonth(month: number, locale: Locale): string {
   return new Intl.DateTimeFormat(INTL_LOCALE[locale], { month: 'short', timeZone: 'UTC' })

@@ -1,11 +1,20 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import type { WrapSnapshot } from '@wrapped/shared';
+import type { CardStyle, PublicWrap, WrapSnapshot } from '@wrapped/shared';
 import { Observable, catchError, throwError } from 'rxjs';
 import { ApiError } from './api-error';
 
 /** Same origin in production (Traefik) and in development (the `ng serve` proxy). */
 export const API_BASE = '/api';
+
+/** Who the session cookie says is signed in. */
+export interface SessionIdentity {
+  githubUserId: number;
+  login: string;
+}
+
+const asApiError = <T>(source: Observable<T>) =>
+  source.pipe(catchError((error: unknown) => throwError(() => ApiError.from(error))));
 
 @Injectable({ providedIn: 'root' })
 export class WrapApiService {
@@ -13,8 +22,39 @@ export class WrapApiService {
 
   /** The year so far for a normalized login; nothing is stored for people who don't publish. */
   preview(login: string): Observable<WrapSnapshot> {
-    return this.http
-      .get<WrapSnapshot>(`${API_BASE}/preview/${encodeURIComponent(login)}`)
-      .pipe(catchError((error: unknown) => throwError(() => ApiError.from(error))));
+    return asApiError(
+      this.http.get<WrapSnapshot>(`${API_BASE}/preview/${encodeURIComponent(login)}`),
+    );
+  }
+
+  publicWrap(login: string, year: number): Observable<PublicWrap> {
+    return asApiError(this.http.get<PublicWrap>(this.wrapUrl(login, year)));
+  }
+
+  session(): Observable<SessionIdentity> {
+    return asApiError(
+      this.http.get<SessionIdentity>(`${API_BASE}/auth/session`, { withCredentials: true }),
+    );
+  }
+
+  /** Needs the owner's session; a 401 means it expired and GitHub has to confirm again. */
+  changeCard(login: string, year: number, cardStyle: CardStyle): Observable<PublicWrap> {
+    return asApiError(
+      this.http.put<PublicWrap>(
+        `${this.wrapUrl(login, year)}/card`,
+        { cardStyle },
+        { withCredentials: true },
+      ),
+    );
+  }
+
+  logout(): Observable<null> {
+    return asApiError(
+      this.http.post<null>(`${API_BASE}/auth/logout`, null, { withCredentials: true }),
+    );
+  }
+
+  private wrapUrl(login: string, year: number): string {
+    return `${API_BASE}/wraps/${encodeURIComponent(login)}/${year}`;
   }
 }
