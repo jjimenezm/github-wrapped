@@ -1,0 +1,22 @@
+# dependencies
+node_modules/
+.pnpm-store/
+
+# builds
+dist/
+coverage/
+.angular/
+*.tsbuildinfo
+
+# env and secrets (only .env.example is versioned)
+.env
+.env.*
+!.env.example
+
+# local data (dev FILES_DIR for PNG/MP4 renders); anchored so it never hides source folders
+/.data/
+
+# tooling
+.superpowers/
+.DS_Store
+*.log

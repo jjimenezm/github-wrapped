@@ -1,0 +1,49 @@
+{
+  "name": "@wrapped/art",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Generative card art (Huella, Cordillera, Constelación) as pure SVG functions",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/cjs/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/cjs/index.d.ts",
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js"
+    }
+  },
+  "scripts": {
+    "clean": "rm -rf dist",
+    "build": "pnpm clean && tsc -p tsconfig.json && tsc -p tsconfig.esm.json",
+    "dev": "pnpm run \"/^watch:/\"",
+    "watch:cjs": "tsc -p tsconfig.json --watch --preserveWatchOutput",
+    "watch:esm": "tsc -p tsconfig.esm.json --watch --preserveWatchOutput",
+    "lint": "tsc -p tsconfig.spec.json --noEmit",
+    "typecheck": "tsc -p tsconfig.spec.json --noEmit",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@wrapped/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "jest": "^30.0.0",
+    "ts-jest": "^29.2.5",
+    "typescript": "^5.7.3"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "roots": [
+      "<rootDir>/test"
+    ],
+    "transform": {
+      "^.+\\.ts$": [
+        "ts-jest",
+        {
+          "tsconfig": "tsconfig.spec.json"
+        }
+      ]
+    }
+  }
+}

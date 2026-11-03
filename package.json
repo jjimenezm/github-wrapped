@@ -1,0 +1,29 @@
+{
+  "name": "github-wrapped",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Your year on GitHub as slides, a generative share card and a 30-second video.",
+  "engines": {
+    "node": ">=22 <23",
+    "pnpm": ">=10"
+  },
+  "packageManager": "pnpm@11.5.3",
+  "scripts": {
+    "build": "pnpm -r build",
+    "lint": "pnpm -r lint",
+    "test": "pnpm -r test",
+    "typecheck": "pnpm -r typecheck",
+    "format": "prettier --write \"**/*.{ts,html,css,json,md,yml}\"",
+    "format:check": "prettier --check \"**/*.{ts,html,css,json,md,yml}\"",
+    "prepare": "husky",
+    "dev:packages": "pnpm -r --parallel --filter \"./packages/*\" dev"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^15.5.0",
+    "prettier": "^3.5.3"
+  },
+  "lint-staged": {
+    "*.{ts,html,css,json,md,yml}": "prettier --write"
+  }
+}
