@@ -1,23 +1,5 @@
-import type { INestApplication } from '@nestjs/common';
-import { Test } from '@nestjs/testing';
 import type { WrapSnapshot } from '@wrapped/shared';
-import { join } from 'node:path';
-import request from 'supertest';
-import type { App } from 'supertest/types';
-import { AppModule } from '../src/app.module';
-import { CLOCK } from '../src/common/clock';
-import { configureApp } from '../src/common/configure-app';
-import { MemoryStore, STORE } from '../src/common/store';
-import { APP_CONFIG, type AppConfig } from '../src/config';
-import { GITHUB_TRANSPORT, type GithubTransport } from '../src/github/github.transport';
-
-const config: AppConfig = {
-  production: false,
-  githubToken: null,
-  fixturesDir: join(__dirname, 'fixtures/github'),
-  redisUrl: null,
-  rateLimit: { preview: { max: 5, windowSeconds: 600 } },
-};
+import { createE2eApp } from './e2e-app';
 
 interface ErrorBody {
   code: string;
@@ -25,30 +7,18 @@ interface ErrorBody {
 }
 
 describe('GET /api/preview/:login (e2e, GitHub fixtures)', () => {
-  let app: INestApplication<App>;
-  let now: Date;
+  let t: Awaited<ReturnType<typeof createE2eApp>>;
   let githubCalls: jest.SpyInstance;
 
   beforeEach(async () => {
-    now = new Date('2026-03-01T12:00:00Z');
-    const moduleRef = await Test.createTestingModule({ imports: [AppModule] })
-      .overrideProvider(APP_CONFIG)
-      .useValue(config)
-      .overrideProvider(CLOCK)
-      .useValue(() => now)
-      .overrideProvider(STORE)
-      .useValue(new MemoryStore(() => now.getTime()))
-      .compile();
-    app = moduleRef.createNestApplication();
-    configureApp(app);
-    await app.init();
-    githubCalls = jest.spyOn(app.get<GithubTransport>(GITHUB_TRANSPORT), 'execute');
+    t = await createE2eApp('2026-03-01T12:00:00Z');
+    githubCalls = jest.spyOn(t.transport, 'execute');
   });
 
-  afterEach(() => app.close());
+  afterEach(() => t.app.close());
 
-  const preview = (login: string) => request(app.getHttpServer()).get(`/api/preview/${login}`);
-  const later = (minutes: number) => (now = new Date(now.getTime() + minutes * 60_000));
+  const preview = (login: string) => t.http().get(`/api/preview/${login}`);
+  const later = (minutes: number) => t.later(minutes / 60);
 
   it('returns the snapshot of a normal person', async () => {
     const res = await preview('ana-dev').expect(200);
@@ -139,7 +109,7 @@ describe('GET /api/preview/:login (e2e, GitHub fixtures)', () => {
   });
 
   it('builds last year in full when asked in January', async () => {
-    now = new Date('2027-01-05T09:00:00Z');
+    t.at('2027-01-05T09:00:00Z');
     const res = await preview('ana-dev').expect(200);
     expect((res.body as WrapSnapshot).period).toEqual({
       year: 2026,

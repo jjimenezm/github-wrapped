@@ -1,0 +1,709 @@
+{
+  "UserYear": {
+    "data": {
+      "user": {
+        "databaseId": 4242,
+        "login": "ana-nueva",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/4242",
+        "contributionsCollection": {
+          "totalCommitContributions": 312,
+          "totalIssueContributions": 19,
+          "totalPullRequestReviewContributions": 41,
+          "contributionCalendar": {
+            "totalContributions": 285,
+            "weeks": [
+              {
+                "contributionDays": [
+                  {
+                    "date": "2026-01-01",
+                    "contributionCount": 3
+                  },
+                  {
+                    "date": "2026-01-02",
+                    "contributionCount": 10
+                  },
+                  {
+                    "date": "2026-01-03",
+                    "contributionCount": 6
+                  }
+                ]
+              },
+              {
+                "contributionDays": [
+                  {
+                    "date": "2026-01-04",
+                    "contributionCount": 2
+                  },
+                  {
+                    "date": "2026-01-05",
+                    "contributionCount": 9
+                  },
+                  {
+                    "date": "2026-01-06",
+                    "contributionCount": 5
+                  },
+                  {
+                    "date": "2026-01-07",
+                    "contributionCount": 1
+                  },
+                  {
+                    "date": "2026-01-08",
+                    "contributionCount": 8
+                  },
+                  {
+                    "date": "2026-01-09",
+                    "contributionCount": 0
+                  },
+                  {
+                    "date": "2026-01-10",
+                    "contributionCount": 0
+                  }
+                ]
+              },
+              {
+                "contributionDays": [
+                  {
+                    "date": "2026-01-11",
+                    "contributionCount": 7
+                  },
+                  {
+                    "date": "2026-01-12",
+                    "contributionCount": 3
+                  },
+                  {
+                    "date": "2026-01-13",
+                    "contributionCount": 10
+                  },
+                  {
+                    "date": "2026-01-14",
+                    "contributionCount": 6
+                  },
+                  {
+                    "date": "2026-01-15",
+                    "contributionCount": 2
+                  },
+                  {
+                    "date": "2026-01-16",
+                    "contributionCount": 9
+                  },
+                  {
+                    "date": "2026-01-17",
+                    "contributionCount": 5
+                  }
+                ]
+              },
+              {
+                "contributionDays": [
+                  {
+                    "date": "2026-01-18",
+                    "contributionCount": 1
+                  },
+                  {
+                    "date": "2026-01-19",
+                    "contributionCount": 8
+                  },
+                  {
+                    "date": "2026-01-20",
+                    "contributionCount": 0
+                  },
+                  {
+                    "date": "2026-01-21",
+                    "contributionCount": 0
+                  },
+                  {
+                    "date": "2026-01-22",
+                    "contributionCount": 7
+                  },
+                  {
+                    "date": "2026-01-23",
+                    "contributionCount": 3
+                  },
+                  {
+                    "date": "2026-01-24",
+                    "contributionCount": 10
+                  }
+                ]
+              },
+              {
+                "contributionDays": [
+                  {
+                    "date": "2026-01-25",
+                    "contributionCount": 6
+                  },
+                  {
+                    "date": "2026-01-26",
+                    "contributionCount": 2
+                  },
+                  {
+                    "date": "2026-01-27",
+                    "contributionCount": 9
+                  },
+                  {
+                    "date": "2026-01-28",
+                    "contributionCount": 5
+                  },
+                  {
+                    "date": "2026-01-29",
+                    "contributionCount": 1
+                  },
+                  {
+                    "date": "2026-01-30",
+                    "contributionCount": 8
+                  },
+                  {
+                    "date": "2026-01-31",
+                    "contributionCount": 0
+                  }
+                ]
+              },
+              {
+                "contributionDays": [
+                  {
+                    "date": "2026-02-01",
+                    "contributionCount": 0
+                  },
+                  {
+                    "date": "2026-02-02",
+                    "contributionCount": 7
+                  },
+                  {
+                    "date": "2026-02-03",
+                    "contributionCount": 3
+                  },
+                  {
+                    "date": "2026-02-04",
+                    "contributionCount": 10
+                  },
+                  {
+                    "date": "2026-02-05",
+                    "contributionCount": 6
+                  },
+                  {
+                    "date": "2026-02-06",
+                    "contributionCount": 2
+                  },
+                  {
+                    "date": "2026-02-07",
+                    "contributionCount": 9
+                  }
+                ]
+              },
+              {
+                "contributionDays": [
+                  {
+                    "date": "2026-02-08",
+                    "contributionCount": 5
+                  },
+                  {
+                    "date": "2026-02-09",
+                    "contributionCount": 1
+                  },
+                  {
+                    "date": "2026-02-10",
+                    "contributionCount": 8
+                  },
+                  {
+                    "date": "2026-02-11",
+                    "contributionCount": 0
+                  },
+                  {
+                    "date": "2026-02-12",
+                    "contributionCount": 0
+                  },
+                  {
+                    "date": "2026-02-13",
+                    "contributionCount": 7
+                  },
+                  {
+                    "date": "2026-02-14",
+                    "contributionCount": 3
+                  }
+                ]
+              },
+              {
+                "contributionDays": [
+                  {
+                    "date": "2026-02-15",
+                    "contributionCount": 10
+                  },
+                  {
+                    "date": "2026-02-16",
+                    "contributionCount": 6
+                  },
+                  {
+                    "date": "2026-02-17",
+                    "contributionCount": 2
+                  },
+                  {
+                    "date": "2026-02-18",
+                    "contributionCount": 9
+                  },
+                  {
+                    "date": "2026-02-19",
+                    "contributionCount": 5
+                  },
+                  {
+                    "date": "2026-02-20",
+                    "contributionCount": 1
+                  },
+                  {
+                    "date": "2026-02-21",
+                    "contributionCount": 8
+                  }
+                ]
+              },
+              {
+                "contributionDays": [
+                  {
+                    "date": "2026-02-22",
+                    "contributionCount": 0
+                  },
+                  {
+                    "date": "2026-02-23",
+                    "contributionCount": 0
+                  },
+                  {
+                    "date": "2026-02-24",
+                    "contributionCount": 7
+                  },
+                  {
+                    "date": "2026-02-25",
+                    "contributionCount": 3
+                  },
+                  {
+                    "date": "2026-02-26",
+                    "contributionCount": 10
+                  },
+                  {
+                    "date": "2026-02-27",
+                    "contributionCount": 6
+                  },
+                  {
+                    "date": "2026-02-28",
+                    "contributionCount": 2
+                  }
+                ]
+              },
+              {
+                "contributionDays": [
+                  {
+                    "date": "2026-03-01",
+                    "contributionCount": 9
+                  }
+                ]
+              }
+            ]
+          },
+          "commitContributionsByRepository": [
+            {
+              "contributions": {
+                "totalCount": 128
+              },
+              "repository": {
+                "name": "sismos-chile-api",
+                "nameWithOwner": "ana-dev/sismos-chile-api",
+                "owner": {
+                  "login": "ana-dev"
+                },
+                "description": "API REST y tiempo real de sismos en Chile.",
+                "url": "https://github.com/ana-dev/sismos-chile-api",
+                "homepageUrl": "https://sismos.example.dev",
+                "stargazerCount": 34,
+                "isFork": false,
+                "isEmpty": false,
+                "isPrivate": false,
+                "languages": {
+                  "nodes": [
+                    {
+                      "name": "TypeScript"
+                    }
+                  ]
+                },
+                "repositoryTopics": {
+                  "nodes": [
+                    {
+                      "topic": {
+                        "name": "nestjs"
+                      }
+                    },
+                    {
+                      "topic": {
+                        "name": "redis"
+                      }
+                    },
+                    {
+                      "topic": {
+                        "name": "postgis"
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "contributions": {
+                "totalCount": 96
+              },
+              "repository": {
+                "name": "github-wrapped",
+                "nameWithOwner": "ana-dev/github-wrapped",
+                "owner": {
+                  "login": "ana-dev"
+                },
+                "description": "Tu año en GitHub como video de 30 s.",
+                "url": "https://github.com/ana-dev/github-wrapped",
+                "homepageUrl": null,
+                "stargazerCount": 58,
+                "isFork": false,
+                "isEmpty": false,
+                "isPrivate": false,
+                "languages": {
+                  "nodes": [
+                    {
+                      "name": "TypeScript"
+                    },
+                    {
+                      "name": "SCSS"
+                    }
+                  ]
+                },
+                "repositoryTopics": {
+                  "nodes": [
+                    {
+                      "topic": {
+                        "name": "angular"
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "contributions": {
+                "totalCount": 40
+              },
+              "repository": {
+                "name": "dotfiles",
+                "nameWithOwner": "ana-dev/dotfiles",
+                "owner": {
+                  "login": "ana-dev"
+                },
+                "description": "Mis dotfiles, forkeados y ajustados.",
+                "url": "https://github.com/ana-dev/dotfiles",
+                "homepageUrl": null,
+                "stargazerCount": 0,
+                "isFork": true,
+                "isEmpty": false,
+                "isPrivate": false,
+                "languages": {
+                  "nodes": [
+                    {
+                      "name": "Shell"
+                    }
+                  ]
+                },
+                "repositoryTopics": {
+                  "nodes": []
+                }
+              }
+            },
+            {
+              "contributions": {
+                "totalCount": 50
+              },
+              "repository": {
+                "name": "empty-repo",
+                "nameWithOwner": "ana-dev/empty-repo",
+                "owner": {
+                  "login": "ana-dev"
+                },
+                "description": "Nada todavía.",
+                "url": "https://github.com/ana-dev/empty-repo",
+                "homepageUrl": null,
+                "stargazerCount": 0,
+                "isFork": false,
+                "isEmpty": true,
+                "isPrivate": false,
+                "languages": {
+                  "nodes": [
+                    {
+                      "name": "TypeScript"
+                    }
+                  ]
+                },
+                "repositoryTopics": {
+                  "nodes": []
+                }
+              }
+            },
+            {
+              "contributions": {
+                "totalCount": 70
+              },
+              "repository": {
+                "name": "no-description",
+                "nameWithOwner": "ana-dev/no-description",
+                "owner": {
+                  "login": "ana-dev"
+                },
+                "description": null,
+                "url": "https://github.com/ana-dev/no-description",
+                "homepageUrl": null,
+                "stargazerCount": 0,
+                "isFork": false,
+                "isEmpty": false,
+                "isPrivate": false,
+                "languages": {
+                  "nodes": [
+                    {
+                      "name": "TypeScript"
+                    }
+                  ]
+                },
+                "repositoryTopics": {
+                  "nodes": []
+                }
+              }
+            },
+            {
+              "contributions": {
+                "totalCount": 0
+              },
+              "repository": {
+                "name": "old-fork",
+                "nameWithOwner": "ana-dev/old-fork",
+                "owner": {
+                  "login": "ana-dev"
+                },
+                "description": "Fork sin aporte propio.",
+                "url": "https://github.com/ana-dev/old-fork",
+                "homepageUrl": null,
+                "stargazerCount": 0,
+                "isFork": true,
+                "isEmpty": false,
+                "isPrivate": false,
+                "languages": {
+                  "nodes": [
+                    {
+                      "name": "TypeScript"
+                    }
+                  ]
+                },
+                "repositoryTopics": {
+                  "nodes": []
+                }
+              }
+            },
+            {
+              "contributions": {
+                "totalCount": 200
+              },
+              "repository": {
+                "name": "secret",
+                "nameWithOwner": "ana-dev/secret",
+                "owner": {
+                  "login": "ana-dev"
+                },
+                "description": "Privado.",
+                "url": "https://github.com/ana-dev/secret",
+                "homepageUrl": null,
+                "stargazerCount": 0,
+                "isFork": false,
+                "isEmpty": false,
+                "isPrivate": true,
+                "languages": {
+                  "nodes": [
+                    {
+                      "name": "TypeScript"
+                    }
+                  ]
+                },
+                "repositoryTopics": {
+                  "nodes": []
+                }
+              }
+            },
+            {
+              "contributions": {
+                "totalCount": 12
+              },
+              "repository": {
+                "name": "design-system",
+                "nameWithOwner": "octo-org/design-system",
+                "owner": {
+                  "login": "octo-org"
+                },
+                "description": "Sistema de diseño del equipo.",
+                "url": "https://github.com/octo-org/design-system",
+                "homepageUrl": null,
+                "stargazerCount": 0,
+                "isFork": false,
+                "isEmpty": false,
+                "isPrivate": false,
+                "languages": {
+                  "nodes": [
+                    {
+                      "name": "TypeScript"
+                    }
+                  ]
+                },
+                "repositoryTopics": {
+                  "nodes": []
+                }
+              }
+            },
+            {
+              "contributions": {
+                "totalCount": 9
+              },
+              "repository": {
+                "name": "lab",
+                "nameWithOwner": "ana-dev/lab",
+                "owner": {
+                  "login": "ana-dev"
+                },
+                "description": "Experimentos.",
+                "url": "https://github.com/ana-dev/lab",
+                "homepageUrl": "javascript:alert(1)",
+                "stargazerCount": 0,
+                "isFork": false,
+                "isEmpty": false,
+                "isPrivate": false,
+                "languages": {
+                  "nodes": [
+                    {
+                      "name": "TypeScript"
+                    }
+                  ]
+                },
+                "repositoryTopics": {
+                  "nodes": []
+                }
+              }
+            }
+          ],
+          "restrictedContributionsCount": 40
+        }
+      }
+    }
+  },
+  "PreviousYear": {
+    "data": {
+      "user": {
+        "contributionsCollection": {
+          "contributionCalendar": {
+            "totalContributions": 200
+          }
+        }
+      }
+    }
+  },
+  "MergedPullRequests": {
+    "data": {
+      "search": {
+        "issueCount": 86
+      }
+    }
+  },
+  "OwnLanguages": {
+    "data": {
+      "user": {
+        "repositories": {
+          "nodes": [
+            {
+              "isFork": false,
+              "languages": {
+                "edges": [
+                  {
+                    "size": 400000,
+                    "node": {
+                      "name": "TypeScript",
+                      "color": "#3178c6"
+                    }
+                  },
+                  {
+                    "size": 50000,
+                    "node": {
+                      "name": "SCSS",
+                      "color": "#c6538c"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "isFork": false,
+              "languages": {
+                "edges": [
+                  {
+                    "size": 310000,
+                    "node": {
+                      "name": "PHP",
+                      "color": "#4F5D95"
+                    }
+                  },
+                  {
+                    "size": 80000,
+                    "node": {
+                      "name": "TypeScript",
+                      "color": "#3178c6"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "isFork": false,
+              "languages": {
+                "edges": [
+                  {
+                    "size": 70000,
+                    "node": {
+                      "name": "SCSS",
+                      "color": "#c6538c"
+                    }
+                  },
+                  {
+                    "size": 20000,
+                    "node": {
+                      "name": "Shell",
+                      "color": "#89e051"
+                    }
+                  },
+                  {
+                    "size": 15000,
+                    "node": {
+                      "name": "Nix",
+                      "color": null
+                    }
+                  },
+                  {
+                    "size": 5000,
+                    "node": {
+                      "name": "Dockerfile",
+                      "color": "#384d54"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "isFork": true,
+              "languages": {
+                "edges": [
+                  {
+                    "size": 999000,
+                    "node": {
+                      "name": "Rust",
+                      "color": "#dea584"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

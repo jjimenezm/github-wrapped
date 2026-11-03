@@ -9,6 +9,11 @@ const FULL_TTL_SECONDS = 60 * 60;
 /** A snapshot with a part missing expires fast, so a passing GitHub hiccup doesn't stick. */
 const PARTIAL_TTL_SECONDS = 90;
 
+interface CachedPreview {
+  snapshot: WrapSnapshot;
+  complete: boolean;
+}
+
 /**
  * The lookup before publishing (R18): nothing is stored beyond a short-lived cache, keyed by the
  * normalized login and the period, so a viral post costs GitHub one query per person per hour.
@@ -16,7 +21,7 @@ const PARTIAL_TTL_SECONDS = 90;
 @Injectable()
 export class PreviewService {
   /** Concurrent lookups of the same person share one trip to GitHub. */
-  private readonly inFlight = new Map<string, Promise<WrapSnapshot>>();
+  private readonly inFlight = new Map<string, Promise<CachedPreview>>();
 
   constructor(
     private readonly builder: SnapshotBuilder,
@@ -27,27 +32,43 @@ export class PreviewService {
   async preview(rawLogin: string): Promise<WrapSnapshot> {
     const login = normalizeLogin(rawLogin);
     if (!login) throw new InvalidLoginError();
-    const now = this.clock();
-    const period = resolveWrapPeriod(now);
-    const key = `preview:${login}:${period.from}..${period.to}`;
-
-    const cached = await this.store.get(key);
-    if (cached) return JSON.parse(cached) as WrapSnapshot;
-
-    const pending = this.inFlight.get(key);
-    if (pending) return pending;
-    const lookup = this.lookup(login, now, key).finally(() => this.inFlight.delete(key));
-    this.inFlight.set(key, lookup);
-    return lookup;
+    return (await this.cachedOrBuilt(login)).snapshot;
   }
 
-  private async lookup(login: string, now: Date, key: string): Promise<WrapSnapshot> {
-    const { snapshot, complete } = await this.builder.build(login, now);
-    await this.store.set(
-      key,
-      JSON.stringify(snapshot),
-      complete ? FULL_TTL_SECONDS : PARTIAL_TTL_SECONDS,
-    );
-    return snapshot;
+  /** The snapshot to freeze when publishing: the cached one only if nothing in it failed. */
+  async snapshotForPublish(login: string): Promise<WrapSnapshot> {
+    const found = await this.cachedOrBuilt(login);
+    return found.complete ? found.snapshot : (await this.build(login)).snapshot;
+  }
+
+  /** Straight from GitHub, for a regeneration (and the cache is refreshed with it). */
+  async fresh(login: string): Promise<WrapSnapshot> {
+    return (await this.build(login)).snapshot;
+  }
+
+  private key(login: string) {
+    const period = resolveWrapPeriod(this.clock());
+    return `preview:${login}:${period.from}..${period.to}`;
+  }
+
+  private async cachedOrBuilt(login: string): Promise<CachedPreview> {
+    const cached = await this.store.get(this.key(login));
+    return cached ? (JSON.parse(cached) as CachedPreview) : this.build(login);
+  }
+
+  private build(login: string): Promise<CachedPreview> {
+    const key = this.key(login);
+    const pending = this.inFlight.get(key);
+    if (pending) return pending;
+    const lookup = this.builder
+      .build(login, this.clock())
+      .then(async (built) => {
+        const ttl = built.complete ? FULL_TTL_SECONDS : PARTIAL_TTL_SECONDS;
+        await this.store.set(key, JSON.stringify(built), ttl);
+        return built;
+      })
+      .finally(() => this.inFlight.delete(key));
+    this.inFlight.set(key, lookup);
+    return lookup;
   }
 }

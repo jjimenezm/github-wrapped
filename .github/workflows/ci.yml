@@ -19,6 +19,25 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
+    # Disposable Postgres and Redis for the integration tests (repository and render queue).
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: wrapped
+          POSTGRES_PASSWORD: wrapped
+          POSTGRES_DB: wrapped_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U wrapped -d wrapped_test"
+          --health-interval 5s --health-timeout 3s --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports: ['6379:6379']
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s --health-timeout 3s --health-retries 10
+
     steps:
       - uses: actions/checkout@v5
         with:
@@ -54,3 +73,12 @@ jobs:
       # The api end to end over HTTP, with GitHub answered from fixtures (no network, no token).
       - name: E2E tests
         run: pnpm --filter @wrapped/api test:e2e
+
+      # The Prisma repository and the BullMQ queue against the real services above.
+      - name: Integration tests
+        env:
+          DATABASE_URL: postgresql://wrapped:wrapped@localhost:5432/wrapped_test
+          REDIS_URL: redis://localhost:6379
+        run: |
+          pnpm --filter @wrapped/api exec prisma migrate deploy
+          pnpm --filter @wrapped/api test:integration

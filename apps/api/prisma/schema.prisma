@@ -1,0 +1,73 @@
+// Published wraps. Ownership is GitHub's numeric id; no GitHub token is ever stored.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum WrapStatus {
+  published
+  deleted
+}
+
+enum CardStyle {
+  huella
+  cordillera
+  constelacion
+}
+
+enum Locale {
+  es
+  en
+}
+
+enum ImagesStatus {
+  queued
+  ready
+  failed
+}
+
+enum VideoStatus {
+  none
+  queued
+  rendering
+  ready
+  failed
+}
+
+model Wrap {
+  id                 String       @id @default(uuid()) @db.Uuid
+  githubUserId       Int          @map("github_user_id")
+  login              String
+  /// Lowercase login, for lookups from URLs.
+  loginKey           String       @map("login_key")
+  /// The login before the last rename, so old links and QR codes can redirect.
+  previousLoginKey   String?      @map("previous_login_key")
+  year               Int
+  locale             Locale
+  cardStyle          CardStyle    @map("card_style")
+  /// The data frozen at publication; null once deleted.
+  snapshot           Json?
+  status             WrapStatus
+  dataVersion        Int          @map("data_version")
+  imagesVersion      Int          @map("images_version")
+  imagesReadyVersion Int?         @map("images_ready_version")
+  imagesStatus       ImagesStatus @map("images_status")
+  videoReadyVersion  Int?         @map("video_ready_version")
+  videoStatus        VideoStatus  @map("video_status")
+  publishedAt        DateTime     @map("published_at")
+  /// Last publication or regeneration; deleting keeps it, so the daily limit survives a delete.
+  regeneratedAt      DateTime     @map("regenerated_at")
+  deletedAt          DateTime?    @map("deleted_at")
+  createdAt          DateTime     @default(now()) @map("created_at")
+  updatedAt          DateTime     @updatedAt @map("updated_at")
+
+  @@unique([githubUserId, year])
+  @@index([loginKey, year])
+  @@index([previousLoginKey, year])
+  @@map("wraps")
+}
