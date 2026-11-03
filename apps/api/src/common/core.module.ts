@@ -2,7 +2,7 @@ import { Global, Logger, Module } from '@nestjs/common';
 import Redis from 'ioredis';
 import { APP_CONFIG, loadConfig, type AppConfig } from '../config';
 import { CLOCK, type Clock } from './clock';
-import { RateLimitGuard } from './rate-limit.guard';
+import { RateLimitGuard, RateLimiter } from './rate-limit.guard';
 import { MemoryStore, RedisStore, STORE, type KeyValueStore } from './store';
 
 /** Config, clock and the shared store, available to every module. */
@@ -20,8 +20,9 @@ import { MemoryStore, RedisStore, STORE, type KeyValueStore } from './store';
         return new MemoryStore();
       },
     },
+    RateLimiter,
     RateLimitGuard,
   ],
-  exports: [APP_CONFIG, CLOCK, STORE, RateLimitGuard],
+  exports: [APP_CONFIG, CLOCK, STORE, RateLimiter, RateLimitGuard],
 })
 export class CoreModule {}

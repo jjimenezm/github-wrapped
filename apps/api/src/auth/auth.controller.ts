@@ -1,18 +1,8 @@
-import {
-  Controller,
-  Get,
-  HttpCode,
-  Inject,
-  Post,
-  Query,
-  Req,
-  Res,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Get, HttpCode, Inject, Post, Query, Req, Res } from '@nestjs/common';
 import { normalizeLogin } from '@wrapped/shared';
 import type { Request, Response } from 'express';
 import { InvalidRequestError } from '../common/invalid-request.error';
-import { RateLimit, RateLimitGuard } from '../common/rate-limit.guard';
+import { RateLimiter } from '../common/rate-limit.guard';
 import { cardStyleOf, intentOf, localeOf } from '../common/validate';
 import { APP_CONFIG, type AppConfig } from '../config';
 import {
@@ -60,12 +50,26 @@ export class AuthController {
     private readonly wraps: WrapsService,
     @Inject(GITHUB_IDENTITY) private readonly identity: GithubIdentity,
     @Inject(APP_CONFIG) private readonly config: AppConfig,
+    private readonly limiter: RateLimiter,
   ) {}
 
+  /**
+   * A full-page navigation, so problems go back to the web as `?oauth_error=` (the rate limit
+   * included) instead of a JSON page.
+   */
   @Get('github')
-  @UseGuards(RateLimitGuard)
-  @RateLimit('publish')
-  start(@Query() query: Query, @Res() response: Response): void {
+  async start(
+    @Query() query: Query,
+    @Req() request: Request,
+    @Res() response: Response,
+  ): Promise<void> {
+    const limit = await this.limiter.hit('publish', request.ip ?? 'unknown');
+    if (!limit.allowed) {
+      const login = normalizeLogin(query.login ?? '') ?? '';
+      return this.backWithError(response, login, 'RATE_LIMITED', {
+        retry_after: String(limit.retryAfter),
+      });
+    }
     const state = this.sessions.startOAuth(response, this.parse(query));
     const url = new URL(AUTHORIZE_URL);
     url.searchParams.set('client_id', this.config.oauth.clientId ?? 'fixture');
@@ -82,6 +86,11 @@ export class AuthController {
     @Res() response: Response,
   ): Promise<void> {
     const wanted = this.sessions.finishOAuth(request, response, query.state ?? '');
+    // GitHub comes back with `error` instead of `code` when the person cancels (access_denied).
+    if (query.error) {
+      const code = query.error === 'access_denied' ? 'OAUTH_CANCELLED' : 'OAUTH_FAILED';
+      return this.backWithError(response, wanted.login, code);
+    }
     let identity: Identity;
     try {
       identity = await this.identity.identify(query.code ?? '', this.callbackUrl);
@@ -97,8 +106,9 @@ export class AuthController {
     } catch (error) {
       const code = CALLBACK_ERRORS.find(([type]) => error instanceof type)?.[1];
       if (!code) throw error;
-      const retryAt = error instanceof RegenerateTooSoonError ? error.retryAt : undefined;
-      this.backWithError(response, wanted.login, code, retryAt);
+      const extra: Record<string, string> =
+        error instanceof RegenerateTooSoonError ? { retry_at: error.retryAt.toISOString() } : {};
+      this.backWithError(response, wanted.login, code, extra);
     }
   }
 
@@ -158,11 +168,16 @@ export class AuthController {
     }
   }
 
-  private backWithError(response: Response, login: string, code: string, retryAt?: Date) {
+  private backWithError(
+    response: Response,
+    login: string,
+    code: string,
+    extra: Record<string, string> = {},
+  ) {
     const url = new URL(`${this.config.publicBaseUrl}/`);
     url.searchParams.set('oauth_error', code);
     url.searchParams.set('login', login);
-    if (retryAt) url.searchParams.set('retry_at', retryAt.toISOString());
+    for (const [key, value] of Object.entries(extra)) url.searchParams.set(key, value);
     response.redirect(302, url.toString());
   }
 }

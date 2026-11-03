@@ -166,6 +166,38 @@ describe('Wraps and GitHub login (e2e)', () => {
       expect((await t.repo.findByOwner(4242, 2026))?.cardStyle).toBe('constelacion');
     });
 
+    it('goes back quietly when the person cancels on GitHub', async () => {
+      const agent = t.agent();
+      const start = await agent
+        .get('/api/auth/github')
+        .query({ login: 'ana-dev', intent: 'publish', style: 'huella', locale: 'es' });
+      const state = new URL(start.headers.location).searchParams.get('state') ?? '';
+      const res = await agent
+        .get('/api/auth/github/callback')
+        .query({
+          error: 'access_denied',
+          error_description: 'The user has denied your application access.',
+          state,
+        })
+        .expect(302);
+      expect(res.headers.location).toBe(`${WEB}/?oauth_error=OAUTH_CANCELLED&login=ana-dev`);
+      expect(cookies(res)).not.toContain('gw_session=');
+      expect(t.queue.jobs).toEqual([]);
+    });
+
+    it('reports any other GitHub error as OAUTH_FAILED', async () => {
+      const agent = t.agent();
+      const start = await agent
+        .get('/api/auth/github')
+        .query({ login: 'ana-dev', intent: 'publish', style: 'huella', locale: 'es' });
+      const state = new URL(start.headers.location).searchParams.get('state') ?? '';
+      const res = await agent
+        .get('/api/auth/github/callback')
+        .query({ error: 'redirect_uri_mismatch', state })
+        .expect(302);
+      expect(res.headers.location).toBe(`${WEB}/?oauth_error=OAUTH_FAILED&login=ana-dev`);
+    });
+
     it('closes the session on logout', async () => {
       const agent = t.agent();
       await signIn(agent, ana).expect(302);
@@ -313,6 +345,10 @@ describe('Wraps and GitHub login (e2e)', () => {
         .query({ login: 'ana-dev', intent: 'publish', style: 'huella', locale: 'es' });
     await start().expect(302);
     await start().expect(302);
-    await start().expect(429);
+    // A full-page navigation: the person lands back on the web with the wait, not on raw JSON.
+    const limited = await start().expect(302);
+    expect(limited.headers.location).toBe(
+      `${WEB}/?oauth_error=RATE_LIMITED&login=ana-dev&retry_after=3600`,
+    );
   });
 });

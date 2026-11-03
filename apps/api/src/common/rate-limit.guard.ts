@@ -22,32 +22,48 @@ export const RateLimit = (name: RateLimitName) => SetMetadata(RATE_LIMIT, name);
  * proxy saw (trust proxy = 1 hop), so a forged X-Forwarded-For doesn't open a new window.
  */
 @Injectable()
+export class RateLimiter {
+  constructor(
+    @Inject(APP_CONFIG) private readonly config: AppConfig,
+    @Inject(STORE) private readonly store: KeyValueStore,
+  ) {}
+
+  /** Counts a hit; `retryAfter` is how long until the window reopens. */
+  async hit(name: RateLimitName, ip: string): Promise<{ allowed: boolean; retryAfter: number }> {
+    const rule = this.config.rateLimit[name];
+    const { count, ttlSeconds } = await this.store.increment(
+      `ratelimit:${name}:${ip}`,
+      rule.windowSeconds,
+    );
+    return { allowed: count <= rule.max, retryAfter: ttlSeconds };
+  }
+}
+
+/** API routes answer 429 with `Retry-After`; full-page navigations use RateLimiter directly. */
+@Injectable()
 export class RateLimitGuard implements CanActivate {
   constructor(
     private readonly reflector: Reflector,
-    @Inject(APP_CONFIG) private readonly config: AppConfig,
-    @Inject(STORE) private readonly store: KeyValueStore,
+    private readonly limiter: RateLimiter,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const name = this.reflector.get<RateLimitName | undefined>(RATE_LIMIT, context.getHandler());
     if (!name) return true;
-    const rule = this.config.rateLimit[name];
     const http = context.switchToHttp();
-    const ip = http.getRequest<Request>().ip ?? 'unknown';
-    const { count, ttlSeconds } = await this.store.increment(
-      `ratelimit:${name}:${ip}`,
-      rule.windowSeconds,
+    const { allowed, retryAfter } = await this.limiter.hit(
+      name,
+      http.getRequest<Request>().ip ?? 'unknown',
     );
-    if (count <= rule.max) return true;
+    if (allowed) return true;
 
-    http.getResponse<Response>().setHeader('Retry-After', String(ttlSeconds));
+    http.getResponse<Response>().setHeader('Retry-After', String(retryAfter));
     throw new HttpException(
       {
         statusCode: HttpStatus.TOO_MANY_REQUESTS,
         code: 'RATE_LIMITED',
         message: 'Too many lookups from this address; try again later.',
-        retryAfter: ttlSeconds,
+        retryAfter,
       },
       HttpStatus.TOO_MANY_REQUESTS,
     );
