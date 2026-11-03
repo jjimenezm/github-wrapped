@@ -1,0 +1,84 @@
+<header class="bar">
+  <gw-wordmark />
+  @if (!loading()) {
+    <gw-locale-switch />
+  }
+</header>
+
+@if (loading()) {
+  <gw-loading class="stage" [login]="login()" (cancelled)="cancel()" />
+} @else {
+  <main class="stage hero">
+    <h1>{{ 'entry.title' | transloco }}</h1>
+    <p class="lead">{{ 'entry.lead' | transloco }}</p>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <label class="label" for="gh-login">{{ 'entry.label' | transloco }}</label>
+      <!-- A tap on the prefix lands in the input, like a tap on the rest of the field. -->
+      <div
+        class="field"
+        [class.field--error]="feedback()?.tone === 'error'"
+        (pointerdown)="focusField($event)"
+      >
+        <span class="prefix" aria-hidden="true">github.com/</span>
+        <input
+          #field
+          id="gh-login"
+          formControlName="login"
+          type="text"
+          inputmode="text"
+          autocapitalize="none"
+          autocomplete="off"
+          autocorrect="off"
+          spellcheck="false"
+          enterkeyhint="go"
+          [placeholder]="'entry.placeholder' | transloco"
+          [attr.aria-invalid]="feedback()?.tone === 'error'"
+          aria-describedby="gh-login-feedback"
+        />
+      </div>
+
+      <div class="feedback" [attr.data-tone]="feedback()?.tone">
+        <p id="gh-login-feedback" class="feedback-text" role="alert">
+          @if (feedback(); as f) {
+            <gw-icon [name]="f.tone === 'error' ? 'alert' : 'sync'" />
+            <span data-testid="feedback">{{
+              'entry.errors.' + f.key | transloco: { wait: waitText() }
+            }}</span>
+          }
+        </p>
+        @if (feedback()?.tone === 'wait') {
+          <button
+            type="button"
+            class="gw-button gw-button--secondary gw-button--small"
+            [disabled]="!retryReady()"
+            (click)="submit()"
+          >
+            {{ 'entry.retry' | transloco }}
+          </button>
+        }
+      </div>
+
+      <button type="submit" class="gw-button gw-button--primary submit">
+        {{ 'entry.submit' | transloco }}
+        <gw-icon name="arrow-right" />
+      </button>
+    </form>
+
+    <p class="trust">
+      <gw-icon name="lock" />
+      {{ 'entry.trust' | transloco }}
+    </p>
+  </main>
+
+  <div class="art" aria-hidden="true" [innerHTML]="art"></div>
+
+  <footer class="foot">
+    {{ 'entry.madeBy' | transloco }}
+    <a href="https://github.com/jjimenezm" target="_blank" rel="noopener">&#64;jjimenezm</a>
+    <span class="sep" aria-hidden="true">·</span>
+    <a href="https://github.com/jjimenezm/github-wrapped" target="_blank" rel="noopener">{{
+      'entry.code' | transloco
+    }}</a>
+  </footer>
+}

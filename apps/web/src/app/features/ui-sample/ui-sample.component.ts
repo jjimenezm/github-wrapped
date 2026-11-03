@@ -8,6 +8,7 @@ import { GlassPanelComponent } from '../../ui/glass-panel/glass-panel.component'
 import { GridLoaderComponent } from '../../ui/grid-loader/grid-loader.component';
 import { IconButtonComponent } from '../../ui/icon-button/icon-button.component';
 import { IconComponent } from '../../ui/icon/icon.component';
+import { WordmarkComponent } from '../../ui/wordmark/wordmark.component';
 
 const PERIOD: WrapPeriod = { year: 2026, from: '2026-01-01', to: '2026-11-03', complete: false };
 const PREVIOUS: WrapPeriod = { year: 2025, from: '2025-01-01', to: '2025-11-03', complete: false };
@@ -32,6 +33,7 @@ const SWATCHES = [
     IconComponent,
     IconButtonComponent,
     GridLoaderComponent,
+    WordmarkComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './ui-sample.component.html',

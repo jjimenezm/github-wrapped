@@ -1,0 +1,79 @@
+/*
+ * Text buttons. Icon-only actions use <gw-icon-button>; these carry a label.
+ * Usage: <button class="gw-button gw-button--primary">…</button>
+ */
+.gw-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 54px;
+  padding: 0 var(--gw-space-5);
+  border: 1px solid transparent;
+  border-radius: var(--gw-radius-lg);
+  background: none;
+  color: var(--gw-text);
+  font: 600 var(--gw-text-md) / 1.2 var(--gw-font-sans);
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition:
+    background-color var(--gw-dur-fast) var(--gw-ease-out),
+    border-color var(--gw-dur-fast) var(--gw-ease-out),
+    opacity var(--gw-dur-fast) var(--gw-ease-out),
+    transform var(--gw-dur-fast) var(--gw-ease-out);
+}
+
+.gw-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .gw-button:not(:disabled):active {
+    transform: scale(0.98);
+  }
+}
+
+/* The one main action of a screen. */
+.gw-button--primary {
+  background: var(--gw-text);
+  color: var(--gw-ink);
+}
+
+.gw-button--primary:not(:disabled):hover {
+  background: #fff;
+}
+
+.gw-button--secondary {
+  border-color: var(--gw-hair);
+  background: var(--gw-glass);
+  font-weight: 500;
+}
+
+.gw-button--secondary:not(:disabled):hover {
+  border-color: var(--gw-hair-strong);
+  background: var(--gw-glass-strong);
+}
+
+/* A way out ("Cancelar"): text only, still a full touch target. */
+.gw-button--quiet {
+  min-height: var(--gw-hit);
+  padding: 0 var(--gw-space-3);
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-color: rgb(231 236 240 / 0.35);
+  text-underline-offset: 4px;
+}
+
+.gw-button--quiet:not(:disabled):hover {
+  text-decoration-color: currentColor;
+}
+
+.gw-button--small {
+  min-height: var(--gw-hit);
+  padding: 0 var(--gw-space-4);
+  border-radius: var(--gw-radius-sm);
+  font-size: var(--gw-text-sm);
+}

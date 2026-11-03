@@ -1,0 +1,210 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: var(--gw-screen-h);
+}
+
+.bar {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+  padding: var(--gw-space-2) var(--gw-space-5) 0;
+}
+
+.stage {
+  flex: 1;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .stage {
+    animation: stage-in var(--gw-dur-slow) var(--gw-ease-out);
+  }
+}
+
+@keyframes stage-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+.hero {
+  flex: none;
+  padding: var(--gw-space-10) var(--gw-space-6) var(--gw-space-4);
+}
+
+h1 {
+  max-width: 14ch;
+  margin: 0;
+  font: 600 var(--gw-text-3xl) / 1.12 var(--gw-font-sans);
+  letter-spacing: var(--gw-tracking-tight);
+}
+
+.lead {
+  max-width: 34ch;
+  margin: var(--gw-space-3) 0 0;
+  color: var(--gw-text-muted);
+  font-size: var(--gw-text-base);
+  text-wrap: pretty;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  margin-top: var(--gw-space-8);
+}
+
+.label {
+  margin-bottom: var(--gw-space-2);
+  color: var(--gw-text-muted);
+  font: 500 var(--gw-text-xs) / 1.3 var(--gw-font-sans);
+}
+
+.field {
+  display: flex;
+  align-items: center;
+  height: 58px;
+  padding: 0 var(--gw-space-4);
+  border: 1px solid var(--gw-hair);
+  border-radius: var(--gw-radius-lg);
+  background: var(--gw-glass);
+  backdrop-filter: var(--gw-blur);
+  -webkit-backdrop-filter: var(--gw-blur);
+  font: 400 var(--gw-text-md) var(--gw-font-mono);
+  transition:
+    border-color var(--gw-dur) var(--gw-ease-out),
+    box-shadow var(--gw-dur) var(--gw-ease-out);
+  cursor: text;
+}
+
+.field:focus-within {
+  border-color: rgb(184 208 220 / 0.5);
+  box-shadow: 0 0 0 4px rgb(184 208 220 / 0.1);
+}
+
+.field--error,
+.field--error:focus-within {
+  border-color: rgb(248 113 113 / 0.7);
+  box-shadow: 0 0 0 4px rgb(248 113 113 / 0.12);
+}
+
+.prefix {
+  flex: none;
+  color: var(--gw-text-muted);
+}
+
+input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--gw-text);
+  /* 16px or more, so iOS doesn't zoom into the field. */
+  font: inherit;
+  caret-color: var(--gw-ice);
+}
+
+input::placeholder {
+  color: var(--gw-text-muted);
+  opacity: 1;
+}
+
+/* The field draws the focus ring around prefix and input together. */
+input:focus-visible {
+  outline: none;
+}
+
+.feedback {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--gw-space-3);
+}
+
+.feedback-text {
+  display: flex;
+  gap: var(--gw-space-2);
+  align-items: flex-start;
+  margin: 0;
+  font-size: var(--gw-text-sm);
+  line-height: 1.4;
+}
+
+.feedback-text:not(:empty) {
+  margin-top: var(--gw-space-3);
+}
+
+.feedback-text gw-icon {
+  flex: none;
+  margin-top: 2px;
+}
+
+.feedback[data-tone='error'] .feedback-text {
+  color: var(--gw-danger-text);
+}
+
+.feedback[data-tone='wait'] .feedback-text {
+  color: var(--gw-text-soft);
+}
+
+.feedback[data-tone='wait'] gw-icon {
+  color: var(--gw-ice);
+}
+
+.submit {
+  margin-top: var(--gw-space-5);
+}
+
+.trust {
+  display: flex;
+  gap: var(--gw-space-2);
+  align-items: center;
+  justify-content: center;
+  margin: var(--gw-space-4) 0 0;
+  color: var(--gw-text-muted);
+  font-size: var(--gw-text-xs);
+}
+
+/*
+ * The art fades in and out of the dark, a preview of the card at the end. It takes only the
+ * room the form leaves (up to 230px, pinned above the footer), so it never runs behind text.
+ */
+.art {
+  flex: 1 1 0;
+  min-height: 0;
+  max-height: 230px;
+  margin-top: auto;
+  opacity: 0.55;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(to top, transparent, #000 35%, #000 60%, transparent);
+  mask-image: linear-gradient(to top, transparent, #000 35%, #000 60%, transparent);
+}
+
+.foot {
+  flex: none;
+  padding: 0 var(--gw-space-6) var(--gw-space-4);
+  color: var(--gw-text-muted);
+  font-size: var(--gw-text-2xs);
+  text-align: center;
+}
+
+.foot a {
+  display: inline-block;
+  padding: var(--gw-space-3) 2px;
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: rgb(139 151 163 / 0.4);
+  text-underline-offset: 3px;
+}
+
+.foot a:hover {
+  color: var(--gw-text);
+}
+
+.sep {
+  margin: 0 var(--gw-space-1);
+}

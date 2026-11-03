@@ -5,6 +5,41 @@
   "loader": {
     "label": "Cargando…"
   },
+  "entry": {
+    "title": "Tu año en GitHub, en 30 segundos",
+    "lead": "Slides con tus datos reales, una tarjeta única para compartir y un video de 30 s.",
+    "label": "Usuario de GitHub",
+    "placeholder": "tu-usuario",
+    "submit": "Crear mi wrap",
+    "trust": "Solo datos públicos. Sin iniciar sesión.",
+    "retry": "Reintentar",
+    "madeBy": "Hecho por",
+    "code": "Código en GitHub",
+    "errors": {
+      "empty": "Escribe tu usuario de GitHub.",
+      "invalid": "Ese no parece un usuario de GitHub. Usa letras, números y guiones.",
+      "notFound": "No encontramos ese usuario. Revisa el nombre e inténtalo otra vez.",
+      "rateLimited": "Hiciste muchas consultas seguidas. Espera {{ wait }} e inténtalo otra vez.",
+      "githubRateLimited": "GitHub nos pidió esperar un poco. Podrás reintentar en {{ wait }}.",
+      "githubUnavailable": "GitHub no responde en este momento. Inténtalo otra vez en unos segundos.",
+      "network": "No pudimos conectarnos. Revisa tu conexión e inténtalo otra vez.",
+      "unknown": "Algo falló de nuestro lado. Inténtalo otra vez."
+    }
+  },
+  "loading": {
+    "search": "Buscando tu actividad pública…",
+    "read": "Leyendo contribuciones y repositorios…",
+    "detect": "Detectando lenguajes y proyectos destacados…",
+    "prepare": "Preparando tu wrap…",
+    "slow": "GitHub está tardando más de lo normal. Seguimos esperando…",
+    "cancel": "Cancelar"
+  },
+  "slides": {
+    "pending": {
+      "contributions": "contribuciones",
+      "back": "Buscar otro usuario"
+    }
+  },
   "sample": {
     "title": "Base visual",
     "lead": "Tokens, primitivas y el GridLoader que usan todas las pantallas. Cambia el idioma arriba: todo se traduce sin recargar.",

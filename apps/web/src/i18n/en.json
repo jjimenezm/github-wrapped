@@ -5,6 +5,41 @@
   "loader": {
     "label": "Loading…"
   },
+  "entry": {
+    "title": "Your year on GitHub, in 30 seconds",
+    "lead": "Slides with your real data, a one-of-a-kind card to share and a 30-second video.",
+    "label": "GitHub username",
+    "placeholder": "your-username",
+    "submit": "Create my wrap",
+    "trust": "Public data only. No sign-in.",
+    "retry": "Try again",
+    "madeBy": "Made by",
+    "code": "Code on GitHub",
+    "errors": {
+      "empty": "Enter your GitHub username.",
+      "invalid": "That doesn't look like a GitHub username. Use letters, numbers and hyphens.",
+      "notFound": "We couldn't find that user. Check the name and try again.",
+      "rateLimited": "Too many lookups in a row. Wait {{ wait }} and try again.",
+      "githubRateLimited": "GitHub asked us to slow down. You can try again in {{ wait }}.",
+      "githubUnavailable": "GitHub isn't responding right now. Try again in a few seconds.",
+      "network": "We couldn't connect. Check your connection and try again.",
+      "unknown": "Something went wrong on our side. Try again."
+    }
+  },
+  "loading": {
+    "search": "Looking up your public activity…",
+    "read": "Reading contributions and repositories…",
+    "detect": "Spotting languages and standout projects…",
+    "prepare": "Getting your wrap ready…",
+    "slow": "GitHub is taking longer than usual. Still waiting…",
+    "cancel": "Cancel"
+  },
+  "slides": {
+    "pending": {
+      "contributions": "contributions",
+      "back": "Look up someone else"
+    }
+  },
   "sample": {
     "title": "Visual foundation",
     "lead": "Tokens, primitives and the GridLoader every screen uses. Switch the language above: everything translates without a reload.",

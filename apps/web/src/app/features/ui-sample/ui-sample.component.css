@@ -11,31 +11,6 @@
   padding: var(--gw-space-2) var(--gw-space-5) 0;
 }
 
-.wordmark {
-  display: inline-flex;
-  align-items: center;
-  gap: 9px;
-  font: 600 var(--gw-text-lg) / 1 var(--gw-font-sans);
-  letter-spacing: -0.02em;
-}
-
-.mark {
-  display: grid;
-  grid-template-columns: repeat(3, 4px);
-  gap: 2px;
-}
-
-.mark span {
-  width: 4px;
-  height: 4px;
-  border-radius: 1px;
-  background: currentColor;
-}
-
-.mark span:nth-child(2n) {
-  opacity: 0.45;
-}
-
 .page {
   padding: var(--gw-space-6) var(--gw-space-6) 0;
 }
