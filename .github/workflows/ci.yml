@@ -50,3 +50,7 @@ jobs:
 
       - name: Unit tests
         run: pnpm -r test
+
+      # The api end to end over HTTP, with GitHub answered from fixtures (no network, no token).
+      - name: E2E tests
+        run: pnpm --filter @wrapped/api test:e2e

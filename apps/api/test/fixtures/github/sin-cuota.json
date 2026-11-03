@@ -1,0 +1,7 @@
+{
+  "UserYear": {
+    "rateLimited": {
+      "retryAfter": 120
+    }
+  }
+}
