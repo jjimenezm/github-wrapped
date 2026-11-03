@@ -1,0 +1,90 @@
+<header class="bar">
+  <span class="wordmark">
+    <span class="mark" aria-hidden="true">
+      @for (cell of [0, 1, 2, 3, 4, 5, 6, 7, 8]; track cell) {
+        <span></span>
+      }
+    </span>
+    wrapped
+  </span>
+  <gw-locale-switch />
+</header>
+
+<main class="page">
+  <h1>{{ 'sample.title' | transloco }}</h1>
+  <p class="lead">{{ 'sample.lead' | transloco }}</p>
+
+  <section aria-labelledby="s-panel">
+    <h2 id="s-panel">{{ 'sample.panel.heading' | transloco }}</h2>
+    <gw-glass-panel>
+      <div class="tile-top">
+        <strong class="gw-mono tile-value">{{ commits() }}</strong>
+        <gw-icon
+          class="tile-source"
+          name="arrow-up-right"
+          [label]="'sample.panel.source' | transloco"
+        />
+      </div>
+      <span class="tile-label">{{ 'sample.panel.metric' | transloco }}</span>
+      <p class="tile-growth">
+        <span class="gw-mono growth">↑ 23%</span>
+        {{ 'sample.panel.growth' | transloco: { period: previousChip() } }}
+      </p>
+    </gw-glass-panel>
+    <p class="note">{{ 'sample.panel.body' | transloco }}</p>
+  </section>
+
+  <section aria-labelledby="s-chips">
+    <h2 id="s-chips">{{ 'sample.chips.heading' | transloco }}</h2>
+    <div class="row">
+      <gw-chip>{{ chip() }}</gw-chip>
+      <gw-chip>{{ 'sample.chips.live' | transloco }}</gw-chip>
+      <gw-chip tone="ready">{{ 'sample.chips.ready' | transloco }}</gw-chip>
+    </div>
+  </section>
+
+  <section aria-labelledby="s-buttons">
+    <h2 id="s-buttons">{{ 'sample.buttons.heading' | transloco }}</h2>
+    <div class="row">
+      <gw-icon-button icon="x" [label]="'sample.buttons.close' | transloco" />
+      <gw-icon-button icon="copy" [label]="'sample.buttons.copy' | transloco" />
+      <gw-icon-button icon="share" [label]="'sample.buttons.share' | transloco" />
+      <gw-icon-button icon="download" [label]="'sample.buttons.download' | transloco" />
+      <gw-icon-button
+        icon="video"
+        variant="ghost"
+        [label]="'sample.buttons.unavailable' | transloco"
+        [disabled]="true"
+      />
+    </div>
+  </section>
+
+  <section aria-labelledby="s-loading">
+    <h2 id="s-loading">{{ 'sample.loading.heading' | transloco }}</h2>
+    <gw-glass-panel class="loading" padding="lg">
+      <gw-grid-loader [label]="'loader.label' | transloco" />
+      <span class="gw-mono handle">&#64;jjimenezm</span>
+      <p class="message">{{ 'sample.loading.message' | transloco }}</p>
+    </gw-glass-panel>
+  </section>
+
+  <section aria-labelledby="s-type">
+    <h2 id="s-type">{{ 'sample.type.heading' | transloco }}</h2>
+    <p class="specimen-sans">{{ 'sample.type.sans' | transloco }}</p>
+    <p class="specimen-mono">
+      <span class="gw-mono">{{ contributions() }}</span>
+      <span class="specimen-caption">{{ 'sample.type.mono' | transloco }}</span>
+    </p>
+    <ul class="swatches">
+      @for (swatch of swatches; track swatch.key) {
+        <li>
+          <span class="swatch" [style.background]="'var(' + swatch.token + ')'"></span>
+          <span>{{ 'sample.colors.' + swatch.key | transloco }}</span>
+          <code class="gw-mono">{{ swatch.token }}</code>
+        </li>
+      }
+    </ul>
+  </section>
+</main>
+
+<footer class="foot">{{ 'sample.footer' | transloco }}</footer>

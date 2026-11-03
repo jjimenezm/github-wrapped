@@ -8,10 +8,10 @@ describe('App', () => {
     }).compileComponents();
   });
 
-  it('creates the root shell with a router outlet', () => {
+  it('renders every route inside the phone frame', () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('router-outlet')).not.toBeNull();
+    expect(compiled.querySelector('gw-phone-frame router-outlet')).not.toBeNull();
   });
 });

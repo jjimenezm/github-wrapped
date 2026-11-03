@@ -1,0 +1,50 @@
+{
+  "locale": {
+    "label": "Idioma"
+  },
+  "loader": {
+    "label": "Cargando…"
+  },
+  "sample": {
+    "title": "Base visual",
+    "lead": "Tokens, primitivas y el GridLoader que usan todas las pantallas. Cambia el idioma arriba: todo se traduce sin recargar.",
+    "panel": {
+      "heading": "Panel de vidrio",
+      "metric": "commits",
+      "source": "Ver la búsqueda en GitHub",
+      "growth": "vs. {{ period }}",
+      "body": "Vidrio sobre tinta. La luz fría marca el borde; el color se reserva para lo que significa algo."
+    },
+    "chips": {
+      "heading": "Chips",
+      "live": "En curso",
+      "ready": "Video listo"
+    },
+    "buttons": {
+      "heading": "Botones de ícono",
+      "close": "Cerrar",
+      "copy": "Copiar enlace",
+      "share": "Compartir",
+      "download": "Descargar imagen",
+      "unavailable": "Descargar video (aún no está listo)"
+    },
+    "loading": {
+      "heading": "Carga",
+      "message": "Buscando tu actividad pública…"
+    },
+    "type": {
+      "heading": "Tipografía y color",
+      "sans": "Geist para el texto",
+      "mono": "Geist Mono para cifras"
+    },
+    "colors": {
+      "ink": "Tinta",
+      "text": "Texto",
+      "muted": "Secundario",
+      "ice": "Luz fría",
+      "growth": "Crecimiento",
+      "danger": "Peligro"
+    },
+    "footer": "Muestra interna · solo en desarrollo"
+  }
+}

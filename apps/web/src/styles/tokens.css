@@ -1,0 +1,98 @@
+/*
+ * Frost: near-black ink, one cold desaturated light, fine grain and hairline glass.
+ * Color carries meaning only: green is growth or "ready", red is destructive or an error.
+ */
+:root {
+  color-scheme: dark;
+
+  /* Surfaces */
+  --gw-ink: #0b0f14;
+  --gw-ink-deep: #07090c;
+  --gw-ink-raised: #121820;
+  --gw-glass: rgb(255 255 255 / 0.045);
+  --gw-glass-strong: rgb(255 255 255 / 0.09);
+  --gw-hair: rgb(255 255 255 / 0.09);
+  --gw-hair-strong: rgb(255 255 255 / 0.16);
+  --gw-edge-light: rgb(255 255 255 / 0.05);
+  --gw-scrim: rgb(3 5 8 / 0.58);
+
+  /* Text: soft and muted keep 4.5:1 or better on the ink */
+  --gw-text: #e7ecf0;
+  --gw-text-soft: #c4cdd5;
+  --gw-text-muted: #8b97a3;
+
+  /* Light */
+  --gw-ice: #b8d0dc;
+  --gw-light: rgb(200 214 226 / 0.15);
+  --gw-light-low: rgb(120 140 160 / 0.09);
+  --gw-stage-glow: rgb(48 78 120 / 0.28);
+  --gw-focus: rgb(184 208 220 / 0.7);
+  --gw-grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='.07'/></svg>");
+
+  /* Meaning */
+  --gw-growth: #4ade80;
+  --gw-growth-halo: rgb(74 222 128 / 0.16);
+  --gw-danger: #f87171;
+  --gw-danger-text: #fca5a5;
+
+  /* Type */
+  --gw-font-sans: 'Geist', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --gw-font-mono: 'Geist Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  --gw-text-2xs: 0.75rem;
+  --gw-text-xs: 0.8125rem;
+  --gw-text-sm: 0.875rem;
+  --gw-text-base: 0.9375rem;
+  --gw-text-md: 1rem;
+  --gw-text-lg: 1.125rem;
+  --gw-text-xl: 1.375rem;
+  --gw-text-2xl: 1.5625rem;
+  --gw-text-3xl: 1.9375rem;
+  --gw-text-display: 3rem;
+  --gw-tracking-tight: -0.035em;
+  --gw-tracking-snug: -0.015em;
+
+  /* Space (4 pt) */
+  --gw-space-1: 4px;
+  --gw-space-2: 8px;
+  --gw-space-3: 12px;
+  --gw-space-4: 16px;
+  --gw-space-5: 20px;
+  --gw-space-6: 24px;
+  --gw-space-8: 32px;
+  --gw-space-10: 40px;
+  --gw-space-12: 48px;
+
+  /* Shape */
+  --gw-radius-xs: 6px;
+  --gw-radius-sm: 10px;
+  --gw-radius-md: 14px;
+  --gw-radius-lg: 16px;
+  --gw-radius-xl: 22px;
+  --gw-radius-sheet: 34px;
+  --gw-radius-pill: 999px;
+  --gw-hit: 44px;
+  --gw-blur: blur(20px) saturate(120%);
+
+  /* Motion: state changes, never decoration */
+  --gw-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --gw-ease-in-out: cubic-bezier(0.45, 0, 0.55, 1);
+  --gw-dur-fast: 150ms;
+  --gw-dur: 220ms;
+  --gw-dur-slow: 400ms;
+
+  /* Layers */
+  --gw-z-raised: 10;
+  --gw-z-sticky: 20;
+  --gw-z-scrim: 40;
+  --gw-z-sheet: 50;
+  --gw-z-toast: 60;
+
+  /*
+   * The mobile tree lays out against --gw-screen-h, never 100dvh: on desktop the phone
+   * frame sets it to the device height.
+   */
+  --gw-device-w: 390px;
+  --gw-device-h: 844px;
+  --gw-device-radius: 52px;
+  --gw-screen-h: 100dvh;
+}

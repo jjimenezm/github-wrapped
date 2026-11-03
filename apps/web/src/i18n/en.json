@@ -1,0 +1,50 @@
+{
+  "locale": {
+    "label": "Language"
+  },
+  "loader": {
+    "label": "Loading…"
+  },
+  "sample": {
+    "title": "Visual foundation",
+    "lead": "Tokens, primitives and the GridLoader every screen uses. Switch the language above: everything translates without a reload.",
+    "panel": {
+      "heading": "Glass panel",
+      "metric": "commits",
+      "source": "Open the search on GitHub",
+      "growth": "vs. {{ period }}",
+      "body": "Glass over ink. Cold light marks the edge; color is kept for things that mean something."
+    },
+    "chips": {
+      "heading": "Chips",
+      "live": "In progress",
+      "ready": "Video ready"
+    },
+    "buttons": {
+      "heading": "Icon buttons",
+      "close": "Close",
+      "copy": "Copy link",
+      "share": "Share",
+      "download": "Download image",
+      "unavailable": "Download video (not ready yet)"
+    },
+    "loading": {
+      "heading": "Loading",
+      "message": "Looking up your public activity…"
+    },
+    "type": {
+      "heading": "Type and color",
+      "sans": "Geist for text",
+      "mono": "Geist Mono for figures"
+    },
+    "colors": {
+      "ink": "Ink",
+      "text": "Text",
+      "muted": "Secondary",
+      "ice": "Cold light",
+      "growth": "Growth",
+      "danger": "Danger"
+    },
+    "footer": "Internal sample · development only"
+  }
+}
