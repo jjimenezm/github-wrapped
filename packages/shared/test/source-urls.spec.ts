@@ -1,4 +1,4 @@
-import { sourceUrl } from '../src';
+import { publicWrapUrl, sourceUrl } from '../src';
 
 const range = { from: '2026-01-01', to: '2026-02-15' };
 
@@ -56,5 +56,19 @@ describe('sourceUrl', () => {
     expect(url.searchParams.get('tab')).toBe('overview');
     expect(url.searchParams.get('from')).toBe('2026-01-01');
     expect(url.searchParams.get('to')).toBe('2026-02-15');
+  });
+});
+
+describe('publicWrapUrl', () => {
+  it('builds the public page of a wrap as PUBLIC_BASE_URL/@login/year', () => {
+    expect(publicWrapUrl('https://wrapped.jjimenezm.dev', 'ana-dev', 2026)).toBe(
+      'https://wrapped.jjimenezm.dev/@ana-dev/2026',
+    );
+  });
+
+  it('ignores a trailing slash in the base URL', () => {
+    expect(publicWrapUrl('https://wrapped.jjimenezm.dev/', 'ana-dev', 2026)).toBe(
+      'https://wrapped.jjimenezm.dev/@ana-dev/2026',
+    );
   });
 });

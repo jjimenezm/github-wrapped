@@ -23,3 +23,8 @@ export function sourceUrl(metric: SourceMetric, login: string, range: DateRange)
       return search(`is:issue author:${login} created:${span}`, 'issues');
   }
 }
+
+/** The public page of a wrap (`PUBLIC_BASE_URL/@login/year`): what the QR, og tags and share links point to. */
+export function publicWrapUrl(baseUrl: string, login: string, year: number): string {
+  return `${baseUrl.replace(/\/+$/, '')}/@${login}/${year}`;
+}
