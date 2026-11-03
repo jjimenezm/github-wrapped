@@ -1,4 +1,4 @@
-import { publicWrapUrl, sourceUrl } from '../src';
+import { mergedPullRequestsQuery, publicWrapUrl, sourceUrl } from '../src';
 
 const range = { from: '2026-01-01', to: '2026-02-15' };
 
@@ -69,6 +69,17 @@ describe('publicWrapUrl', () => {
   it('ignores a trailing slash in the base URL', () => {
     expect(publicWrapUrl('https://wrapped.jjimenezm.dev/', 'ana-dev', 2026)).toBe(
       'https://wrapped.jjimenezm.dev/@ana-dev/2026',
+    );
+  });
+});
+
+describe('mergedPullRequestsQuery', () => {
+  it('is the exact search the api runs and the ↗ link opens', () => {
+    expect(mergedPullRequestsQuery('ana-dev', range)).toBe(
+      'is:pr author:ana-dev is:merged merged:2026-01-01..2026-02-15',
+    );
+    expect(searchOf(sourceUrl('mergedPRs', 'ana-dev', range)).q).toBe(
+      mergedPullRequestsQuery('ana-dev', range),
     );
   });
 });

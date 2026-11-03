@@ -44,11 +44,19 @@ export interface WrapSnapshot {
   period: WrapPeriod;
   generatedAt: string;
   metrics: Record<MetricKey, Metric>;
+  /**
+   * Contributions to private repos, already inside `metrics.contributions` (only when the person
+   * shows private contributions on their profile). GitHub gives just the total: no repo, no kind.
+   */
+  privateContributions: number;
   activeDays: Metric;
   previousContributions: Metric;
   /** Contributions per week, oldest first. */
   weekly: number[];
+  /** The top three languages by bytes, strongest first. */
   languages: LanguageShare[];
+  /** Bytes of every language past the top three ("Otros" in the bar); counts toward percentages. */
+  otherLanguagesBytes: number;
   featured: FeaturedRepo[];
   /** Metrics that failed to load (as opposed to not existing), so they can be retried before publishing. */
   failedMetrics: MetricKey[];

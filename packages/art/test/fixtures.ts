@@ -39,6 +39,7 @@ export function makeSnapshot(overrides: Partial<WrapSnapshot> = {}): WrapSnapsho
     period: { year: 2026, from: '2026-01-01', to: '2026-11-03', complete: false },
     generatedAt: '2026-11-03T12:00:00.000Z',
     metrics: { contributions: 1284, commits: 312, mergedPRs: 86, reviews: 41, issues: 19 },
+    privateContributions: 0,
     activeDays: 214,
     previousContributions: 1044,
     weekly: demoWeekly(),
@@ -47,6 +48,7 @@ export function makeSnapshot(overrides: Partial<WrapSnapshot> = {}): WrapSnapsho
       language('PHP', '#4F5D95', 310_000),
       language('SCSS', '#c6538c', 120_000),
     ],
+    otherLanguagesBytes: 0,
     featured: [
       repo('sismos-chile-api', 128, ['TypeScript']),
       repo('github-wrapped', 96, ['TypeScript']),
