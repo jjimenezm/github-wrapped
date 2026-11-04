@@ -24,6 +24,10 @@
       "githubUnavailable": "GitHub no responde en este momento. Inténtalo otra vez en unos segundos.",
       "network": "No pudimos conectarnos. Revisa tu conexión e inténtalo otra vez.",
       "unknown": "Algo falló de nuestro lado. Inténtalo otra vez."
+    },
+    "notice": {
+      "deleted": "Eliminamos tu wrap {{ year }}. El link y el QR ya no funcionan.",
+      "dismiss": "Cerrar aviso"
     }
   },
   "loading": {
@@ -139,12 +143,77 @@
       "viewPublic": "Ver tu página publicada",
       "retry": "Reintentar",
       "home": "Volver al inicio"
+    }
+  },
+  "share": {
+    "title": "Listo para compartir",
+    "published": "Publicado",
+    "card": "Tu tarjeta {{ style }}",
+    "change": "Cambiar tarjeta",
+    "url": {
+      "label": "Enlace público",
+      "copy": "Copiar enlace",
+      "copied": "Enlace copiado",
+      "manual": "No pudimos copiarlo. Mantén presionado el enlace para copiarlo."
     },
-    "share": {
-      "title": "Tu wrap está publicado",
-      "body": "La pantalla para compartir llega pronto.",
-      "change": "Cambiar tarjeta",
-      "home": "Buscar otro usuario"
+    "actions": {
+      "label": "Compartir",
+      "image": "Imagen",
+      "video": "Video",
+      "linkedin": "LinkedIn",
+      "x": "X",
+      "qr": "QR",
+      "retry": "Reintentar",
+      "preparing": "preparando",
+      "imageHint": "Descargar la tarjeta en PNG",
+      "qrHint": "Mostrar el QR a pantalla completa",
+      "retryHint": "Volver a generar la imagen"
+    },
+    "images": {
+      "pending": "Preparando la imagen y la vista previa del link…",
+      "ready": "La imagen y la vista previa del link están listas.",
+      "failed": "No pudimos generar la imagen. Puedes reintentarlo."
+    },
+    "foot": {
+      "data": "Datos públicos de GitHub",
+      "delete": "Eliminar mi wrap"
+    },
+    "gate": {
+      "title": "Confirma que el wrap es tuyo",
+      "body": "Para compartir o eliminar el wrap de @{{ login }}, inicia sesión con esa cuenta de GitHub.",
+      "continue": "Continuar con GitHub"
+    },
+    "unavailable": {
+      "title": "Este wrap ya no está disponible",
+      "body": "Puede que se haya eliminado o que el enlace esté mal escrito.",
+      "failed": "No pudimos cargar tu wrap. Revisa tu conexión e inténtalo otra vez.",
+      "retry": "Reintentar"
+    },
+    "home": "Volver al inicio",
+    "errors": {
+      "retry": "No pudimos reintentar la imagen. Inténtalo otra vez en unos segundos."
+    },
+    "qr": {
+      "dialog": "QR de tu wrap",
+      "lead": "Escanea mi año en GitHub",
+      "close": "Cerrar",
+      "hint": "Sube el brillo para que lo lean más rápido"
+    },
+    "delete": {
+      "title": "¿Eliminar tu wrap {{ year }}?",
+      "lead": "Esto se borra de inmediato:",
+      "items": {
+        "data": "Tus datos, la tarjeta y la imagen",
+        "video": "El video de 30 s",
+        "link": "El link y el QR dejan de funcionar"
+      },
+      "again": "Puedes crearlo de nuevo cuando quieras.",
+      "confirm": "Eliminar wrap",
+      "deleting": "Eliminando…",
+      "cancel": "Cancelar",
+      "errors": {
+        "failed": "No pudimos eliminarlo. Inténtalo otra vez."
+      }
     }
   },
   "sample": {

@@ -1,0 +1,143 @@
+@switch (view()) {
+  @case ('ready') {
+    <header class="top">
+      <h1>{{ 'share.title' | transloco }}</h1>
+      <span class="published">
+        <span class="published-dot" aria-hidden="true"></span>
+        {{ 'share.published' | transloco }}
+      </span>
+    </header>
+
+    @if (wrap(); as w) {
+      <figure class="card">
+        <div
+          class="card-art"
+          role="img"
+          [attr.aria-label]="
+            'share.card' | transloco: { style: ('publish.styles.' + w.cardStyle | transloco) }
+          "
+          [innerHTML]="card()"
+        ></div>
+        <figcaption class="card-caption">
+          <span>{{ 'publish.styles.' + w.cardStyle | transloco }}</span>
+          <span class="sep" aria-hidden="true">·</span>
+          <a class="change" [routerLink]="cardPath">{{ 'share.change' | transloco }}</a>
+        </figcaption>
+      </figure>
+    }
+
+    <div class="url">
+      <span class="gw-visually-hidden">{{ 'share.url.label' | transloco }}</span>
+      <span class="url-text gw-mono">{{ displayUrl() }}</span>
+      <button
+        #copyButton
+        type="button"
+        class="copy"
+        [class.copy--done]="copyState() === 'copied'"
+        [attr.aria-label]="'share.url.copy' | transloco"
+        (click)="copy()"
+      >
+        <gw-icon [name]="copyState() === 'copied' ? 'check' : 'copy'" />
+      </button>
+    </div>
+
+    <gw-share-actions
+      [images]="images()"
+      [imageUrl]="status()?.images?.card ?? null"
+      [fileName]="fileName"
+      [intents]="intents()"
+      [retrying]="retrying()"
+      (retry)="retryImages()"
+      (showQr)="openQr()"
+    />
+
+    <p class="gw-visually-hidden" aria-live="polite">
+      {{ 'share.images.' + images() | transloco }}
+    </p>
+    @if (retryError()) {
+      <p class="error" role="alert">
+        <gw-icon name="alert" />
+        {{ 'share.errors.retry' | transloco }}
+      </p>
+    }
+
+    <footer class="foot">
+      <span>{{ 'share.foot.data' | transloco }}</span>
+      <span class="sep" aria-hidden="true">·</span>
+      <button #deleteButton type="button" class="delete" (click)="openDelete()">
+        {{ 'share.foot.delete' | transloco }}
+      </button>
+    </footer>
+
+    <gw-toast
+      class="toast"
+      data-testid="copy-status"
+      [visible]="copyState() !== 'idle'"
+      [tone]="copyState() === 'copied' ? 'success' : 'neutral'"
+    >
+      {{ (copyState() === 'copied' ? 'share.url.copied' : 'share.url.manual') | transloco }}
+    </gw-toast>
+
+    @if (qrOpen()) {
+      <gw-qr-fullscreen
+        [url]="publicUrl()"
+        [login]="wrap()?.login ?? login"
+        [year]="year"
+        [copied]="copyState() === 'copied'"
+        (copyLink)="copy()"
+        (closed)="closeQr()"
+      />
+    }
+
+    @if (deleteOpen()) {
+      <gw-delete-confirm
+        [year]="year"
+        [busy]="deleting()"
+        [error]="deleteError()"
+        (confirmed)="confirmDelete()"
+        (cancelled)="closeDelete()"
+      />
+    }
+  }
+
+  @case ('gate') {
+    <main class="message">
+      <span class="badge" aria-hidden="true"><gw-icon name="lock" /></span>
+      <h1>{{ 'share.gate.title' | transloco }}</h1>
+      <p>{{ 'share.gate.body' | transloco: { login } }}</p>
+      <div class="message-actions">
+        <button type="button" class="gw-button gw-button--primary" (click)="manage()">
+          <gw-icon name="mark-github" />
+          {{ 'share.gate.continue' | transloco }}
+        </button>
+        <a class="gw-button gw-button--quiet" routerLink="/">{{ 'share.home' | transloco }}</a>
+      </div>
+    </main>
+  }
+
+  @case ('loading') {
+    <div class="loading">
+      <gw-grid-loader [label]="'loader.label' | transloco" />
+    </div>
+  }
+
+  @default {
+    <main class="message">
+      <span class="badge" aria-hidden="true"><gw-icon name="alert" /></span>
+      <h1>{{ 'share.unavailable.title' | transloco }}</h1>
+      <p>
+        {{
+          (view() === 'gone' ? 'share.unavailable.body' : 'share.unavailable.failed') | transloco
+        }}
+      </p>
+      <div class="message-actions">
+        @if (view() === 'failed') {
+          <button type="button" class="gw-button gw-button--primary" (click)="load()">
+            {{ 'share.unavailable.retry' | transloco }}
+          </button>
+        }
+        <a class="gw-button gw-button--secondary" routerLink="/">{{ 'share.home' | transloco }}</a>
+      </div>
+    </main>
+  }
+}

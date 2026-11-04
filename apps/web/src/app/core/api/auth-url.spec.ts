@@ -26,6 +26,12 @@ describe('authUrl', () => {
     });
   });
 
+  it('asks again to manage a published year, with nothing else to change', () => {
+    const url = authUrl({ intent: 'manage', login: 'ana-dev', year: 2026 });
+
+    expect(params(url)).toEqual({ login: 'ana-dev', intent: 'manage', year: '2026' });
+  });
+
   it('encodes what goes in the query', () => {
     const url = authUrl({ intent: 'publish', login: 'a&b=c', style: 'huella', locale: 'es' });
 

@@ -24,6 +24,10 @@
       "githubUnavailable": "GitHub isn't responding right now. Try again in a few seconds.",
       "network": "We couldn't connect. Check your connection and try again.",
       "unknown": "Something went wrong on our side. Try again."
+    },
+    "notice": {
+      "deleted": "Your {{ year }} wrap was deleted. The link and the QR no longer work.",
+      "dismiss": "Dismiss"
     }
   },
   "loading": {
@@ -139,12 +143,77 @@
       "viewPublic": "See your published page",
       "retry": "Try again",
       "home": "Back to the start"
+    }
+  },
+  "share": {
+    "title": "Ready to share",
+    "published": "Published",
+    "card": "Your {{ style }} card",
+    "change": "Change card",
+    "url": {
+      "label": "Public link",
+      "copy": "Copy link",
+      "copied": "Link copied",
+      "manual": "We couldn’t copy it. Press and hold the link to copy it."
     },
-    "share": {
-      "title": "Your wrap is live",
-      "body": "The share screen is coming soon.",
-      "change": "Change card",
-      "home": "Look up someone else"
+    "actions": {
+      "label": "Share",
+      "image": "Image",
+      "video": "Video",
+      "linkedin": "LinkedIn",
+      "x": "X",
+      "qr": "QR",
+      "retry": "Retry",
+      "preparing": "getting ready",
+      "imageHint": "Download the card as a PNG",
+      "qrHint": "Show the QR full screen",
+      "retryHint": "Render the image again"
+    },
+    "images": {
+      "pending": "Getting the image and the link preview ready…",
+      "ready": "The image and the link preview are ready.",
+      "failed": "We couldn’t render the image. You can try again."
+    },
+    "foot": {
+      "data": "Public GitHub data",
+      "delete": "Delete my wrap"
+    },
+    "gate": {
+      "title": "Confirm this wrap is yours",
+      "body": "To share or delete @{{ login }}’s wrap, sign in with that GitHub account.",
+      "continue": "Continue with GitHub"
+    },
+    "unavailable": {
+      "title": "This wrap is no longer available",
+      "body": "It may have been deleted, or the link may be mistyped.",
+      "failed": "We couldn’t load your wrap. Check your connection and try again.",
+      "retry": "Try again"
+    },
+    "home": "Back to start",
+    "errors": {
+      "retry": "We couldn’t retry the image. Try again in a few seconds."
+    },
+    "qr": {
+      "dialog": "Your wrap’s QR",
+      "lead": "Scan my year on GitHub",
+      "close": "Close",
+      "hint": "Turn up the brightness so it scans faster"
+    },
+    "delete": {
+      "title": "Delete your {{ year }} wrap?",
+      "lead": "This is deleted right away:",
+      "items": {
+        "data": "Your data, the card and the image",
+        "video": "The 30 s video",
+        "link": "The link and the QR stop working"
+      },
+      "again": "You can create it again whenever you want.",
+      "confirm": "Delete wrap",
+      "deleting": "Deleting…",
+      "cancel": "Cancel",
+      "errors": {
+        "failed": "We couldn’t delete it. Try again."
+      }
     }
   },
   "sample": {

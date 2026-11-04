@@ -31,7 +31,7 @@ export const routes: Routes = [
   {
     matcher: wrapMatcher('share'),
     loadComponent: () =>
-      import('./features/publish/share-pending.component').then((m) => m.SharePendingComponent),
+      import('./features/share/mobile/share.component').then((m) => m.ShareComponent),
   },
   {
     matcher: wrapMatcher('card'),

@@ -23,6 +23,7 @@ import { formatWait } from '../../../core/i18n/format-wait';
 import { LocaleSwitchComponent } from '../../../core/i18n/locale-switch.component';
 import { LocaleService } from '../../../core/i18n/locale.service';
 import { PreviewStore } from '../../../core/preview/preview.store';
+import { deletedYear } from '../../../core/routing/notice';
 import { IconComponent } from '../../../ui/icon/icon.component';
 import { WordmarkComponent } from '../../../ui/wordmark/wordmark.component';
 import { ENTRY_ART_SVG } from '../entry-art';
@@ -99,6 +100,8 @@ export class EntryComponent {
   protected readonly login = signal('');
   protected readonly feedback = signal<Feedback | null>(null);
   protected readonly retryReady = signal(true);
+  /** The year the share screen just deleted, to confirm it here. */
+  protected readonly deleted = signal(deletedYear(this.router.currentNavigation()?.extras.state));
   protected readonly waitText = computed(() => {
     const seconds = this.feedback()?.retryAfter;
     return seconds === undefined ? '' : formatWait(seconds, this.locale());

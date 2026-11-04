@@ -1,0 +1,129 @@
+<ul class="actions" [attr.aria-label]="'share.actions.label' | transloco">
+  <li>
+    @switch (images()) {
+      @case ('ready') {
+        <a
+          class="action"
+          [href]="imageUrl()"
+          [attr.download]="fileName()"
+          [title]="'share.actions.imageHint' | transloco"
+        >
+          <span class="disc"><gw-icon name="image" /></span>
+          <span class="action-name">{{ 'share.actions.image' | transloco }}</span>
+        </a>
+      }
+      @case ('failed') {
+        <button
+          type="button"
+          class="action action--retry"
+          [disabled]="retrying()"
+          [title]="'share.actions.retryHint' | transloco"
+          (click)="retry.emit()"
+        >
+          <span class="disc"><gw-icon name="sync" /></span>
+          <span class="action-name">{{ 'share.actions.retry' | transloco }}</span>
+        </button>
+      }
+      @default {
+        <ng-container
+          [ngTemplateOutlet]="waiting"
+          [ngTemplateOutletContext]="{ name: 'share.actions.image' | transloco }"
+        />
+      }
+    }
+  </li>
+
+  @if (video) {
+    <!-- Phase 2 wires the video in (its queue, the ring while it renders, the ready dot). -->
+    <li>
+      <button type="button" class="action" disabled>
+        <span class="disc"><gw-icon name="video" /></span>
+        <span class="action-name">{{ 'share.actions.video' | transloco }}</span>
+      </button>
+    </li>
+  }
+
+  <li>
+    @if (images() === 'ready' && intents(); as links) {
+      <a class="action" [href]="links.linkedin" target="_blank" rel="noopener noreferrer">
+        <span class="disc"><ng-container [ngTemplateOutlet]="linkedinGlyph" /></span>
+        <span class="action-name">{{ 'share.actions.linkedin' | transloco }}</span>
+      </a>
+    } @else {
+      <ng-container
+        [ngTemplateOutlet]="images() === 'failed' ? off : waiting"
+        [ngTemplateOutletContext]="{
+          name: 'share.actions.linkedin' | transloco,
+          glyph: linkedinGlyph,
+        }"
+      />
+    }
+  </li>
+
+  <li>
+    @if (images() === 'ready' && intents(); as links) {
+      <a class="action" [href]="links.x" target="_blank" rel="noopener noreferrer">
+        <span class="disc"><ng-container [ngTemplateOutlet]="xGlyph" /></span>
+        <span class="action-name">{{ 'share.actions.x' | transloco }}</span>
+      </a>
+    } @else {
+      <ng-container
+        [ngTemplateOutlet]="images() === 'failed' ? off : waiting"
+        [ngTemplateOutletContext]="{ name: 'share.actions.x' | transloco, glyph: xGlyph }"
+      />
+    }
+  </li>
+
+  <li>
+    <button
+      #qrButton
+      type="button"
+      class="action"
+      [title]="'share.actions.qrHint' | transloco"
+      (click)="showQr.emit()"
+    >
+      <span class="disc"><ng-container [ngTemplateOutlet]="qrGlyph" /></span>
+      <span class="action-name">{{ 'share.actions.qr' | transloco }}</span>
+    </button>
+  </li>
+</ul>
+
+<!-- An action whose images are still rendering: the mini loader, and no way to share yet. -->
+<ng-template #waiting let-name="name">
+  <button type="button" class="action action--waiting" disabled>
+    <span class="disc"><gw-grid-loader class="mini" /></span>
+    <span class="action-name">{{ name }}</span>
+    <span class="gw-visually-hidden">, {{ 'share.actions.preparing' | transloco }}</span>
+  </button>
+</ng-template>
+
+<!-- An action that can't work while the images failed: neutral, its glyph dimmed. -->
+<ng-template #off let-name="name" let-glyph="glyph">
+  <button type="button" class="action" disabled>
+    <span class="disc"><ng-container [ngTemplateOutlet]="glyph" /></span>
+    <span class="action-name">{{ name }}</span>
+  </button>
+</ng-template>
+
+<!-- Brand marks (Simple Icons, CC0) and a QR glyph; Octicons has none of them. -->
+<ng-template #linkedinGlyph>
+  <svg class="glyph" viewBox="0 0 24 24" aria-hidden="true">
+    <path
+      d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 1 1 0-4.125 2.062 2.062 0 0 1 0 4.125zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"
+    />
+  </svg>
+</ng-template>
+<ng-template #xGlyph>
+  <svg class="glyph glyph--x" viewBox="0 0 24 24" aria-hidden="true">
+    <path
+      d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z"
+    />
+  </svg>
+</ng-template>
+<ng-template #qrGlyph>
+  <svg class="glyph glyph--qr" viewBox="0 0 16 16" aria-hidden="true">
+    <path
+      d="M1.75 1h4.5c.414 0 .75.336.75.75v4.5a.75.75 0 0 1-.75.75h-4.5A.75.75 0 0 1 1 6.25v-4.5C1 1.336 1.336 1 1.75 1Zm.75 1.5v3h3v-3ZM9.75 1h4.5c.414 0 .75.336.75.75v4.5a.75.75 0 0 1-.75.75h-4.5A.75.75 0 0 1 9 6.25v-4.5c0-.414.336-.75.75-.75Zm.75 1.5v3h3v-3ZM1.75 9h4.5c.414 0 .75.336.75.75v4.5a.75.75 0 0 1-.75.75h-4.5a.75.75 0 0 1-.75-.75v-4.5C1 9.336 1.336 9 1.75 9Zm.75 1.5v3h3v-3ZM3.5 3.5h1v1h-1Zm8 0h1v1h-1Zm-8 8h1v1h-1ZM9 9h2v2H9Zm4 0h2v2h-2Zm-2 2h2v2h-2Zm-2 2h2v2H9Zm4 0h2v2h-2Z"
+    />
+  </svg>
+</ng-template>

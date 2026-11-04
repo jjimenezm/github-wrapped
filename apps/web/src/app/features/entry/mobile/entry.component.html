@@ -9,6 +9,22 @@
   <gw-loading class="stage" [login]="login()" (cancelled)="cancel()" />
 } @else {
   <main class="stage hero">
+    @if (deleted(); as year) {
+      <div class="notice">
+        <gw-icon name="check" />
+        <p data-testid="notice" role="status">
+          {{ 'entry.notice.deleted' | transloco: { year } }}
+        </p>
+        <button
+          type="button"
+          class="notice-close"
+          [attr.aria-label]="'entry.notice.dismiss' | transloco"
+          (click)="deleted.set(null)"
+        >
+          <gw-icon name="x" />
+        </button>
+      </div>
+    }
     <h1>{{ 'entry.title' | transloco }}</h1>
     <p class="lead">{{ 'entry.lead' | transloco }}</p>
 

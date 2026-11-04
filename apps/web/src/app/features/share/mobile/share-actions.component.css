@@ -1,0 +1,116 @@
+.actions {
+  display: grid;
+  flex: none;
+  grid-auto-columns: minmax(0, 1fr);
+  grid-auto-flow: column;
+  margin: var(--gw-space-5) var(--gw-space-3) 0;
+  padding: 0;
+  list-style: none;
+}
+
+.actions li {
+  display: flex;
+  justify-content: center;
+}
+
+.action {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  align-items: center;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--gw-text-muted);
+  font: 500 var(--gw-text-2xs) / 1.2 var(--gw-font-sans);
+  text-decoration: none;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.action:disabled {
+  cursor: default;
+}
+
+.action:focus-visible {
+  outline: none;
+}
+
+.action:focus-visible .disc {
+  outline: 2px solid var(--gw-focus);
+  outline-offset: 3px;
+}
+
+.disc {
+  --gw-icon-size: 18px;
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border: 1px solid var(--gw-hair);
+  border-radius: 50%;
+  background: var(--gw-glass);
+  color: var(--gw-text);
+  -webkit-backdrop-filter: var(--gw-blur);
+  backdrop-filter: var(--gw-blur);
+  transition:
+    background-color var(--gw-dur) var(--gw-ease-out),
+    border-color var(--gw-dur) var(--gw-ease-out),
+    opacity var(--gw-dur) var(--gw-ease-out),
+    transform var(--gw-dur) var(--gw-ease-out);
+}
+
+.action:not(:disabled):hover .disc {
+  border-color: var(--gw-hair-strong);
+  background: var(--gw-glass-strong);
+}
+
+.action:not(:disabled):hover .action-name {
+  color: var(--gw-text-soft);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .action:not(:disabled):hover .disc {
+    transform: translateY(-2px);
+  }
+
+  .action:not(:disabled):active .disc {
+    transform: scale(0.95);
+  }
+}
+
+/* Failed images: nothing to share, nothing spinning. Imagen offers the retry. */
+.action:disabled:not(.action--waiting) .disc {
+  opacity: 0.4;
+}
+
+.action--retry .disc {
+  border-style: dashed;
+  border-color: var(--gw-hair-strong);
+  color: var(--gw-text-soft);
+}
+
+.action--retry .action-name {
+  color: var(--gw-text-soft);
+}
+
+.glyph {
+  width: 17px;
+  height: 17px;
+  fill: currentColor;
+}
+
+.glyph--x {
+  width: 15px;
+  height: 15px;
+}
+
+.glyph--qr {
+  width: 18px;
+  height: 18px;
+}
+
+.mini {
+  --gl-cell: 4px;
+  --gl-gap: 2.5px;
+}

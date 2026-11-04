@@ -1,0 +1,262 @@
+/*
+ * One screen, no scroll: the card takes the height the rest leaves (a size container, like the
+ * carousel), so the link, the actions and "Eliminar" always fit, down to 360×640.
+ */
+:host {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: var(--gw-screen-h);
+}
+
+.top {
+  display: flex;
+  flex: none;
+  gap: var(--gw-space-3);
+  align-items: center;
+  justify-content: space-between;
+  padding: calc(var(--gw-space-6) + env(safe-area-inset-top, 0px)) var(--gw-space-6) 0;
+}
+
+h1 {
+  margin: 0;
+  font: 600 var(--gw-text-xl) / 1.15 var(--gw-font-sans);
+  letter-spacing: -0.02em;
+}
+
+.published {
+  display: inline-flex;
+  flex: none;
+  gap: 6px;
+  align-items: center;
+  padding: 3px 10px;
+  border: 1px solid rgb(74 222 128 / 0.3);
+  border-radius: var(--gw-radius-pill);
+  color: var(--gw-growth);
+  font-size: var(--gw-text-2xs);
+  font-weight: 500;
+}
+
+.published-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+/* The card */
+
+.card {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  margin: var(--gw-space-3) 0 0;
+  container-type: size;
+}
+
+.card-art {
+  flex: none;
+  width: min(74cqw, calc((100cqh - 48px) * 0.8));
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border-radius: var(--gw-radius-xl);
+  box-shadow:
+    0 24px 56px rgb(0 0 0 / 0.45),
+    0 0 0 1px var(--gw-hair-strong);
+}
+
+.card-art ::ng-deep svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.card-caption {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  color: var(--gw-text-muted);
+  font-size: var(--gw-text-xs);
+}
+
+.change {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--gw-hit);
+  padding: 0 var(--gw-space-1);
+  color: var(--gw-text);
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 4px;
+}
+
+.change:hover {
+  text-decoration-color: rgb(231 236 240 / 0.45);
+}
+
+/* The link */
+
+.url {
+  display: flex;
+  flex: none;
+  gap: var(--gw-space-2);
+  align-items: center;
+  margin: var(--gw-space-1) var(--gw-space-5) 0;
+  padding: 6px 6px 6px var(--gw-space-4);
+  border: 1px solid var(--gw-hair);
+  border-radius: var(--gw-radius-md);
+  background: var(--gw-glass);
+  box-shadow: inset 0 1px 0 var(--gw-edge-light);
+  -webkit-backdrop-filter: var(--gw-blur);
+  backdrop-filter: var(--gw-blur);
+}
+
+.url-text {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--gw-text-soft);
+  font-size: var(--gw-text-xs);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  /* A long press selects the whole link, the way out when copying fails. */
+  user-select: all;
+  -webkit-user-select: all;
+}
+
+.copy {
+  position: relative;
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--gw-radius-sm);
+  background: var(--gw-glass-strong);
+  color: var(--gw-text);
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: background-color var(--gw-dur-fast) var(--gw-ease-out);
+}
+
+/* 44px to the finger, 36px to the eye. */
+.copy::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+}
+
+.copy:hover {
+  background: rgb(255 255 255 / 0.14);
+}
+
+.copy--done {
+  color: var(--gw-growth);
+}
+
+.error {
+  display: flex;
+  flex: none;
+  gap: var(--gw-space-2);
+  align-items: flex-start;
+  margin: var(--gw-space-3) var(--gw-space-6) 0;
+  color: var(--gw-danger-text);
+  font-size: var(--gw-text-xs);
+  line-height: 1.4;
+}
+
+.error gw-icon {
+  margin-top: 2px;
+}
+
+/* Footer */
+
+.foot {
+  display: flex;
+  flex: none;
+  gap: 6px;
+  align-items: center;
+  justify-content: center;
+  padding: var(--gw-space-3) var(--gw-space-6)
+    calc(var(--gw-space-3) + env(safe-area-inset-bottom, 0px));
+  color: var(--gw-text-muted);
+  font-size: var(--gw-text-2xs);
+}
+
+.delete {
+  min-height: var(--gw-hit);
+  padding: 0 var(--gw-space-1);
+  border: 0;
+  background: none;
+  color: var(--gw-text-muted);
+  font: inherit;
+  text-decoration: underline;
+  text-decoration-color: rgb(139 151 163 / 0.5);
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.delete:hover {
+  color: var(--gw-danger-text);
+  text-decoration-color: currentColor;
+}
+
+/* Copy feedback floats over the actions. */
+.toast {
+  bottom: calc(76px + env(safe-area-inset-bottom, 0px));
+}
+
+/* Gate, gone and failed */
+
+.message {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 var(--gw-space-6) var(--gw-space-12);
+}
+
+.message h1 {
+  margin-top: var(--gw-space-5);
+  font-size: var(--gw-text-2xl);
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+
+.message p {
+  margin: var(--gw-space-3) 0 0;
+  color: var(--gw-text-muted);
+  font-size: var(--gw-text-base);
+  text-wrap: pretty;
+}
+
+.badge {
+  --gw-icon-size: 20px;
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border: 1px solid var(--gw-hair);
+  border-radius: var(--gw-radius-lg);
+  background: var(--gw-glass);
+  color: var(--gw-text-soft);
+}
+
+.message-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gw-space-3);
+  margin-top: var(--gw-space-8);
+}
+
+.loading {
+  display: grid;
+  flex: 1;
+  place-items: center;
+}

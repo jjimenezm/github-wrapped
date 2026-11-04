@@ -157,6 +157,38 @@ describe('WrapApiService for published wraps', () => {
     expect(await result).toMatchObject({ status: 401, code: 'UNAUTHENTICATED' });
   });
 
+  it('reads the state of the renders for the owner', async () => {
+    const result = firstValueFrom(api.status('ana-dev', 2026));
+
+    const request = http.expectOne('/api/wraps/ana-dev/2026/status');
+    expect(request.request.withCredentials).toBe(true);
+    request.flush({ imagesStatus: 'queued', imagesVersion: 1, imagesReadyVersion: null });
+
+    expect(await result).toMatchObject({ imagesStatus: 'queued', imagesVersion: 1 });
+  });
+
+  it('asks to render failed images again', async () => {
+    const result = firstValueFrom(api.retryImages('ana-dev', 2026));
+
+    const request = http.expectOne('/api/wraps/ana-dev/2026/images/retry');
+    expect(request.request.method).toBe('POST');
+    expect(request.request.withCredentials).toBe(true);
+    request.flush({ imagesStatus: 'queued', imagesVersion: 1 });
+
+    expect(await result).toMatchObject({ imagesStatus: 'queued' });
+  });
+
+  it('deletes a wrap the session owns', async () => {
+    const result = firstValueFrom(api.deleteWrap('ana-dev', 2026));
+
+    const request = http.expectOne('/api/wraps/ana-dev/2026');
+    expect(request.request.method).toBe('DELETE');
+    expect(request.request.withCredentials).toBe(true);
+    request.flush(null, { status: 204, statusText: 'No Content' });
+
+    await expect(result).resolves.toBeNull();
+  });
+
   it('logs out', async () => {
     const result = firstValueFrom(api.logout());
 

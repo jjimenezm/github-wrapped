@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import type { CardStyle, PublicWrap, WrapSnapshot } from '@wrapped/shared';
+import type { CardStyle, PublicWrap, WrapSnapshot, WrapStatusView } from '@wrapped/shared';
 import { Observable, catchError, throwError } from 'rxjs';
 import { ApiError } from './api-error';
 
@@ -46,6 +46,29 @@ export class WrapApiService {
         { withCredentials: true },
       ),
     );
+  }
+
+  /** The owner's view of the renders; polled by the share screen until the images are ready. */
+  status(login: string, year: number): Observable<WrapStatusView> {
+    return asApiError(
+      this.http.get<WrapStatusView>(`${this.wrapUrl(login, year)}/status`, {
+        withCredentials: true,
+      }),
+    );
+  }
+
+  /** Only for images that failed: they go back to the queue. */
+  retryImages(login: string, year: number): Observable<WrapStatusView> {
+    return asApiError(
+      this.http.post<WrapStatusView>(`${this.wrapUrl(login, year)}/images/retry`, null, {
+        withCredentials: true,
+      }),
+    );
+  }
+
+  /** The public URL and the QR answer 410 from then on; the owner can publish again. */
+  deleteWrap(login: string, year: number): Observable<null> {
+    return asApiError(this.http.delete<null>(this.wrapUrl(login, year), { withCredentials: true }));
   }
 
   logout(): Observable<null> {

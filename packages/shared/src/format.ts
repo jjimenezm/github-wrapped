@@ -1,4 +1,4 @@
-import type { Locale } from './types';
+import type { Locale, WrapSnapshot } from './types';
 import type { WrapPeriod } from './year-rule';
 
 const INTL_LOCALE: Record<Locale, string> = { es: 'es-CL', en: 'en-US' };
@@ -41,4 +41,25 @@ export function yearOverYear(current: number | null, previous: number | null): n
     return null;
   }
   return Math.round(((current - previous) / previous) * 100);
+}
+
+/**
+ * The text a share on X carries, in the wrap's language: how far the year goes and the
+ * contributions, or no number at all when it failed to load (it is never estimated).
+ */
+export function shareText(
+  snapshot: { period: WrapPeriod; metrics: Pick<WrapSnapshot['metrics'], 'contributions'> },
+  locale: Locale,
+): string {
+  const { period } = snapshot;
+  const total = snapshot.metrics.contributions;
+  const month = period.complete ? null : monthName(period, endMonth(period), 'long', locale);
+  if (locale === 'es') {
+    const head = `Mi ${period.year} en GitHub${month ? `, hasta ${month}` : ''}`;
+    if (total === null) return `${head}.`;
+    return `${head}: ${formatNumber(total, locale)} ${total === 1 ? 'contribución' : 'contribuciones'}.`;
+  }
+  const head = `My ${period.year} on GitHub${month ? ` through ${month}` : ''}`;
+  if (total === null) return `${head}.`;
+  return `${head}: ${formatNumber(total, locale)} ${total === 1 ? 'contribution' : 'contributions'}.`;
 }
