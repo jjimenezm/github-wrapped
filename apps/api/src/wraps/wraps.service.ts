@@ -3,6 +3,7 @@ import {
   isRegenerable,
   normalizeLogin,
   resolveWrapPeriod,
+  wrapImages,
   type CardStyle,
   type Locale,
   type PublicWrap,
@@ -33,6 +34,10 @@ import {
 import { InvalidLoginError } from './preview.errors';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
+
+/** The PNGs everyone links to: always the last version that finished, never one still rendering. */
+const readyImages = (wrap: WrapRecord) =>
+  wrap.imagesReadyVersion ? wrapImages(wrap.id, wrap.imagesReadyVersion) : null;
 
 export interface PublishChoice {
   cardStyle: CardStyle;
@@ -177,6 +182,7 @@ export class WrapsService {
         wrap.imagesStatus === 'queued'
           ? await this.queue.imagesPosition(wrap.id, wrap.imagesVersion)
           : null,
+      images: readyImages(wrap),
     };
   }
 
@@ -190,6 +196,7 @@ export class WrapsService {
       snapshot: wrap.snapshot,
       publishedAt: wrap.publishedAt.toISOString(),
       imagesReadyVersion: wrap.imagesReadyVersion,
+      images: readyImages(wrap),
       videoReadyVersion: wrap.videoReadyVersion,
       videoStatus: wrap.videoStatus,
     };

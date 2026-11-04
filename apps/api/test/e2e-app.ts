@@ -48,6 +48,7 @@ export async function createE2eApp(start: string, config: AppConfig = e2eConfig(
   await app.init();
   return {
     app,
+    config,
     http: () => request(app.getHttpServer()),
     agent: () => request.agent(app.getHttpServer()),
     transport: app.get<GithubTransport>(GITHUB_TRANSPORT),

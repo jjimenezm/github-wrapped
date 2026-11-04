@@ -23,6 +23,7 @@ const WRAP: PublicWrap = {
   snapshot: demoSnapshot(),
   publishedAt: '2026-11-03T20:00:00.000Z',
   imagesReadyVersion: 1,
+  images: { card: '/api/files/w/img/1/card.png', og: '/api/files/w/img/1/og.png' },
   videoReadyVersion: null,
   videoStatus: 'none',
 };

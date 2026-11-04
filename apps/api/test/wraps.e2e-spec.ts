@@ -1,4 +1,6 @@
 import type { PublicWrap, WrapStatusView } from '@wrapped/shared';
+import { mkdir, writeFile } from 'node:fs/promises';
+import { join } from 'node:path';
 import type TestAgent from 'supertest/lib/agent';
 import { createE2eApp, e2eConfig } from './e2e-app';
 
@@ -255,7 +257,29 @@ describe('Wraps and GitHub login (e2e)', () => {
         videoStatus: 'none',
         videoReadyVersion: null,
         queuePosition: 1,
+        images: null,
       });
+    });
+
+    it('points the owner and the public page at the PNGs once they are ready', async () => {
+      const agent = t.agent();
+      await signIn(agent, ana).expect(302);
+      const wrap = await t.repo.findByOwner(ana.id, 2026);
+      if (!wrap) throw new Error('not published');
+      await t.repo.update(wrap.id, { imagesStatus: 'ready', imagesReadyVersion: 1 }, wrap);
+      await mkdir(join(t.config.filesDir, wrap.id, 'img/1'), { recursive: true });
+      await writeFile(join(t.config.filesDir, wrap.id, 'img/1/card.png'), 'png');
+
+      const images = {
+        card: `/api/files/${wrap.id}/img/1/card.png`,
+        og: `/api/files/${wrap.id}/img/1/og.png`,
+      };
+      const status = (await agent.get('/api/wraps/ana-dev/2026/status').expect(200))
+        .body as WrapStatusView;
+      expect(status).toMatchObject({ imagesStatus: 'ready', imagesReadyVersion: 1, images });
+      const page = (await t.http().get('/api/wraps/ana-dev/2026').expect(200)).body as PublicWrap;
+      expect(page.images).toEqual(images);
+      await t.http().get(images.card).expect(200);
     });
 
     it('changes the card', async () => {
