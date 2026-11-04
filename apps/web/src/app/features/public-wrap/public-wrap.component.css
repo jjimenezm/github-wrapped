@@ -1,0 +1,205 @@
+/* A page that scrolls (unlike the app's screens): it is read, not used. */
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: var(--gw-screen-h);
+}
+
+.bar {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+  padding: calc(var(--gw-space-2) + env(safe-area-inset-top, 0px)) var(--gw-space-5) 0;
+}
+
+.home {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--gw-hit);
+  color: var(--gw-text);
+  text-decoration: none;
+}
+
+/* "Crea el tuyo": there, but quiet; the page belongs to the person who shared it. */
+.create {
+  position: relative;
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  height: 36px;
+  padding: 0 var(--gw-space-4);
+  border: 1px solid var(--gw-hair);
+  border-radius: var(--gw-radius-pill);
+  color: var(--gw-text);
+  font: 500 var(--gw-text-xs) / 1 var(--gw-font-sans);
+  text-decoration: none;
+}
+
+.create::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+}
+
+.create:hover {
+  border-color: var(--gw-hair-strong);
+  background: var(--gw-glass);
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  padding: 0 var(--gw-space-6);
+}
+
+.notice {
+  display: flex;
+  gap: var(--gw-space-3);
+  align-items: flex-start;
+  margin: var(--gw-space-2) 0 var(--gw-space-4);
+  padding: var(--gw-space-3) var(--gw-space-4);
+  border: 1px solid var(--gw-hair);
+  border-radius: var(--gw-radius-md);
+  background: var(--gw-glass);
+  color: var(--gw-text-soft);
+  font-size: var(--gw-text-sm);
+  line-height: 1.45;
+  text-wrap: pretty;
+}
+
+.notice gw-icon {
+  margin-top: 2px;
+  color: var(--gw-danger-text);
+}
+
+.person {
+  display: flex;
+  gap: var(--gw-space-3);
+  align-items: center;
+  margin-top: var(--gw-space-2);
+}
+
+.avatar {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--gw-hair);
+  border-radius: 50%;
+  background: linear-gradient(135deg, #2a333d, #1a2027);
+  font-weight: 600;
+}
+
+h1 {
+  margin: 0;
+  font-size: var(--gw-text-base);
+  font-weight: 500;
+}
+
+.period {
+  margin: 2px 0 0;
+  color: var(--gw-text-muted);
+  font-size: var(--gw-text-xs);
+}
+
+.card {
+  width: 100%;
+  max-width: 360px;
+  aspect-ratio: 4 / 5;
+  margin: var(--gw-space-5) auto 0;
+  overflow: hidden;
+  border-radius: var(--gw-radius-xl);
+  box-shadow:
+    0 24px 56px rgb(0 0 0 / 0.45),
+    0 0 0 1px var(--gw-hair-strong);
+}
+
+.card ::ng-deep svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.see {
+  margin-top: var(--gw-space-4);
+  text-decoration: none;
+}
+
+.foot {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gw-space-2);
+  align-items: center;
+  margin-top: var(--gw-space-8);
+  padding: var(--gw-space-5) 0 calc(var(--gw-space-8) + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--gw-hair);
+  color: var(--gw-text-muted);
+  font-size: var(--gw-text-xs);
+  text-align: center;
+}
+
+/* Without a wrap: an empty sky, what happened, and the way to make one. */
+
+.empty {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
+.sky {
+  height: 220px;
+  margin-top: var(--gw-space-8);
+  opacity: 0.9;
+}
+
+.sky ::ng-deep .tw {
+  opacity: 0.6;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .sky ::ng-deep .tw {
+    animation: twinkle 3.2s ease-in-out infinite alternate;
+  }
+}
+
+@keyframes twinkle {
+  from {
+    opacity: 0.35;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.empty-text {
+  padding: var(--gw-space-6) var(--gw-space-6) 0;
+}
+
+.empty-text h1 {
+  font: 600 var(--gw-text-2xl) / 1.18 var(--gw-font-sans);
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+
+.empty-text p {
+  margin: var(--gw-space-3) 0 0;
+  color: var(--gw-text-muted);
+  font-size: var(--gw-text-base);
+  text-wrap: pretty;
+}
+
+.empty-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: auto;
+  padding: var(--gw-space-8) var(--gw-space-6)
+    calc(var(--gw-space-10) + env(safe-area-inset-bottom, 0px));
+}
+
+.empty-actions a {
+  text-decoration: none;
+}

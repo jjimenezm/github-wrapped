@@ -1,5 +1,5 @@
 import { UrlSegment, type UrlSegmentGroup } from '@angular/router';
-import { wrapMatcher, wrapPath } from './wrap-url';
+import { isWrapPage, wrapLogin, wrapMatcher, wrapPath } from './wrap-url';
 
 const segments = (path: string) => path.split('/').map((p) => new UrlSegment(p, {}));
 const match = (suffix: 'share' | 'card', path: string) =>
@@ -24,5 +24,22 @@ describe('wrap URLs', () => {
     expect(match('share', '@ana-dev/2026/card')).toBeNull();
     expect(match('card', '@ana-dev/2026')).toBeNull();
     expect(match('card', '@/2026/card')).toBeNull();
+  });
+});
+
+describe('the public page URL', () => {
+  const page = (path: string) => isWrapPage(segments(path));
+
+  it('is @login and a four-digit year, and nothing else', () => {
+    expect(page('@ana-dev/2026')).toBe(true);
+    expect(page('@ana-dev/2026/slides')).toBe(true);
+    expect(page('ana-dev/2026')).toBe(false);
+    expect(page('@/2026')).toBe(false);
+    expect(page('@ana-dev/26')).toBe(false);
+    expect(page('slides')).toBe(false);
+  });
+
+  it('reads the login from the @handle', () => {
+    expect(wrapLogin('@ana-dev')).toBe('ana-dev');
   });
 });

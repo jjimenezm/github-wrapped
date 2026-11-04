@@ -44,6 +44,7 @@
     "previous": "Anterior",
     "next": "Siguiente",
     "choose": "Elegir mi tarjeta",
+    "backToCard": "Volver a la tarjeta",
     "summary": {
       "contributions": "contribuciones",
       "contributionsSource": "Ver tus contribuciones en GitHub",
@@ -214,6 +215,39 @@
       "errors": {
         "failed": "No pudimos eliminarlo. Inténtalo otra vez."
       }
+    }
+  },
+  "public": {
+    "home": "wrapped, ir al inicio",
+    "create": "Crea el tuyo",
+    "whose": "Su año en GitHub · {{ period }}",
+    "card": "Tarjeta del año en GitHub de @{{ login }}",
+    "see": "Ver mi año",
+    "data": "Datos públicos de GitHub · actualizado el {{ date }}",
+    "manage": "¿Es tuyo? Gestionar",
+    "meta": {
+      "title": "@{{ login }} · Su {{ year }} en GitHub",
+      "site": "GitHub Wrapped"
+    },
+    "notice": {
+      "wrongAccount": "Esa cuenta de GitHub no es @{{ login }}. Para gestionar este wrap, cambia de cuenta en github.com e inténtalo otra vez.",
+      "rateLimited": "Hubo muchos intentos seguidos. Inténtalo otra vez en {{ wait }}.",
+      "failed": "No pudimos confirmar tu cuenta con GitHub. Inténtalo otra vez."
+    },
+    "missing": {
+      "title": "@{{ login }} todavía no tiene su wrap {{ year }}",
+      "body": "Si eres tú, créalo en 30 segundos con tus datos públicos de GitHub.",
+      "create": "Crear mi wrap",
+      "home": "Volver al inicio"
+    },
+    "gone": {
+      "title": "Este wrap ya no está disponible",
+      "body": "Su dueño lo eliminó y sus datos se borraron."
+    },
+    "failed": {
+      "title": "No pudimos cargar este wrap",
+      "body": "Puede ser un problema de conexión. Inténtalo otra vez en unos segundos.",
+      "retry": "Reintentar"
     }
   },
   "sample": {

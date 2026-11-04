@@ -56,7 +56,7 @@
     [class.gw-button--secondary]="!isLast()"
     (click)="next()"
   >
-    {{ (isLast() ? 'slides.choose' : 'slides.next') | transloco }}
+    {{ (isLast() ? finishLabel() : 'slides.next') | transloco }}
     <gw-icon name="arrow-right" />
   </button>
 </nav>

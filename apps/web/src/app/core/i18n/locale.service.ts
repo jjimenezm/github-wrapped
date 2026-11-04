@@ -1,5 +1,5 @@
 import { isPlatformBrowser } from '@angular/common';
-import { DOCUMENT, Injectable, PLATFORM_ID, inject, signal } from '@angular/core';
+import { DOCUMENT, Injectable, PLATFORM_ID, REQUEST, inject, signal } from '@angular/core';
 import { TranslocoService } from '@jsverse/transloco';
 import { Locale } from '@wrapped/shared';
 import { firstValueFrom } from 'rxjs';
@@ -8,8 +8,9 @@ import { DEFAULT_LOCALE, isLocale, localeFromBrowser } from './locale';
 export const LOCALE_STORAGE_KEY = 'gw.locale';
 
 /**
- * The UI language: the visitor's saved choice, else their browser's. The public wrap page
- * doesn't use this detection; it always shows the wrap's own language.
+ * The UI language: the visitor's saved choice, else their browser's (on the server, the request's
+ * Accept-Language). The public wrap page shows the wrap's own language instead, without
+ * touching the visitor's choice, and gives it back when they leave.
  */
 @Injectable({ providedIn: 'root' })
 export class LocaleService {
@@ -18,20 +19,46 @@ export class LocaleService {
   private readonly window = isPlatformBrowser(inject(PLATFORM_ID))
     ? this.document.defaultView
     : null;
+  private readonly request = inject(REQUEST, { optional: true });
   private readonly current = signal<Locale>(DEFAULT_LOCALE);
   private latest = 0;
+  private showingWrap = false;
 
   readonly locale = this.current.asReadonly();
 
   /** Loads the starting language before the first render, so no key ever flashes. */
   init(): Promise<void> {
-    return this.apply(this.stored() ?? localeFromBrowser(this.window?.navigator.languages));
+    return this.apply(this.preferred());
   }
 
   /** Switches the language in place and remembers it on this device. */
   async use(locale: Locale): Promise<void> {
+    this.showingWrap = false;
     this.store(locale);
     await this.apply(locale);
+  }
+
+  /** A wrap's page speaks the wrap's language, whatever the visitor's (R17). */
+  showWrap(locale: Locale): Promise<void> {
+    this.showingWrap = true;
+    return this.apply(locale);
+  }
+
+  /** Leaving a wrap's page: back to the visitor's own language, unless they picked one there. */
+  restore(): Promise<void> {
+    if (!this.showingWrap) return Promise.resolve();
+    this.showingWrap = false;
+    return this.apply(this.preferred());
+  }
+
+  private preferred(): Locale {
+    return this.stored() ?? localeFromBrowser(this.window?.navigator.languages ?? this.requested());
+  }
+
+  /** `es-CL,es;q=0.9,en;q=0.8` → `['es-CL', 'es', 'en']`, for the server's first render. */
+  private requested(): string[] | undefined {
+    const header = this.request?.headers.get('accept-language');
+    return header?.split(',').map((part) => part.split(';')[0]?.trim() ?? '');
   }
 
   private async apply(locale: Locale): Promise<void> {

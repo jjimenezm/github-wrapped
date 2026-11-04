@@ -1,7 +1,15 @@
 import { RenderMode, ServerRoute } from '@angular/ssr';
 
-// SSR is reserved for the public wrap page (added in U12); everything else renders on the client.
+/**
+ * Only the public page `/@login/year` renders on the server: link previews need its HTML, and it
+ * answers 404 or 410 when there is no wrap. Everything else, its slides included, renders on the
+ * client.
+ */
 export const serverRoutes: ServerRoute[] = [
+  {
+    path: ':handle/:year',
+    renderMode: RenderMode.Server,
+  },
   {
     path: '**',
     renderMode: RenderMode.Client,

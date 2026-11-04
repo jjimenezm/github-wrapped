@@ -3,6 +3,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { ApplicationInitStatus, Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
+import { RouterTestingHarness } from '@angular/router/testing';
 import { demoSnapshot } from '../../../../testing/snapshot';
 import { provideI18n } from '../../../core/i18n/i18n.providers';
 import { PreviewStore } from '../../../core/preview/preview.store';
@@ -258,5 +259,28 @@ describe('EntryComponent', () => {
 
       expect(feedback()).toBe('No pudimos conectarnos. Revisa tu conexión e inténtalo otra vez.');
     });
+  });
+
+  it('starts with the login a page passed along (a wrap that does not exist yet)', async () => {
+    vi.spyOn(navigator, 'languages', 'get').mockReturnValue(['es-CL']);
+    TestBed.configureTestingModule({
+      providers: [
+        provideI18n(),
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideRouter([{ path: '', component: EntryComponent }]),
+      ],
+    });
+    await TestBed.inject(ApplicationInitStatus).donePromise;
+    const harness = await RouterTestingHarness.create('/?login=mcuevas');
+    h = {
+      fixture: harness.fixture as unknown as ComponentFixture<EntryComponent>,
+      el: harness.routeNativeElement as HTMLElement,
+      http: TestBed.inject(HttpTestingController),
+      router: TestBed.inject(Router),
+    };
+
+    expect(input()?.value).toBe('mcuevas');
+    h.http.expectNone(() => true);
   });
 });

@@ -44,6 +44,7 @@
     "previous": "Previous",
     "next": "Next",
     "choose": "Choose my card",
+    "backToCard": "Back to the card",
     "summary": {
       "contributions": "contributions",
       "contributionsSource": "See your contributions on GitHub",
@@ -214,6 +215,39 @@
       "errors": {
         "failed": "We couldn’t delete it. Try again."
       }
+    }
+  },
+  "public": {
+    "home": "wrapped, go to start",
+    "create": "Make yours",
+    "whose": "Their year on GitHub · {{ period }}",
+    "card": "@{{ login }}’s year on GitHub card",
+    "see": "See my year",
+    "data": "Public GitHub data · updated {{ date }}",
+    "manage": "Yours? Manage",
+    "meta": {
+      "title": "@{{ login }} · Their {{ year }} on GitHub",
+      "site": "GitHub Wrapped"
+    },
+    "notice": {
+      "wrongAccount": "That GitHub account isn’t @{{ login }}. To manage this wrap, switch accounts on github.com and try again.",
+      "rateLimited": "Too many attempts in a row. Try again in {{ wait }}.",
+      "failed": "We couldn’t confirm your account with GitHub. Try again."
+    },
+    "missing": {
+      "title": "@{{ login }} doesn’t have a {{ year }} wrap yet",
+      "body": "If that’s you, make it in 30 seconds from your public GitHub data.",
+      "create": "Make my wrap",
+      "home": "Back to start"
+    },
+    "gone": {
+      "title": "This wrap is no longer available",
+      "body": "Its owner deleted it, and its data is gone."
+    },
+    "failed": {
+      "title": "We couldn’t load this wrap",
+      "body": "It may be a connection problem. Try again in a few seconds.",
+      "retry": "Try again"
     }
   },
   "sample": {

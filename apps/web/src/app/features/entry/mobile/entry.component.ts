@@ -13,7 +13,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { DomSanitizer } from '@angular/platform-browser';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { normalizeLogin, type WrapSnapshot } from '@wrapped/shared';
 import { Subscription, catchError, forkJoin, map, of, timer } from 'rxjs';
@@ -95,7 +95,12 @@ export class EntryComponent {
   private pending: Subscription | null = null;
   private retryTimer: ReturnType<typeof setTimeout> | undefined;
 
-  protected readonly form = new FormGroup({ login: new FormControl('', { nonNullable: true }) });
+  // A page can pass a login along ("create mine" on a wrap that doesn't exist yet).
+  protected readonly form = new FormGroup({
+    login: new FormControl(inject(ActivatedRoute).snapshot.queryParamMap.get('login') ?? '', {
+      nonNullable: true,
+    }),
+  });
   protected readonly loading = signal(false);
   protected readonly login = signal('');
   protected readonly feedback = signal<Feedback | null>(null);

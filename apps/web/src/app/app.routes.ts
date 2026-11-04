@@ -2,7 +2,7 @@ import { isDevMode } from '@angular/core';
 import { Routes } from '@angular/router';
 import { requirePreview } from './core/preview/preview.store';
 import { hasOAuthError } from './core/routing/oauth-error';
-import { wrapMatcher } from './core/routing/wrap-url';
+import { wrapMatcher, wrapPageMatch } from './core/routing/wrap-url';
 import { EntryComponent } from './features/entry/mobile/entry.component';
 
 export const routes: Routes = [
@@ -37,6 +37,14 @@ export const routes: Routes = [
     matcher: wrapMatcher('card'),
     loadComponent: () =>
       import('./features/publish/mobile/change-card.component').then((m) => m.ChangeCardComponent),
+  },
+  {
+    // The public page, rendered on the server (app.routes.server.ts), and its slides. After the
+    // share and card screens, which also start with @login/year.
+    path: ':handle/:year',
+    canMatch: [wrapPageMatch],
+    loadChildren: () =>
+      import('./features/public-wrap/public-wrap.routes').then((m) => m.PUBLIC_WRAP_ROUTES),
   },
   {
     // Internal sample of the visual primitives; development builds only.

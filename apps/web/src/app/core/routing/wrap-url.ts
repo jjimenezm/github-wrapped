@@ -1,4 +1,4 @@
-import { UrlSegment, type UrlMatcher } from '@angular/router';
+import { UrlSegment, type CanMatchFn, type UrlMatcher } from '@angular/router';
 
 /** The screens that hang off a published wrap: `/@login/year/<suffix>`. */
 export type WrapSuffix = 'share' | 'card';
@@ -25,3 +25,21 @@ export function wrapMatcher(suffix: WrapSuffix): UrlMatcher {
     };
   };
 }
+
+const isHandle = (path: string | undefined): path is string =>
+  path !== undefined && path.startsWith('@') && path.length > 1;
+
+/**
+ * The public page, `/@login/year` (and its slides under it). Unlike the screens above it uses a
+ * plain `:handle/:year` path guarded by this check, because the server routes only map routes
+ * with a path to their render mode, and this page is the one rendered on the server (KTD5).
+ */
+export function isWrapPage(segments: readonly UrlSegment[]): boolean {
+  const [handle, year] = segments;
+  return isHandle(handle?.path) && YEAR.test(year?.path ?? '');
+}
+
+export const wrapPageMatch: CanMatchFn = (_route, segments) => isWrapPage(segments);
+
+/** `@ana-dev` → `ana-dev`. */
+export const wrapLogin = (handle: string) => handle.slice(1);

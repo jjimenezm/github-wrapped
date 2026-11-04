@@ -47,6 +47,8 @@ const SWIPE_PX = 48;
 })
 export class StoriesComponent {
   readonly snapshot = input.required<WrapSnapshot>();
+  /** What the last step says: choosing a card after a lookup, back to the card on a public page. */
+  readonly finishLabel = input('slides.choose');
   readonly finished = output();
 
   private readonly locale = inject(LocaleService).locale;

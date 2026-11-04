@@ -108,6 +108,16 @@ describe('StoriesComponent', () => {
     });
   });
 
+  it('names the last step after where it leads when the page sets one', async () => {
+    await render(demoSnapshot());
+    fixture.componentRef.setInput('finishLabel', 'slides.backToCard');
+    await settle();
+
+    button('Volver a la tarjeta')?.click();
+
+    expect(finished).toHaveBeenCalledTimes(1);
+  });
+
   describe('moving between slides', () => {
     it('goes forward with a tap on the right edge and back with one on the left', async () => {
       await render();

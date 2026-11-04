@@ -1,0 +1,100 @@
+@if (wrap(); as w) {
+  <header class="bar">
+    <a routerLink="/" class="home" [attr.aria-label]="'public.home' | transloco">
+      <gw-wordmark />
+    </a>
+    <a routerLink="/" class="create">
+      {{ 'public.create' | transloco }}
+      <gw-icon name="arrow-right" />
+    </a>
+  </header>
+
+  <main class="page">
+    <div class="who">
+      @if (notice(); as n) {
+        <p class="notice" role="status">
+          <gw-icon name="alert" />
+          <span>{{ 'public.notice.' + n.key | transloco: { login: w.login, wait: n.wait } }}</span>
+        </p>
+      }
+      <div class="person">
+        <span class="avatar" aria-hidden="true">{{ w.login.charAt(0).toUpperCase() }}</span>
+        <div>
+          <h1 class="gw-mono">&#64;{{ w.login }}</h1>
+          <p class="period">{{ 'public.whose' | transloco: { period: period() } }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="card"
+      role="img"
+      [attr.aria-label]="'public.card' | transloco: { login: w.login }"
+      [innerHTML]="card()"
+    ></div>
+
+    <a class="gw-button gw-button--primary see" [routerLink]="path('slides')">
+      <gw-icon name="play" />
+      {{ 'public.see' | transloco }}
+    </a>
+
+    <footer class="foot">
+      <span>{{ 'public.data' | transloco: { date: updated() } }}</span>
+      <gw-manage-link [login]="w.login" [year]="w.year" />
+    </footer>
+  </main>
+} @else if (absent(); as a) {
+  <header class="bar">
+    <a routerLink="/" class="home" [attr.aria-label]="'public.home' | transloco">
+      <gw-wordmark />
+    </a>
+  </header>
+
+  @switch (a.kind) {
+    @case ('missing') {
+      <main class="empty">
+        <div class="sky" [innerHTML]="sky"></div>
+        <div class="empty-text">
+          <h1>{{ 'public.missing.title' | transloco: { login: a.login, year: a.year } }}</h1>
+          <p>{{ 'public.missing.body' | transloco }}</p>
+        </div>
+        <div class="empty-actions">
+          <a class="gw-button gw-button--primary" routerLink="/" [queryParams]="{ login: a.login }">
+            {{ 'public.missing.create' | transloco }}
+          </a>
+          <a class="gw-button gw-button--secondary" routerLink="/">
+            {{ 'public.missing.home' | transloco }}
+          </a>
+        </div>
+      </main>
+    }
+    @case ('gone') {
+      <main class="empty">
+        <div class="sky" [innerHTML]="sky"></div>
+        <div class="empty-text">
+          <h1>{{ 'public.gone.title' | transloco }}</h1>
+          <p>{{ 'public.gone.body' | transloco }}</p>
+        </div>
+        <div class="empty-actions">
+          <a class="gw-button gw-button--primary" routerLink="/">
+            {{ 'public.create' | transloco }}
+          </a>
+        </div>
+      </main>
+    }
+    @default {
+      <main class="empty">
+        <div class="sky" [innerHTML]="sky"></div>
+        <div class="empty-text">
+          <h1>{{ 'public.failed.title' | transloco }}</h1>
+          <p>{{ 'public.failed.body' | transloco }}</p>
+        </div>
+        <div class="empty-actions">
+          <a class="gw-button gw-button--primary" [href]="path()">
+            {{ 'public.failed.retry' | transloco }}
+          </a>
+        </div>
+      </main>
+    }
+  }
+}
