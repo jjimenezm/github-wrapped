@@ -66,7 +66,8 @@ export class AuthController {
     const limit = await this.limiter.hit('publish', request.ip ?? 'unknown');
     if (!limit.allowed) {
       const login = normalizeLogin(query.login ?? '') ?? '';
-      return this.backWithError(response, login, 'RATE_LIMITED', {
+      const year = /^\d{4}$/.test(query.year ?? '') ? Number(query.year) : undefined;
+      return this.backWithError(response, { login, intent: query.intent, year }, 'RATE_LIMITED', {
         retry_after: String(limit.retryAfter),
       });
     }
@@ -89,13 +90,13 @@ export class AuthController {
     // GitHub comes back with `error` instead of `code` when the person cancels (access_denied).
     if (query.error) {
       const code = query.error === 'access_denied' ? 'OAUTH_CANCELLED' : 'OAUTH_FAILED';
-      return this.backWithError(response, wanted.login, code);
+      return this.backWithError(response, wanted, code);
     }
     let identity: Identity;
     try {
       identity = await this.identity.identify(query.code ?? '', this.callbackUrl);
     } catch {
-      return this.backWithError(response, wanted.login, 'OAUTH_FAILED');
+      return this.backWithError(response, wanted, 'OAUTH_FAILED');
     }
 
     this.sessions.open(response, identity);
@@ -108,7 +109,7 @@ export class AuthController {
       if (!code) throw error;
       const extra: Record<string, string> =
         error instanceof RegenerateTooSoonError ? { retry_at: error.retryAt.toISOString() } : {};
-      this.backWithError(response, wanted.login, code, extra);
+      this.backWithError(response, wanted, code, extra);
     }
   }
 
@@ -168,15 +169,22 @@ export class AuthController {
     }
   }
 
+  /**
+   * A sign-in that didn't complete goes back where it started: "manage" to the wrap's public
+   * page, publishing and changing the card to the entry (`/`, which shows the error with the login).
+   */
   private backWithError(
     response: Response,
-    login: string,
+    from: { login: string; intent?: string; year?: number },
     code: string,
     extra: Record<string, string> = {},
   ) {
-    const url = new URL(`${this.config.publicBaseUrl}/`);
+    const manage = from.intent === 'manage' && from.login && from.year;
+    const url = new URL(
+      `${this.config.publicBaseUrl}${manage ? `/@${from.login}/${from.year}` : '/'}`,
+    );
     url.searchParams.set('oauth_error', code);
-    url.searchParams.set('login', login);
+    if (!manage) url.searchParams.set('login', from.login);
     for (const [key, value] of Object.entries(extra)) url.searchParams.set(key, value);
     response.redirect(302, url.toString());
   }

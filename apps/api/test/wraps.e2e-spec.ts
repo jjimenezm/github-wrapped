@@ -151,10 +151,24 @@ describe('Wraps and GitHub login (e2e)', () => {
       expect((await t.repo.findByOwner(4242, 2026))?.dataVersion).toBe(1);
     });
 
-    it('does not let another account "manage" a wrap', async () => {
+    it('sends another account trying to "manage" back to the public page with WRONG_ACCOUNT', async () => {
       await signIn(t.agent(), ana).expect(302);
       const res = await signIn(t.agent(), beto, { login: 'ana-dev', intent: 'manage', year: 2026 });
-      expect(res.headers.location).toBe(`${WEB}/?oauth_error=WRONG_ACCOUNT&login=ana-dev`);
+      expect(res.headers.location).toBe(`${WEB}/@ana-dev/2026?oauth_error=WRONG_ACCOUNT`);
+    });
+
+    it('goes back to the public page when the owner cancels "manage" on GitHub', async () => {
+      await signIn(t.agent(), ana).expect(302);
+      const agent = t.agent();
+      const start = await agent
+        .get('/api/auth/github')
+        .query({ login: 'ana-dev', intent: 'manage', year: 2026 });
+      const state = new URL(start.headers.location).searchParams.get('state') ?? '';
+      const res = await agent
+        .get('/api/auth/github/callback')
+        .query({ error: 'access_denied', state })
+        .expect(302);
+      expect(res.headers.location).toBe(`${WEB}/@ana-dev/2026?oauth_error=OAUTH_CANCELLED`);
     });
 
     it('changes the card through the login when the session expired', async () => {
@@ -373,6 +387,14 @@ describe('Wraps and GitHub login (e2e)', () => {
     const limited = await start().expect(302);
     expect(limited.headers.location).toBe(
       `${WEB}/?oauth_error=RATE_LIMITED&login=ana-dev&retry_after=3600`,
+    );
+    const manage = await t
+      .http()
+      .get('/api/auth/github')
+      .query({ login: 'ana-dev', intent: 'manage', year: 2026 })
+      .expect(302);
+    expect(manage.headers.location).toBe(
+      `${WEB}/@ana-dev/2026?oauth_error=RATE_LIMITED&retry_after=3600`,
     );
   });
 });
