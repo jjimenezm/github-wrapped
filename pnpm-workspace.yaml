@@ -1,6 +1,7 @@
 packages:
   - apps/*
   - packages/*
+  - e2e
 
 # Native build scripts allowed to run on install (same set as saas-core).
 allowBuilds:

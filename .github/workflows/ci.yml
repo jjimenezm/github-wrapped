@@ -17,7 +17,7 @@ concurrency:
 jobs:
   ci:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
 
     # Disposable Postgres and Redis for the integration tests (repository and render queue).
     services:
@@ -73,6 +73,21 @@ jobs:
       # The api end to end over HTTP, with GitHub answered from fixtures (no network, no token).
       - name: E2E tests
         run: pnpm --filter @wrapped/api test:e2e
+
+      # The web in a real browser over the built api in fixture mode: the server-rendered public
+      # page, hydration and the sign-in round trips, with GitHub stubbed.
+      - name: Browser E2E tests
+        run: |
+          pnpm --filter @wrapped/e2e exec playwright install --with-deps chromium
+          pnpm --filter @wrapped/e2e test:e2e
+
+      - name: Browser E2E traces
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-traces
+          path: e2e/test-results/
+          retention-days: 7
 
       # Repositories, the BullMQ queue and the image worker against the real services above.
       - name: Integration tests

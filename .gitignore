@@ -22,3 +22,7 @@ coverage/
 .impeccable/
 .DS_Store
 *.log
+
+# Playwright output
+test-results/
+playwright-report/
