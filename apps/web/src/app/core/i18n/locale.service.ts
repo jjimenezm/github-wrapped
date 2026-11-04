@@ -63,9 +63,10 @@ export class LocaleService {
 
   private async apply(locale: Locale): Promise<void> {
     const request = ++this.latest;
-    await firstValueFrom(this.transloco.load(locale));
+    // Transloco completes empty once the app is going away (end of a server render): nothing to do.
+    const dictionary = await firstValueFrom(this.transloco.load(locale), { defaultValue: null });
     // A newer choice may have arrived while this dictionary was loading.
-    if (request !== this.latest) return;
+    if (dictionary === null || request !== this.latest) return;
     this.transloco.setActiveLang(locale);
     this.current.set(locale);
     this.document.documentElement.lang = locale;

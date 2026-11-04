@@ -50,4 +50,20 @@ describe('LocaleService', () => {
 
     expect(active()).toBe('en');
   });
+
+  // Leaving the page as the app goes away (every server render, every test teardown) used to
+  // reject with rxjs' EmptyError: Transloco cuts the pending load short without a dictionary.
+  it('does nothing when the app goes away while a dictionary loads', async () => {
+    const locale = await start(['es-CL']);
+    const transloco = TestBed.inject(TranslocoService);
+    const document = TestBed.inject(DOCUMENT);
+
+    const switching = locale.use('en');
+    TestBed.resetTestingModule();
+
+    await expect(switching).resolves.toBeUndefined();
+    expect(transloco.getActiveLang()).toBe('es');
+    expect(locale.locale()).toBe('es');
+    expect(document.documentElement.lang).toBe('es');
+  });
 });
