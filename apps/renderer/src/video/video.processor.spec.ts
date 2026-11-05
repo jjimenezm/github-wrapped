@@ -159,6 +159,13 @@ describe('VideoProcessor', () => {
     expect(t.store.get(WRAP_ID)).toMatchObject({ videoReadyVersion: 2, videoStatus: 'ready' });
   });
 
+  it('keeps a published video ready when sweeping the older ones fails', async () => {
+    const t = await setup();
+    jest.spyOn(t.storage, 'sweep').mockRejectedValue(new Error('R2 answered 503'));
+    expect(await t.processor.process({ wrapId: WRAP_ID, dataVersion: 1 })).toBe('rendered');
+    expect(t.store.get(WRAP_ID)).toMatchObject({ videoReadyVersion: 1, videoStatus: 'ready' });
+  });
+
   it('skips the video of data that was regenerated since, without rendering it', async () => {
     const t = await setup({ wraps: [renderableWrap({ dataVersion: 3 })] });
     expect(await t.processor.process({ wrapId: WRAP_ID, dataVersion: 2 })).toBe('skipped');
