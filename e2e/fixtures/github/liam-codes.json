@@ -1,0 +1,202 @@
+{
+  "UserYear": {
+    "data": {
+      "user": {
+        "databaseId": 6262,
+        "login": "liam-codes",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/6262",
+        "contributionsCollection": {
+          "totalCommitContributions": 1500,
+          "totalIssueContributions": 12,
+          "totalPullRequestReviewContributions": 210,
+          "contributionCalendar": {
+            "totalContributions": 2048,
+            "weeks": [
+              {
+                "contributionDays": [
+                  {
+                    "date": "2026-01-01",
+                    "contributionCount": 10
+                  },
+                  {
+                    "date": "2026-01-02",
+                    "contributionCount": 15
+                  },
+                  {
+                    "date": "2026-01-03",
+                    "contributionCount": 7
+                  }
+                ]
+              },
+              {
+                "contributionDays": [
+                  {
+                    "date": "2026-01-04",
+                    "contributionCount": 0
+                  },
+                  {
+                    "date": "2026-01-05",
+                    "contributionCount": 12
+                  },
+                  {
+                    "date": "2026-01-06",
+                    "contributionCount": 20
+                  },
+                  {
+                    "date": "2026-01-07",
+                    "contributionCount": 9
+                  },
+                  {
+                    "date": "2026-01-08",
+                    "contributionCount": 10
+                  },
+                  {
+                    "date": "2026-01-09",
+                    "contributionCount": 15
+                  },
+                  {
+                    "date": "2026-01-10",
+                    "contributionCount": 7
+                  }
+                ]
+              },
+              {
+                "contributionDays": [
+                  {
+                    "date": "2026-01-11",
+                    "contributionCount": 0
+                  },
+                  {
+                    "date": "2026-01-12",
+                    "contributionCount": 12
+                  },
+                  {
+                    "date": "2026-01-13",
+                    "contributionCount": 20
+                  },
+                  {
+                    "date": "2026-01-14",
+                    "contributionCount": 9
+                  },
+                  {
+                    "date": "2026-01-15",
+                    "contributionCount": 10
+                  },
+                  {
+                    "date": "2026-01-16",
+                    "contributionCount": 15
+                  },
+                  {
+                    "date": "2026-01-17",
+                    "contributionCount": 7
+                  }
+                ]
+              },
+              {
+                "contributionDays": [
+                  {
+                    "date": "2026-01-18",
+                    "contributionCount": 0
+                  },
+                  {
+                    "date": "2026-01-19",
+                    "contributionCount": 12
+                  },
+                  {
+                    "date": "2026-01-20",
+                    "contributionCount": 20
+                  },
+                  {
+                    "date": "2026-01-21",
+                    "contributionCount": 9
+                  }
+                ]
+              }
+            ]
+          },
+          "commitContributionsByRepository": [
+            {
+              "contributions": {
+                "totalCount": 300
+              },
+              "repository": {
+                "name": "notes",
+                "nameWithOwner": "liam-codes/notes",
+                "owner": {
+                  "login": "liam-codes"
+                },
+                "description": null,
+                "url": "https://github.com/liam-codes/notes",
+                "homepageUrl": null,
+                "stargazerCount": 0,
+                "isFork": false,
+                "isEmpty": false,
+                "isPrivate": false,
+                "languages": {
+                  "nodes": [
+                    {
+                      "name": "Python"
+                    }
+                  ]
+                },
+                "repositoryTopics": {
+                  "nodes": []
+                }
+              }
+            }
+          ],
+          "restrictedContributionsCount": 0
+        }
+      }
+    }
+  },
+  "PreviousYear": {
+    "data": {
+      "user": {
+        "contributionsCollection": {
+          "contributionCalendar": {
+            "totalContributions": 1600
+          }
+        }
+      }
+    }
+  },
+  "MergedPullRequests": {
+    "data": {
+      "search": {
+        "issueCount": 31
+      }
+    }
+  },
+  "OwnLanguages": {
+    "data": {
+      "user": {
+        "repositories": {
+          "nodes": [
+            {
+              "isFork": false,
+              "languages": {
+                "edges": [
+                  {
+                    "size": 220000,
+                    "node": {
+                      "name": "Python",
+                      "color": "#3572A5"
+                    }
+                  },
+                  {
+                    "size": 400000,
+                    "node": {
+                      "name": "TypeScript",
+                      "color": "#3178c6"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

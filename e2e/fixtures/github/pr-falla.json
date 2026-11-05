@@ -1,0 +1,191 @@
+{
+  "UserYear": {
+    "data": {
+      "user": {
+        "databaseId": 6161,
+        "login": "pr-falla",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/6161",
+        "contributionsCollection": {
+          "totalCommitContributions": 300,
+          "totalIssueContributions": 8,
+          "totalPullRequestReviewContributions": 25,
+          "contributionCalendar": {
+            "totalContributions": 430,
+            "weeks": [
+              {
+                "contributionDays": [
+                  {
+                    "date": "2026-01-01",
+                    "contributionCount": 4
+                  },
+                  {
+                    "date": "2026-01-02",
+                    "contributionCount": 6
+                  },
+                  {
+                    "date": "2026-01-03",
+                    "contributionCount": 0
+                  }
+                ]
+              },
+              {
+                "contributionDays": [
+                  {
+                    "date": "2026-01-04",
+                    "contributionCount": 2
+                  },
+                  {
+                    "date": "2026-01-05",
+                    "contributionCount": 7
+                  },
+                  {
+                    "date": "2026-01-06",
+                    "contributionCount": 3
+                  },
+                  {
+                    "date": "2026-01-07",
+                    "contributionCount": 1
+                  },
+                  {
+                    "date": "2026-01-08",
+                    "contributionCount": 4
+                  },
+                  {
+                    "date": "2026-01-09",
+                    "contributionCount": 6
+                  },
+                  {
+                    "date": "2026-01-10",
+                    "contributionCount": 0
+                  }
+                ]
+              },
+              {
+                "contributionDays": [
+                  {
+                    "date": "2026-01-11",
+                    "contributionCount": 2
+                  },
+                  {
+                    "date": "2026-01-12",
+                    "contributionCount": 7
+                  },
+                  {
+                    "date": "2026-01-13",
+                    "contributionCount": 3
+                  },
+                  {
+                    "date": "2026-01-14",
+                    "contributionCount": 1
+                  },
+                  {
+                    "date": "2026-01-15",
+                    "contributionCount": 4
+                  },
+                  {
+                    "date": "2026-01-16",
+                    "contributionCount": 6
+                  },
+                  {
+                    "date": "2026-01-17",
+                    "contributionCount": 0
+                  }
+                ]
+              },
+              {
+                "contributionDays": [
+                  {
+                    "date": "2026-01-18",
+                    "contributionCount": 2
+                  },
+                  {
+                    "date": "2026-01-19",
+                    "contributionCount": 7
+                  },
+                  {
+                    "date": "2026-01-20",
+                    "contributionCount": 3
+                  },
+                  {
+                    "date": "2026-01-21",
+                    "contributionCount": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "commitContributionsByRepository": [
+            {
+              "contributions": {
+                "totalCount": 90
+              },
+              "repository": {
+                "name": "quiltro",
+                "nameWithOwner": "pr-falla/quiltro",
+                "owner": {
+                  "login": "pr-falla"
+                },
+                "description": "Adopción de perros rescatados.",
+                "url": "https://github.com/pr-falla/quiltro",
+                "homepageUrl": null,
+                "stargazerCount": 7,
+                "isFork": false,
+                "isEmpty": false,
+                "isPrivate": false,
+                "languages": {
+                  "nodes": [
+                    {
+                      "name": "TypeScript"
+                    }
+                  ]
+                },
+                "repositoryTopics": {
+                  "nodes": []
+                }
+              }
+            }
+          ],
+          "restrictedContributionsCount": 0
+        }
+      }
+    }
+  },
+  "PreviousYear": {
+    "data": {
+      "user": {
+        "contributionsCollection": {
+          "contributionCalendar": {
+            "totalContributions": 380
+          }
+        }
+      }
+    }
+  },
+  "MergedPullRequests": {
+    "httpStatus": 502
+  },
+  "OwnLanguages": {
+    "data": {
+      "user": {
+        "repositories": {
+          "nodes": [
+            {
+              "isFork": false,
+              "languages": {
+                "edges": [
+                  {
+                    "size": 400000,
+                    "node": {
+                      "name": "TypeScript",
+                      "color": "#3178c6"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

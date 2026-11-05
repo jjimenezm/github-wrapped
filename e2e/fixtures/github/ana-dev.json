@@ -1,0 +1,208 @@
+{
+  "UserYear": {
+    "data": {
+      "user": {
+        "databaseId": 4242,
+        "login": "ana-dev",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/4242",
+        "contributionsCollection": {
+          "totalCommitContributions": 212,
+          "totalIssueContributions": 19,
+          "totalPullRequestReviewContributions": 41,
+          "contributionCalendar": {
+            "totalContributions": 285,
+            "weeks": [
+              {
+                "contributionDays": [
+                  {
+                    "date": "2026-01-01",
+                    "contributionCount": 3
+                  },
+                  {
+                    "date": "2026-01-02",
+                    "contributionCount": 10
+                  },
+                  {
+                    "date": "2026-01-03",
+                    "contributionCount": 6
+                  }
+                ]
+              },
+              {
+                "contributionDays": [
+                  {
+                    "date": "2026-01-04",
+                    "contributionCount": 0
+                  },
+                  {
+                    "date": "2026-01-05",
+                    "contributionCount": 9
+                  },
+                  {
+                    "date": "2026-01-06",
+                    "contributionCount": 5
+                  },
+                  {
+                    "date": "2026-01-07",
+                    "contributionCount": 1
+                  },
+                  {
+                    "date": "2026-01-08",
+                    "contributionCount": 3
+                  },
+                  {
+                    "date": "2026-01-09",
+                    "contributionCount": 10
+                  },
+                  {
+                    "date": "2026-01-10",
+                    "contributionCount": 6
+                  }
+                ]
+              },
+              {
+                "contributionDays": [
+                  {
+                    "date": "2026-01-11",
+                    "contributionCount": 0
+                  },
+                  {
+                    "date": "2026-01-12",
+                    "contributionCount": 9
+                  },
+                  {
+                    "date": "2026-01-13",
+                    "contributionCount": 5
+                  },
+                  {
+                    "date": "2026-01-14",
+                    "contributionCount": 1
+                  },
+                  {
+                    "date": "2026-01-15",
+                    "contributionCount": 3
+                  },
+                  {
+                    "date": "2026-01-16",
+                    "contributionCount": 10
+                  },
+                  {
+                    "date": "2026-01-17",
+                    "contributionCount": 6
+                  }
+                ]
+              },
+              {
+                "contributionDays": [
+                  {
+                    "date": "2026-01-18",
+                    "contributionCount": 0
+                  },
+                  {
+                    "date": "2026-01-19",
+                    "contributionCount": 9
+                  },
+                  {
+                    "date": "2026-01-20",
+                    "contributionCount": 5
+                  },
+                  {
+                    "date": "2026-01-21",
+                    "contributionCount": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "commitContributionsByRepository": [
+            {
+              "contributions": {
+                "totalCount": 128
+              },
+              "repository": {
+                "name": "sismos-chile-api",
+                "nameWithOwner": "ana-dev/sismos-chile-api",
+                "owner": {
+                  "login": "ana-dev"
+                },
+                "description": "API REST y tiempo real de sismos en Chile.",
+                "url": "https://github.com/ana-dev/sismos-chile-api",
+                "homepageUrl": null,
+                "stargazerCount": 34,
+                "isFork": false,
+                "isEmpty": false,
+                "isPrivate": false,
+                "languages": {
+                  "nodes": [
+                    {
+                      "name": "TypeScript"
+                    }
+                  ]
+                },
+                "repositoryTopics": {
+                  "nodes": [
+                    {
+                      "topic": {
+                        "name": "nestjs"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ],
+          "restrictedContributionsCount": 0
+        }
+      }
+    }
+  },
+  "PreviousYear": {
+    "data": {
+      "user": {
+        "contributionsCollection": {
+          "contributionCalendar": {
+            "totalContributions": 200
+          }
+        }
+      }
+    }
+  },
+  "MergedPullRequests": {
+    "data": {
+      "search": {
+        "issueCount": 86
+      }
+    }
+  },
+  "OwnLanguages": {
+    "data": {
+      "user": {
+        "repositories": {
+          "nodes": [
+            {
+              "isFork": false,
+              "languages": {
+                "edges": [
+                  {
+                    "size": 400000,
+                    "node": {
+                      "name": "TypeScript",
+                      "color": "#3178c6"
+                    }
+                  },
+                  {
+                    "size": 40000,
+                    "node": {
+                      "name": "CSS",
+                      "color": "#663399"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

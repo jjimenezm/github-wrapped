@@ -1,5 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
-import { ANA, BETO, WEB } from './servers';
+import { signInOnGitHubAs } from './fixtures/github';
+import { ANA, BETO } from './fixtures/people';
+import { WEB } from './servers';
 
 const PAGE = `/@${ANA.login}/2026`;
 const SPANISH = { 'Accept-Language': 'es-CL,es;q=0.9' };
@@ -99,28 +101,6 @@ test.describe('the public page, in a Spanish browser on a computer', () => {
       'Tu año en GitHub, en 30 segundos',
     );
   });
-
-  /**
-   * Plays GitHub as `person`: the api's sign-in start runs for real (state and nonce cookie),
-   * but its redirect skips github.com and goes straight back to the callback with a fixture code.
-   * The browser follows redirects without asking routes, so the start is where to step in.
-   */
-  async function signInOnGitHubAs(page: Page, person: { id: number; login: string }) {
-    await page.route('https://github.com/**', (route) => route.abort());
-    await page.route('**/api/auth/github?*', async (route) => {
-      const response = await route.fetch({ maxRedirects: 0 });
-      const github = new URL(response.headers()['location'] ?? '');
-      const state = github.searchParams.get('state') ?? '';
-      const code = `fixture:${person.id}:${person.login}`;
-      await route.fulfill({
-        response,
-        headers: {
-          ...response.headers(),
-          location: `${WEB}/api/auth/github/callback?code=${code}&state=${state}`,
-        },
-      });
-    });
-  }
 
   test('"Yours? Manage" takes the owner to the share screen', async ({ page }) => {
     await signInOnGitHubAs(page, ANA);

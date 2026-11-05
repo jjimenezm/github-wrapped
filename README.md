@@ -55,12 +55,19 @@ GITHUB_FIXTURES_DIR="$PWD/apps/api/test/fixtures/github" pnpm --filter @wrapped/
 pnpm --filter @wrapped/web start   # http://localhost:4200, then try "ana-dev"
 ```
 
+The browser suite starts its own api and web on ports 3201 and 4201:
+
+```bash
+pnpm --filter @wrapped/e2e exec playwright install chromium   # once
+pnpm --filter @wrapped/e2e test:e2e
+```
+
 Without `DATABASE_URL` and `REDIS_URL`, the api keeps wraps in memory and nothing renders. For the full stack, `docker compose -f infra/docker-compose.dev.yml up -d` starts Postgres and Redis, and [`.env.example`](.env.example) documents every variable. [`infra/docker-compose.stack.yml`](infra/docker-compose.stack.yml) runs the production images locally.
 
 ## Quality
 
-- **Tests at each level:** Jest unit tests in the api, the renderer and both packages; Vitest in Angular; api end-to-end tests over HTTP; integration tests against real Postgres, Redis and BullMQ; and Playwright in a real browser for the server-rendered page, hydration and the sign-in round trips.
-- **CI on every push and PR:** format, build, lint, typecheck, all of the above, and a secret scan of the whole git history ([gitleaks](https://github.com/gitleaks/gitleaks)). `main` only accepts green builds.
+- **Tests at each level:** Jest unit tests in the api, the renderer and both packages; Vitest in Angular; api end-to-end tests over HTTP; integration tests against real Postgres, Redis and BullMQ; and Playwright in a real browser. On a phone, Playwright walks the whole journey in Spanish and in English: entry, loading, slides, choosing a card, publishing through a stubbed GitHub sign-in, the share screen (it reads the card's QR off the screen), the public page and deleting it down to a `410`. It also covers a metric GitHub fails to answer, publishing with someone else's account, and the server-rendered page and its hydration on a computer.
+- **CI on every push and PR:** format, build, lint, typecheck, all of the above, and a secret scan of the whole git history ([gitleaks](https://github.com/gitleaks/gitleaks)). `main` only accepts green builds, and the CI badge covers every job, the browser suite included.
 - **Errors you can see:** each domain error has a stable code the web translates (`USER_NOT_FOUND`, `GITHUB_RATE_LIMITED`, `REGENERATE_TOO_SOON`…), per-IP limits return `429` with `Retry-After`, and `/api/health` names the dependency that is down.
 - **Safe by construction:** there's an owner guard on every write, the OAuth `state` is signed, the session cookie is `httpOnly`, file paths are built only from validated ids, and the containers run as a non-root user.
 - **Operations:** multi-stage images with health checks, migrations on start, continuous deployment from `main` with health-gated rollouts and a one-click rollback to any earlier image, daily Postgres backups off the server, and a deploy guide in [`infra/dokploy.md`](infra/dokploy.md).
