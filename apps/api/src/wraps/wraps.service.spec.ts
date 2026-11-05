@@ -4,12 +4,14 @@ import { GithubClient } from '../github/github.client';
 import { GithubUnavailableError } from '../github/github.errors';
 import { FixtureGithubTransport, type GithubTransport } from '../github/github.transport';
 import { SnapshotBuilder } from '../github/snapshot.builder';
+import type { VideoConfig } from '../config';
 import { InMemoryRenderQueue } from '../render/render-queue';
 import { PreviewService } from './preview.service';
 import {
   ImagesNotFailedError,
   NotOwnerError,
   RegenerateTooSoonError,
+  VideoNotFailedError,
   WrapDeletedError,
   WrapNotFoundError,
   YearFrozenError,
@@ -17,11 +19,12 @@ import {
 import { InMemoryWrapsRepository } from './wraps.repository';
 import { WrapsService } from './wraps.service';
 
+const VIDEO_OFF: VideoConfig = { enabled: false, mediaBaseUrl: null };
 const FIXTURES = join(__dirname, '../../test/fixtures/github');
 const ana = { githubUserId: 4242, login: 'ana-dev' };
 const beto = { githubUserId: 7777, login: 'beto' };
 
-function setup(start = '2026-03-01T12:00:00Z') {
+function setup(start = '2026-03-01T12:00:00Z', video: VideoConfig = VIDEO_OFF) {
   let now = new Date(start);
   const clock = () => now;
   const fixtures = new FixtureGithubTransport(FIXTURES);
@@ -42,7 +45,7 @@ function setup(start = '2026-03-01T12:00:00Z') {
   const queue = new InMemoryRenderQueue();
   const removedFiles: string[] = [];
   const files = { remove: (id: string) => Promise.resolve(void removedFiles.push(id)) };
-  const service = new WrapsService(repo, queue, files, previews, clock);
+  const service = new WrapsService(repo, queue, files, previews, clock, video);
   return {
     service,
     repo,
@@ -268,6 +271,141 @@ describe('WrapsService', () => {
       const t = setup();
       const wrap = await publishAna(t);
       await expect(t.service.retryImages(wrap)).rejects.toBeInstanceOf(ImagesNotFailedError);
+    });
+  });
+
+  describe('video', () => {
+    const withVideo = (mediaBaseUrl: string | null = null) =>
+      setup('2026-03-01T12:00:00Z', { enabled: true, mediaBaseUrl });
+    const ready = (t: ReturnType<typeof setup>, wrap: Awaited<ReturnType<typeof publishAna>>) =>
+      t.repo.update(wrap.id, { videoStatus: 'ready', videoReadyVersion: wrap.dataVersion }, wrap);
+
+    it('queues the video of the first data version when publishing', async () => {
+      const t = withVideo();
+      const wrap = await publishAna(t);
+      expect(wrap.videoStatus).toBe('queued');
+      expect(t.queue.videoJobs).toEqual([
+        { id: `video-${wrap.id}-1`, wrapId: wrap.id, version: 1, state: 'waiting' },
+      ]);
+      expect(await t.service.status(wrap)).toMatchObject({
+        videoStatus: 'queued',
+        videoQueuePosition: 1,
+        video: null,
+      });
+    });
+
+    it('renders only the newest of two data versions that arrive before the render starts', async () => {
+      const t = withVideo();
+      const first = await publishAna(t);
+      t.later(24);
+      const second = await t.service.regenerate(first);
+      expect(second.dataVersion).toBe(2);
+      expect(t.queue.videoJobs.map((job) => [job.id, job.state])).toEqual([
+        [`video-${first.id}-2`, 'waiting'],
+      ]);
+    });
+
+    it('changing the card queues no video and keeps the ready one', async () => {
+      const t = withVideo();
+      const wrap = await ready(t, await publishAna(t));
+      t.queue.setVideoState(wrap.id, 1, 'done');
+      const changed = await t.service.changeCard(wrap, 'constelacion');
+      expect(changed).toMatchObject({ videoStatus: 'ready', videoReadyVersion: 1 });
+      expect(t.queue.videoJobs).toHaveLength(1);
+    });
+
+    it('keeps serving the old video while the regenerated one renders', async () => {
+      const t = withVideo();
+      const wrap = await ready(t, await publishAna(t));
+      t.queue.setVideoState(wrap.id, 1, 'done');
+      t.later(24);
+      const regenerated = await t.service.regenerate(wrap);
+      expect(regenerated).toMatchObject({
+        dataVersion: 2,
+        videoStatus: 'queued',
+        videoReadyVersion: 1,
+      });
+      expect(t.service.publicView(regenerated).video).toBe(`/api/files/${wrap.id}/video/1.mp4`);
+      expect(t.queue.videoJobs.at(-1)).toMatchObject({ version: 2, state: 'waiting' });
+    });
+
+    it('plays from the media origin when videos live in the bucket', async () => {
+      const t = withVideo('https://media.example.dev');
+      const wrap = await ready(t, await publishAna(t));
+      expect(t.service.publicView(wrap).video).toBe(
+        `https://media.example.dev/wrapped/${wrap.id}/1.mp4`,
+      );
+    });
+
+    it('asks the renderer to empty the bucket when a wrap with videos there is deleted', async () => {
+      const inBucket = withVideo('https://media.example.dev');
+      const wrap = await publishAna(inBucket);
+      await inBucket.service.remove(wrap);
+      expect(inBucket.queue.purged).toEqual([wrap.id]);
+
+      const onVolume = withVideo();
+      await onVolume.service.remove(await publishAna(onVolume));
+      expect(onVolume.queue.purged).toEqual([]);
+      expect(onVolume.removedFiles).toHaveLength(1);
+    });
+
+    it('reports what the queue knows: rendering while active, failed once it gave up', async () => {
+      const t = withVideo();
+      const wrap = await publishAna(t);
+      t.queue.setVideoState(wrap.id, 1, 'active');
+      expect(await t.service.status(wrap)).toMatchObject({
+        videoStatus: 'rendering',
+        videoQueuePosition: null,
+      });
+      // The renderer stopped mid-render and BullMQ failed the job: the stored status lags behind.
+      t.queue.setVideoState(wrap.id, 1, 'failed');
+      expect((await t.service.status(wrap)).videoStatus).toBe('failed');
+    });
+
+    it('lets the owner retry a failed video: the same job goes back in line', async () => {
+      const t = withVideo();
+      const wrap = await publishAna(t);
+      await expect(t.service.retryVideo(wrap)).rejects.toBeInstanceOf(VideoNotFailedError);
+      t.queue.setVideoState(wrap.id, 1, 'failed');
+      const failed = await t.repo.update(wrap.id, { videoStatus: 'failed' }, wrap);
+
+      const retried = await t.service.retryVideo(failed);
+      expect(retried.videoStatus).toBe('queued');
+      expect(t.queue.videoJobs.map((job) => [job.id, job.state])).toEqual([
+        [`video-${wrap.id}-1`, 'waiting'],
+      ]);
+      expect(t.queue.retried).toEqual([`video-${wrap.id}-1`]);
+    });
+
+    it('cancels the waiting video on delete, and a republication starts without the old file', async () => {
+      const t = withVideo();
+      const wrap = await ready(t, await publishAna(t));
+      t.later(24);
+      const regenerated = await t.service.regenerate(wrap);
+      await t.service.remove(regenerated);
+      expect(t.queue.videoJobs.at(-1)?.state).toBe('cancelled');
+
+      t.later(24);
+      const again = await publishAna(t);
+      expect(again).toMatchObject({
+        dataVersion: 3,
+        videoStatus: 'queued',
+        videoReadyVersion: null,
+      });
+      expect(t.service.publicView(again).video).toBeNull();
+    });
+
+    it('stays out of the way while videos are off', async () => {
+      const t = setup();
+      const wrap = await publishAna(t);
+      t.later(24);
+      await t.service.regenerate(wrap);
+      expect(t.queue.videoJobs).toEqual([]);
+      expect(await t.service.status(wrap)).toMatchObject({
+        videoStatus: 'none',
+        videoQueuePosition: null,
+        video: null,
+      });
     });
   });
 

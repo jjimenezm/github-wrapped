@@ -28,13 +28,20 @@ import {
   WRAPS_REPOSITORY,
   type WrapsRepository,
 } from './wraps.repository';
-import { WrapsService } from './wraps.service';
+import { VideoStatusController } from './video-status.controller';
+import { VIDEO_CONFIG, WrapsService } from './wraps.service';
 
 const logger = new Logger('WrapsModule');
 
 @Module({
   imports: [GithubModule],
-  controllers: [PreviewController, WrapsController, AuthController, FilesController],
+  controllers: [
+    PreviewController,
+    WrapsController,
+    VideoStatusController,
+    AuthController,
+    FilesController,
+  ],
   providers: [
     PreviewService,
     WrapsService,
@@ -51,6 +58,11 @@ const logger = new Logger('WrapsModule');
         logger.warn('DATABASE_URL is not set: published wraps live in memory until a restart');
         return new InMemoryWrapsRepository();
       },
+    },
+    {
+      provide: VIDEO_CONFIG,
+      inject: [APP_CONFIG],
+      useFactory: (config: AppConfig) => config.video,
     },
     {
       provide: RENDER_QUEUE,

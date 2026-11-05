@@ -40,6 +40,13 @@ export class ImagesNotFailedError extends Error {
   }
 }
 
+export class VideoNotFailedError extends Error {
+  constructor() {
+    super('Only a failed video can be retried.');
+    this.name = 'VideoNotFailedError';
+  }
+}
+
 /** Repository: the person already has a wrap for that year. */
 export class WrapExistsError extends Error {
   constructor() {

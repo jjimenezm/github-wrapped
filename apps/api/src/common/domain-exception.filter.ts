@@ -13,6 +13,7 @@ import {
   ImagesNotFailedError,
   NotOwnerError,
   RegenerateTooSoonError,
+  VideoNotFailedError,
   WrapDeletedError,
   WrapNotFoundError,
   YearFrozenError,
@@ -48,6 +49,7 @@ const MAPPINGS: Mapping[] = [
   [WrapDeletedError, body(HttpStatus.GONE, 'WRAP_DELETED')],
   [YearFrozenError, body(HttpStatus.CONFLICT, 'YEAR_FROZEN')],
   [ImagesNotFailedError, body(HttpStatus.CONFLICT, 'IMAGES_NOT_FAILED')],
+  [VideoNotFailedError, body(HttpStatus.CONFLICT, 'VIDEO_NOT_FAILED')],
   [ConcurrentUpdateError, body(HttpStatus.CONFLICT, 'CONCURRENT_UPDATE')],
   [
     RegenerateTooSoonError,
