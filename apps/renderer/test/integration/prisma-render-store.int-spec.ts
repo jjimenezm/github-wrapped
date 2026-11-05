@@ -9,7 +9,11 @@ const prisma = new PrismaClient({ datasourceUrl: url });
 const store = new PrismaRenderStore(prisma);
 
 async function insertWrap(
-  overrides: { imagesVersion?: number; status?: 'published' | 'deleted' } = {},
+  overrides: {
+    imagesVersion?: number;
+    dataVersion?: number;
+    status?: 'published' | 'deleted';
+  } = {},
 ) {
   const now = new Date('2026-03-01T12:00:00Z');
   await prisma.wrap.create({
@@ -23,7 +27,7 @@ async function insertWrap(
       cardStyle: 'cordillera',
       snapshot: snapshot() as unknown as Prisma.InputJsonValue,
       status: overrides.status ?? 'published',
-      dataVersion: 1,
+      dataVersion: overrides.dataVersion ?? 1,
       imagesVersion: overrides.imagesVersion ?? 1,
       imagesStatus: 'queued',
       videoStatus: 'none',
@@ -50,6 +54,9 @@ describe('PrismaRenderStore (real Postgres)', () => {
       imagesVersion: 1,
       imagesReadyVersion: null,
       imagesStatus: 'queued',
+      dataVersion: 1,
+      videoReadyVersion: null,
+      videoStatus: 'none',
     });
     expect(await store.findForRender('not-a-uuid')).toBeNull();
   });
@@ -83,5 +90,55 @@ describe('PrismaRenderStore (real Postgres)', () => {
     expect(await store.listPublished()).toEqual([]);
     await store.markImagesReady(WRAP_ID, 1);
     expect((await store.findForRender(WRAP_ID))?.imagesReadyVersion).toBeNull();
+  });
+
+  describe('video', () => {
+    it('moves the ready version forward, marks ready only the current data, and says which is ready', async () => {
+      await insertWrap({ dataVersion: 2 });
+      await store.markVideoRendering(WRAP_ID, 2);
+      expect((await store.findForRender(WRAP_ID))?.videoStatus).toBe('rendering');
+
+      expect(await store.markVideoReady(WRAP_ID, 1)).toBe(1);
+      expect(await store.findForRender(WRAP_ID)).toMatchObject({
+        videoReadyVersion: 1,
+        videoStatus: 'rendering',
+      });
+      expect(await store.markVideoReady(WRAP_ID, 2)).toBe(2);
+      expect(await store.findForRender(WRAP_ID)).toMatchObject({
+        videoReadyVersion: 2,
+        videoStatus: 'ready',
+      });
+      expect(await store.markVideoReady(WRAP_ID, 1)).toBe(2);
+    });
+
+    it('tells a deleted wrap apart, so its MP4 is taken back', async () => {
+      await insertWrap({ status: 'deleted' });
+      expect(await store.markVideoReady(WRAP_ID, 1)).toBeNull();
+      expect((await store.findForRender(WRAP_ID))?.videoReadyVersion).toBeNull();
+    });
+
+    it('marks failed or queued only the current data', async () => {
+      await insertWrap({ dataVersion: 2 });
+      await store.markVideoFailed(WRAP_ID, 1);
+      expect((await store.findForRender(WRAP_ID))?.videoStatus).toBe('none');
+      await store.markVideoFailed(WRAP_ID, 2);
+      expect((await store.findForRender(WRAP_ID))?.videoStatus).toBe('failed');
+      await store.markVideoQueued(WRAP_ID, 2);
+      expect((await store.findForRender(WRAP_ID))?.videoStatus).toBe('queued');
+    });
+
+    it('lists what the backfill needs to find the missing videos', async () => {
+      await insertWrap({ dataVersion: 3 });
+      expect(await store.listPublished()).toEqual([
+        {
+          id: WRAP_ID,
+          imagesVersion: 1,
+          imagesReadyVersion: null,
+          dataVersion: 3,
+          videoReadyVersion: null,
+          videoStatus: 'none',
+        },
+      ]);
+    });
   });
 });

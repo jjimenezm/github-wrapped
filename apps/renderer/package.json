@@ -30,6 +30,7 @@
     "@resvg/resvg-js": "^2.6.2",
     "@wrapped/art": "workspace:*",
     "@wrapped/shared": "workspace:*",
+    "aws4fetch": "1.0.20",
     "bullmq": "^5.81.5",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1"

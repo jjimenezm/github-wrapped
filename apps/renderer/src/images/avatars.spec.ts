@@ -19,6 +19,8 @@ describe('fetchAvatar', () => {
     const uri = await fetchAvatar('https://avatars.githubusercontent.com/u/4242?v=4', fake.fetch);
     expect(uri).toBe(`data:image/png;base64,${PNG_BYTES.toString('base64')}`);
     expect(new URL(fake.calls[0] ?? '').searchParams.get('s')).toBe('96');
+    await fetchAvatar('https://avatars.githubusercontent.com/u/4242?v=4', fake.fetch, 256);
+    expect(new URL(fake.calls[1] ?? '').searchParams.get('s')).toBe('256');
   });
 
   it.each([

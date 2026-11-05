@@ -12,6 +12,9 @@
 .claude
 .impeccable
 .superpowers
+# HyperFrames' state and default output, next to each composition
+apps/renderer/compositions/**/.hyperframes
+apps/renderer/compositions/**/renders
 **/.DS_Store
 **/*.log
 e2e/test-results
