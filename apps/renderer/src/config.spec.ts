@@ -17,6 +17,7 @@ describe('loadRendererConfig', () => {
       filesDir: '/data/files',
       publicBaseUrl: 'https://wrapped.jjimenezm.dev',
       imagesConcurrency: 1,
+      requireFilesVolume: false,
     });
     expect(loadRendererConfig({ ...ENV, RENDER_IMAGES_CONCURRENCY: '3' }).imagesConcurrency).toBe(
       3,
@@ -25,6 +26,15 @@ describe('loadRendererConfig', () => {
 
   it.each(['REDIS_URL', 'DATABASE_URL', 'FILES_DIR', 'PUBLIC_BASE_URL'])('needs %s', (name) => {
     expect(() => loadRendererConfig({ ...ENV, [name]: undefined })).toThrow(new RegExp(name));
+  });
+
+  it('can insist that FILES_DIR is a mounted volume (set in the image)', () => {
+    expect(loadRendererConfig({ ...ENV, REQUIRE_FILES_VOLUME: 'true' }).requireFilesVolume).toBe(
+      true,
+    );
+    expect(loadRendererConfig({ ...ENV, REQUIRE_FILES_VOLUME: 'false' }).requireFilesVolume).toBe(
+      false,
+    );
   });
 
   it('rejects a concurrency that is not a positive integer', () => {

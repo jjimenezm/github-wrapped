@@ -5,6 +5,7 @@ import { randomUUID } from 'node:crypto';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { FONTS_DIR } from '../../src/config';
+import { redisProbe } from '../../src/health/health.probes';
 import { ImageFiles } from '../../src/images/image-files';
 import { ImagesProcessor } from '../../src/images/images.processor';
 import { startImagesWorker } from '../../src/images/images.worker';
@@ -46,6 +47,14 @@ describe('images worker (real Redis and BullMQ)', () => {
     worker = startImagesWorker(processor, { redisUrl: url as string, concurrency: 1, queueName });
     await worker.waitUntilReady();
   }
+
+  it('answers the health check through the running worker', async () => {
+    await start(
+      new ImageFiles(await mkdtemp(join(tmpdir(), 'worker-'))),
+      new InMemoryRenderStore(),
+    );
+    await expect(redisProbe(() => worker).check()).resolves.toBeUndefined();
+  });
 
   it('renders a queued job and marks the images ready', async () => {
     const root = await mkdtemp(join(tmpdir(), 'worker-'));

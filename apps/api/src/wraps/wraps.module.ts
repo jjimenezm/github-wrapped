@@ -78,5 +78,7 @@ const logger = new Logger('WrapsModule');
             }),
     },
   ],
+  // The health check asks the same Postgres client the wraps use.
+  exports: [WRAPS_REPOSITORY],
 })
 export class WrapsModule {}

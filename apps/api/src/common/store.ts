@@ -35,6 +35,11 @@ export class RedisStore implements KeyValueStore, OnModuleDestroy {
     return { count, ttlSeconds };
   }
 
+  /** For the health check: resolves only when Redis answers. */
+  async ping(): Promise<void> {
+    await this.redis.ping();
+  }
+
   async onModuleDestroy(): Promise<void> {
     await this.redis.quit();
   }

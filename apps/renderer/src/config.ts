@@ -8,6 +8,11 @@ export interface RendererConfig {
   /** Printed in every QR code and link on the cards. */
   publicBaseUrl: string;
   imagesConcurrency: number;
+  /**
+   * The image sets this: FILES_DIR must be a volume mounted into the container, or the PNGs would
+   * land in the container's own layer, where the api never sees them.
+   */
+  requireFilesVolume: boolean;
 }
 
 export const RENDERER_CONFIG = Symbol('RENDERER_CONFIG');
@@ -36,5 +41,6 @@ export function loadRendererConfig(env: Env): RendererConfig {
     filesDir: required(env, 'FILES_DIR'),
     publicBaseUrl: required(env, 'PUBLIC_BASE_URL').replace(/\/+$/, ''),
     imagesConcurrency,
+    requireFilesVolume: env.REQUIRE_FILES_VOLUME?.trim() === 'true',
   };
 }

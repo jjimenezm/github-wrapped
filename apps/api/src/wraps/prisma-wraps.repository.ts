@@ -112,6 +112,11 @@ export class PrismaWrapsRepository implements WrapsRepository, OnModuleDestroy {
       WHERE github_user_id = ${githubUserId} AND login_key <> ${login.toLowerCase()}`;
   }
 
+  /** For the health check: resolves only when Postgres answers a query. */
+  async ping(): Promise<void> {
+    await this.prisma.$queryRaw`SELECT 1`;
+  }
+
   async onModuleDestroy(): Promise<void> {
     await this.prisma.$disconnect();
   }

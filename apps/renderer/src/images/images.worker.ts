@@ -45,6 +45,11 @@ export function startImagesWorker(
 export class ImagesWorker implements OnModuleInit, OnModuleDestroy {
   private worker?: Worker<ImagesJob>;
 
+  /** The running BullMQ worker, for the health check; undefined until the module starts. */
+  get running(): Worker<ImagesJob> | undefined {
+    return this.worker;
+  }
+
   constructor(
     @Inject(RENDERER_CONFIG) private readonly config: RendererConfig,
     @Inject(RENDER_STORE) private readonly store: RenderStore,
