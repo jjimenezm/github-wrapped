@@ -1,8 +1,25 @@
-import { DOCUMENT, mergeApplicationConfig, ApplicationConfig, inject } from '@angular/core';
+import { HttpBackend } from '@angular/common/http';
+import {
+  DOCUMENT,
+  mergeApplicationConfig,
+  ApplicationConfig,
+  inject,
+  type Provider,
+} from '@angular/core';
 import { provideServerRendering, withRoutes } from '@angular/ssr';
 import { appConfig } from './app.config';
 import { serverRoutes } from './app.routes.server';
+import { API_INTERNAL_URL, InternalApiBackend } from './core/api/internal-api.backend';
 import { PUBLIC_BASE_URL } from './core/config/public-base-url';
+
+// In production the api is another container; unset (ng serve, e2e), /api goes through the proxy.
+const apiInternalUrl = process.env['API_INTERNAL_URL'];
+const internalApi: Provider[] = apiInternalUrl
+  ? [
+      { provide: API_INTERNAL_URL, useValue: apiInternalUrl },
+      { provide: HttpBackend, useClass: InternalApiBackend },
+    ]
+  : [];
 
 const serverConfig: ApplicationConfig = {
   providers: [
@@ -12,6 +29,7 @@ const serverConfig: ApplicationConfig = {
       provide: PUBLIC_BASE_URL,
       useFactory: () => process.env['PUBLIC_BASE_URL'] ?? inject(DOCUMENT).location.origin,
     },
+    ...internalApi,
   ],
 };
 
