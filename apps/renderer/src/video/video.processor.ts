@@ -1,3 +1,4 @@
+import { Logger } from '@nestjs/common';
 import type { VideoJob } from '@wrapped/shared';
 import { cp, mkdir, mkdtemp, readdir, rm, stat, writeFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
@@ -6,6 +7,8 @@ import type { RenderStore } from '../images/render-store';
 import { declaredVariables, pickDeclared, videoVariables, type VideoWrap } from './composition';
 import type { RenderVideo } from './hyperframes';
 import type { VideoStorage } from './video-storage';
+
+const logger = new Logger('VideoProcessor');
 
 export interface VideoProcessorDeps {
   store: RenderStore;
@@ -122,7 +125,10 @@ export class VideoProcessor {
     return output;
   }
 
-  /** Marks the version ready and sweeps older MP4s; takes the file back if the wrap is gone. */
+  /**
+   * Marks the version ready and sweeps older MP4s; takes the file back if the wrap is gone. The
+   * video is published by then, so a failed sweep only logs: the daily sweep deletes what it left.
+   */
   private async ready(wrapId: string, dataVersion: number): Promise<boolean> {
     const { store, storage } = this.deps;
     const readyVersion = await store.markVideoReady(wrapId, dataVersion);
@@ -130,7 +136,11 @@ export class VideoProcessor {
       await storage.remove(wrapId, dataVersion);
       return false;
     }
-    await storage.sweep(wrapId, readyVersion);
+    try {
+      await storage.sweep(wrapId, readyVersion);
+    } catch (error) {
+      logger.warn(`could not sweep older videos of ${wrapId}: ${(error as Error).message}`);
+    }
     return true;
   }
 }

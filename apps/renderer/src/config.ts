@@ -119,12 +119,33 @@ function mediaBucket(env: Env): MediaBucketConfig | null {
       `The media bucket needs ${missing.join(', ')} too (or none of the R2_* variables)`,
     );
   }
-  const endpoint = required(env, 'R2_ENDPOINT').replace(/\/+$/, '');
-  if (!endpoint.startsWith('https://')) throw new Error('R2_ENDPOINT must use https');
+  const bucket = required(env, 'R2_BUCKET');
   return {
-    endpoint,
-    bucket: required(env, 'R2_BUCKET'),
+    endpoint: accountEndpoint(required(env, 'R2_ENDPOINT'), bucket),
+    bucket,
     accessKeyId: required(env, 'R2_ACCESS_KEY_ID'),
     secretAccessKey: required(env, 'R2_SECRET_ACCESS_KEY'),
   };
+}
+
+/**
+ * The account's S3 endpoint, `https://<account-id>.r2.cloudflarestorage.com`. R2's dashboard shows
+ * it with the bucket appended, so that form is accepted too; any other path would put every key
+ * under the wrong folder of the bucket.
+ */
+function accountEndpoint(raw: string, bucket: string): string {
+  let url: URL;
+  try {
+    url = new URL(raw);
+  } catch {
+    throw new Error(`R2_ENDPOINT is not a URL: "${raw}"`);
+  }
+  if (url.protocol !== 'https:') throw new Error('R2_ENDPOINT must use https');
+  const path = url.pathname.replace(/\/+$/, '');
+  if (path && path !== `/${bucket}`) {
+    throw new Error(
+      `R2_ENDPOINT must be the account endpoint (https://<account-id>.r2.cloudflarestorage.com), without a path; got "${raw}"`,
+    );
+  }
+  return url.origin;
 }

@@ -101,6 +101,27 @@ describe('loadRendererConfig', () => {
     ).toThrow(/https/);
   });
 
+  it('takes the endpoint as R2’s dashboard shows it, with the bucket appended', () => {
+    const bucket = {
+      R2_BUCKET: 'media',
+      R2_ACCESS_KEY_ID: 'key-id',
+      R2_SECRET_ACCESS_KEY: 'key-secret',
+    };
+    const endpoint = (value: string) =>
+      loadRendererConfig({ ...ENV, ...bucket, R2_ENDPOINT: value }).video.bucket?.endpoint;
+    expect(endpoint('https://account.r2.cloudflarestorage.com/media')).toBe(
+      'https://account.r2.cloudflarestorage.com',
+    );
+    expect(endpoint('https://account.r2.cloudflarestorage.com/media/')).toBe(
+      'https://account.r2.cloudflarestorage.com',
+    );
+    // Any other path would file every video under the wrong folder of the bucket.
+    expect(() => endpoint('https://account.r2.cloudflarestorage.com/other')).toThrow(
+      /without a path/,
+    );
+    expect(() => endpoint('not a url')).toThrow(/not a URL/);
+  });
+
   it('renders the wrap composition shipped with the worker', () => {
     expect(existsSync(join(DEFAULT_COMPOSITION, 'index.html'))).toBe(true);
     expect(existsSync(join(DEFAULT_COMPOSITION, 'variables.schema.json'))).toBe(true);
