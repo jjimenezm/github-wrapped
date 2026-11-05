@@ -1,0 +1,100 @@
+# The production images, run locally with the routing and memory limits they get on Dokploy
+# (infra/dokploy.md). A smoke test of the images, not a way to develop:
+#
+#   docker compose -f infra/docker-compose.stack.yml up -d --build
+#   curl -s localhost:8080/api/health          # api: Postgres + Redis
+#   curl -s localhost:8080/@nobody/2026 -o /dev/null -w '%{http_code}\n'   # SSR: 404
+#
+# Placeholder credentials only: previews fail against GitHub, and signing in is not wired.
+name: wrapped-stack
+
+x-limits: &small
+  deploy:
+    resources:
+      limits: { memory: 512M }
+
+services:
+  # Stands in for Dokploy's Traefik: the api gets /api (its files are under /api/files), the web the rest.
+  proxy:
+    image: traefik:v3.6
+    command:
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --entrypoints.web.address=:80
+    ports: ['127.0.0.1:8080:80']
+    volumes: ['/var/run/docker.sock:/var/run/docker.sock:ro']
+    deploy:
+      resources:
+        limits: { memory: 128M }
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: wrapped
+      POSTGRES_PASSWORD: wrapped
+      POSTGRES_DB: wrapped
+    volumes: ['postgres-data:/var/lib/postgresql/data']
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U wrapped -d wrapped']
+      interval: 5s
+      retries: 10
+    <<: *small
+
+  # BullMQ needs Redis to never evict keys (noeviction is the default policy).
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      retries: 10
+    deploy:
+      resources:
+        limits: { memory: 256M }
+
+  api:
+    build: { context: .., dockerfile: apps/api/Dockerfile }
+    environment: &backend
+      DATABASE_URL: postgresql://wrapped:wrapped@postgres:5432/wrapped
+      REDIS_URL: redis://redis:6379
+      PUBLIC_BASE_URL: https://wrapped.localhost
+      GITHUB_SERVER_TOKEN: local-stack-placeholder
+      GITHUB_OAUTH_CLIENT_ID: local-stack-placeholder
+      GITHUB_OAUTH_CLIENT_SECRET: local-stack-placeholder
+      SESSION_SECRET: local-stack-placeholder-at-least-32-characters
+    volumes: ['files:/data/files']
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    labels:
+      traefik.enable: 'true'
+      traefik.http.routers.api.rule: PathPrefix(`/api`)
+      traefik.http.services.api.loadbalancer.server.port: '3000'
+    <<: *small
+
+  renderer:
+    build: { context: .., dockerfile: apps/renderer/Dockerfile }
+    environment: *backend
+    volumes: ['files:/data/files']
+    depends_on:
+      api: { condition: service_healthy }
+    <<: *small
+
+  web:
+    build: { context: .., dockerfile: apps/web/Dockerfile }
+    environment:
+      PUBLIC_BASE_URL: https://wrapped.localhost
+      API_INTERNAL_URL: http://api:3000
+    depends_on:
+      api: { condition: service_healthy }
+    labels:
+      traefik.enable: 'true'
+      traefik.http.routers.web.rule: PathPrefix(`/`)
+      traefik.http.services.web.loadbalancer.server.port: '4000'
+    deploy:
+      resources:
+        limits: { memory: 384M }
+
+volumes:
+  postgres-data:
+  # The shared volume: the renderer writes the PNGs, the api serves them.
+  files:

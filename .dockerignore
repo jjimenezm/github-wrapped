@@ -1,0 +1,25 @@
+# The images build from the repository root; this keeps the context small and secret-free.
+**/node_modules
+.pnpm-store
+**/dist
+**/coverage
+**/.angular
+**/*.tsbuildinfo
+.git
+.github
+.husky
+.data
+.claude
+.impeccable
+.superpowers
+**/.DS_Store
+**/*.log
+e2e/test-results
+e2e/playwright-report
+
+# Environment files and keys never enter an image.
+**/.env
+**/.env.*
+!.env.example
+**/*.pem
+**/*.key
