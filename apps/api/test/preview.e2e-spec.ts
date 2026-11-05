@@ -1,5 +1,5 @@
 import type { WrapSnapshot } from '@wrapped/shared';
-import { createE2eApp } from './e2e-app';
+import { createE2eApp, e2eConfig } from './e2e-app';
 
 interface ErrorBody {
   code: string;
@@ -103,6 +103,18 @@ describe('GET /api/preview/:login (e2e, GitHub fixtures)', () => {
   it('keys the limit by the address the proxy saw, not by a forged X-Forwarded-For', async () => {
     const from = (client: string, forged: string) =>
       preview('ana-dev').set('X-Forwarded-For', `${forged}, ${client}`);
+    for (let i = 0; i < 5; i++) await from('203.0.113.7', `198.51.100.${i}`).expect(200);
+    await from('203.0.113.7', '198.51.100.99').expect(429);
+    await from('203.0.113.8', '198.51.100.1').expect(200);
+  });
+
+  it('behind Cloudflare too (two hops), keys the limit by the client, not by the shared edge', async () => {
+    await t.app.close();
+    t = await createE2eApp('2026-03-01T12:00:00Z', e2eConfig({ trustProxyHops: 2 }));
+    // Cloudflare appends the client it saw; Traefik appends the Cloudflare edge it saw.
+    const edge = '172.70.1.1';
+    const from = (client: string, forged: string) =>
+      preview('ana-dev').set('X-Forwarded-For', `${forged}, ${client}, ${edge}`);
     for (let i = 0; i < 5; i++) await from('203.0.113.7', `198.51.100.${i}`).expect(200);
     await from('203.0.113.7', '198.51.100.99').expect(429);
     await from('203.0.113.8', '198.51.100.1').expect(200);

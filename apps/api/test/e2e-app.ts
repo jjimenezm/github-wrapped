@@ -29,6 +29,7 @@ export const e2eConfig = (overrides: Partial<AppConfig> = {}): AppConfig => ({
     preview: { max: 5, windowSeconds: 600 },
     publish: { max: 20, windowSeconds: 3600 },
   },
+  trustProxyHops: 1,
   ...overrides,
 });
 

@@ -35,7 +35,13 @@ describe('loadConfig', () => {
         preview: { max: 7, windowSeconds: 600 },
         publish: { max: 3, windowSeconds: 3600 },
       },
+      trustProxyHops: 1,
     });
+  });
+
+  it('counts the proxies in front of the api (Traefik, plus Cloudflare when proxied)', () => {
+    expect(loadConfig({ ...PRODUCTION, TRUST_PROXY_HOPS: '2' }).trustProxyHops).toBe(2);
+    expect(() => loadConfig({ ...PRODUCTION, TRUST_PROXY_HOPS: '0' })).toThrow(/TRUST_PROXY_HOPS/);
   });
 
   it('has local defaults for development: web on 4200, api on 3000, a throwaway secret', () => {

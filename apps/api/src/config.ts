@@ -26,6 +26,12 @@ export interface AppConfig {
   /** The GitHub OAuth app; unused in fixture mode. */
   oauth: { clientId: string | null; clientSecret: string | null };
   rateLimit: { preview: RateLimitRule; publish: RateLimitRule };
+  /**
+   * Proxies in front of the api, each appending the address it saw to X-Forwarded-For: 1 for
+   * Traefik alone, 2 with Cloudflare's proxy in front of it. The client IP (rate limits) is the
+   * entry that many hops back, so nothing a client adds to the header can change it.
+   */
+  trustProxyHops: number;
 }
 
 export type RateLimitName = keyof AppConfig['rateLimit'];
@@ -110,6 +116,7 @@ export function loadConfig(
         clientSecret: required(env, 'GITHUB_OAUTH_CLIENT_SECRET', 'people sign in with GitHub'),
       },
       rateLimit: rateLimits(env),
+      trustProxyHops: positiveInt(env, 'TRUST_PROXY_HOPS', 1),
     };
   } else {
     config = {
@@ -124,6 +131,7 @@ export function loadConfig(
       sessionSecret: value(env, 'SESSION_SECRET') ?? devSecret(),
       oauth,
       rateLimit: rateLimits(env),
+      trustProxyHops: positiveInt(env, 'TRUST_PROXY_HOPS', 1),
     };
   }
 
