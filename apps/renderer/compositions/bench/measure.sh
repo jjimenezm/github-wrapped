@@ -1,7 +1,7 @@
 #!/bin/sh
-# Runs inside the spike container: renders the composition once and reports wall time, CPU and
+# Runs inside the bench container: renders the composition once and reports wall time, CPU and
 # memory, read from the container's own cgroup (v2).
-#   sh /work/bench/measure.sh <name> [hyperframes render flags...]
+#   sh /bench/measure.sh <name> [hyperframes render flags...]
 set -u
 name=$1
 shift

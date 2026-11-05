@@ -1,0 +1,63 @@
+<!-- 15–18.5 s · Cordillera: the weeks as a mountain range; the summit is the best week. -->
+<template id="cordillera-template">
+  <style>
+    #cordillera-root {
+      position: absolute;
+      inset: 0;
+    }
+    #cordillera-head {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    #cordillera-art {
+      margin: 24px 0;
+    }
+  </style>
+
+  <div
+    id="cordillera-root"
+    data-composition-id="cordillera"
+    data-width="1080"
+    data-height="1920"
+    data-duration="3.5"
+  >
+    <div id="cordillera-body" class="scene-body">
+      <div id="cordillera-head">
+        <p id="cordillera-eyebrow" class="eyebrow"></p>
+        <h2 id="cordillera-title" class="title"></h2>
+      </div>
+      <div id="cordillera-art" class="art"></div>
+      <p id="cordillera-note" class="lede"></p>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      const V = window.WrapVideo;
+      const D = V.data();
+      const DURATION = 3.5;
+
+      document.getElementById('cordillera-eyebrow').textContent = D.copy.styles.cordillera;
+      document.getElementById('cordillera-title').textContent = D.copy.cordillera;
+      document.getElementById('cordillera-note').textContent = D.copy.cordilleraNote;
+      const art = document.getElementById('cordillera-art');
+      art.innerHTML = D.art.cordillera;
+
+      const tl = gsap.timeline({ paused: true });
+      V.enter(tl, '#cordillera-head > *', 0.05, 0.1);
+      V.animateArt(tl, art, 0.25, DURATION);
+      // A slow pan across the range, like walking past it.
+      tl.fromTo(
+        art,
+        { x: -18, scale: 0.98 },
+        { x: 18, scale: 1.03, duration: DURATION, ease: 'gw-in-out' },
+        0,
+      );
+      V.enter(tl, '#cordillera-note', 0.6);
+      V.exit(tl, ['#cordillera-head', art, '#cordillera-note'], DURATION);
+
+      V.register('cordillera', tl);
+    })();
+  </script>
+</template>

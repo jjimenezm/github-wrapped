@@ -1,0 +1,152 @@
+<!-- 3.5–7.5 s · The surprise: contributions counting up under frosted glass, then the context. -->
+<template id="count-template">
+  <style>
+    #count-root {
+      position: absolute;
+      inset: 0;
+    }
+    #count-body {
+      align-items: center;
+      text-align: center;
+    }
+    #count-blob {
+      position: absolute;
+      width: 820px;
+      height: 820px;
+      left: 130px;
+      top: 500px;
+      border-radius: 50%;
+    }
+    #count-panel {
+      position: relative;
+      width: 936px;
+      padding: 96px 56px 88px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+    #count-value {
+      font-weight: 600;
+      font-size: 232px;
+      line-height: 1;
+      letter-spacing: -0.05em;
+      font-variant-numeric: tabular-nums;
+    }
+    #count-label {
+      font-size: 52px;
+      color: var(--text-soft);
+    }
+    #count-context {
+      margin-top: 28px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      font-size: 36px;
+      color: var(--text-muted);
+    }
+    #count-delta {
+      font: 500 40px/1 var(--mono);
+      color: var(--text-soft);
+    }
+    #count-delta.up {
+      color: var(--growth);
+    }
+  </style>
+
+  <div
+    id="count-root"
+    data-composition-id="count"
+    data-width="1080"
+    data-height="1920"
+    data-duration="4"
+  >
+    <div id="count-body" class="scene-body">
+      <div id="count-blob"></div>
+      <div id="count-panel" class="glass">
+        <p id="count-value"></p>
+        <p id="count-label"></p>
+        <div id="count-context">
+          <p><span id="count-delta"></span> <span id="count-versus"></span></p>
+          <p id="count-days"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      const V = window.WrapVideo;
+      const D = V.data();
+      const DURATION = 4;
+
+      // The light behind the glass takes the person's top language colors.
+      document.getElementById('count-blob').style.background =
+        'radial-gradient(circle, ' +
+        D.palette[0] +
+        'bb, ' +
+        (D.palette[1] || D.palette[0]) +
+        '55 55%, transparent 70%)';
+
+      const valueEl = document.getElementById('count-value');
+      const labelEl = document.getElementById('count-label');
+      if (D.count) {
+        labelEl.textContent = D.count.label;
+      } else {
+        // Contributions failed to load: never a guessed number, the period instead (R10).
+        valueEl.remove();
+        labelEl.textContent = D.periodLabel;
+      }
+      const delta = document.getElementById('count-delta');
+      if (D.delta) {
+        delta.textContent = D.delta.text;
+        delta.classList.toggle('up', D.delta.up);
+        document.getElementById('count-versus').textContent = D.delta.versus;
+      } else {
+        delta.parentElement.remove();
+      }
+      if (D.activeDays) document.getElementById('count-days').textContent = D.activeDays;
+      else document.getElementById('count-days').remove();
+
+      const tl = gsap.timeline({ paused: true });
+      tl.fromTo(
+        '#count-blob',
+        { x: -170, y: -110, scale: 0.92 },
+        { x: 190, y: 150, scale: 1.08, duration: DURATION, ease: 'gw-in-out' },
+        0,
+      );
+      tl.fromTo(
+        '#count-panel',
+        { autoAlpha: 0, y: 64, scale: 0.96 },
+        { autoAlpha: 1, y: 0, scale: 1, duration: V.MOTION.reveal, ease: 'gw-out' },
+        0.05,
+      );
+
+      if (D.count) {
+        // HyperFrames seeks with events suppressed, so onUpdate never runs: the setter paints.
+        let counted = 0;
+        const counter = {
+          get v() {
+            return counted;
+          },
+          set v(value) {
+            counted = value;
+            valueEl.textContent = D.count.format(Math.round(value));
+          },
+        };
+        counter.v = 0;
+        tl.fromTo(
+          counter,
+          { v: 0 },
+          { v: D.count.value, duration: V.MOTION.count, ease: 'gw-expo' },
+          0.3,
+        );
+      }
+      V.enter(tl, ['#count-label', '#count-context'], 1.2, 0.15);
+      V.exit(tl, ['#count-panel', '#count-blob'], DURATION);
+
+      V.register('count', tl);
+    })();
+  </script>
+</template>

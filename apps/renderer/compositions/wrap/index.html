@@ -1,0 +1,307 @@
+<!doctype html>
+<!--
+  The wrap video: 30 s at 1080×1920 and 30 fps, one scene file per beat under scenes/.
+  intro → count → metrics → Huella → Cordillera → Constelación with projects → URL and QR.
+
+  Data comes in as variables (see variables.schema.json): the wrap's snapshot as JSON, its
+  language, its public URL, the motion seed and the avatar as a data URI. The defaults are a demo
+  person, so the composition also opens and checks on its own.
+
+  vendor/ is filled by `pnpm --filter @wrapped/renderer composition:vendor` (GSAP and the art
+  bundle, both from node_modules: the render never downloads a script). Render it with:
+
+    hyperframes render apps/renderer/compositions/wrap --variables-file vars.json \
+      --quality looks --no-low-memory-mode --workers 1 -o wrap.mp4
+-->
+<html
+  lang="es"
+  data-composition-variables='[
+    {"id":"snapshot","type":"string","label":"Wrap snapshot (JSON)","default":"{\"githubUserId\":583231,\"login\":\"jpjimenez\",\"avatarUrl\":\"https://avatars.githubusercontent.com/u/583231\",\"period\":{\"year\":2026,\"from\":\"2026-01-01\",\"to\":\"2026-11-03\",\"complete\":false},\"generatedAt\":\"2026-11-03T12:00:00.000Z\",\"metrics\":{\"contributions\":1284,\"commits\":312,\"mergedPRs\":86,\"reviews\":41,\"issues\":19},\"privateContributions\":0,\"activeDays\":214,\"previousContributions\":1044,\"weekly\":[13,23,33,43,30,40,33,20,30,40,27,37,30,40,27,37,47,17,27,37,24,34,44,14,24,34,44,31,41,34,21,5,12,0,3,31,41,28,38,48,18,28,38,25],\"languages\":[{\"name\":\"TypeScript\",\"color\":\"#3178c6\",\"bytes\":480000},{\"name\":\"PHP\",\"color\":\"#4F5D95\",\"bytes\":310000},{\"name\":\"SCSS\",\"color\":\"#c6538c\",\"bytes\":120000}],\"otherLanguagesBytes\":0,\"featured\":[{\"name\":\"sismos-chile-api\",\"description\":\"Sismos de Chile en tiempo real\",\"url\":\"https://github.com/demo/sismos-chile-api\",\"demoUrl\":null,\"stars\":34,\"commits\":128,\"topics\":[],\"languages\":[\"TypeScript\"]},{\"name\":\"github-wrapped\",\"description\":\"Tu año en GitHub\",\"url\":\"https://github.com/demo/github-wrapped\",\"demoUrl\":null,\"stars\":12,\"commits\":96,\"topics\":[],\"languages\":[\"TypeScript\"]},{\"name\":\"release-to-video\",\"description\":\"Releases a video\",\"url\":\"https://github.com/demo/release-to-video\",\"demoUrl\":null,\"stars\":0,\"commits\":41,\"topics\":[],\"languages\":[\"PHP\"]}],\"failedMetrics\":[]}"},
+    {"id":"locale","type":"enum","label":"Language","options":[{"value":"es","label":"Español"},{"value":"en","label":"English"}],"default":"es"},
+    {"id":"url","type":"string","label":"Public URL","default":"https://wrapped.jjimenezm.dev/@jpjimenez/2026"},
+    {"id":"seed","type":"number","label":"Motion seed","default":2956974931},
+    {"id":"avatar","type":"string","label":"Avatar (data URI)","default":""}
+  ]'
+>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>GitHub Wrapped video</title>
+    <script src="vendor/gsap.min.js"></script>
+    <script src="vendor/art.iife.js"></script>
+    <script src="lib/wrap.js"></script>
+    <style>
+      @font-face {
+        font-family: 'Geist';
+        src: url('assets/fonts/Geist-Regular.ttf') format('truetype');
+        font-weight: 400;
+      }
+      @font-face {
+        font-family: 'Geist';
+        src: url('assets/fonts/Geist-Medium.ttf') format('truetype');
+        font-weight: 500;
+      }
+      @font-face {
+        font-family: 'Geist';
+        src: url('assets/fonts/Geist-SemiBold.ttf') format('truetype');
+        font-weight: 600;
+      }
+      @font-face {
+        font-family: 'Geist Mono';
+        src: url('assets/fonts/GeistMono-Regular.ttf') format('truetype');
+        font-weight: 400;
+      }
+      @font-face {
+        font-family: 'Geist Mono';
+        src: url('assets/fonts/GeistMono-Medium.ttf') format('truetype');
+        font-weight: 500;
+      }
+
+      /* Frost tokens, as in apps/web/src/styles/tokens.css, scaled to a 1080 px wide frame. */
+      :root {
+        --ink: #0b0f14;
+        --ink-raised: #121820;
+        --glass: rgb(255 255 255 / 0.045);
+        --glass-strong: rgb(255 255 255 / 0.09);
+        --hair: rgb(255 255 255 / 0.09);
+        --hair-strong: rgb(255 255 255 / 0.16);
+        --text: #e7ecf0;
+        --text-soft: #c4cdd5;
+        --text-muted: #8b97a3;
+        --ice: #b8d0dc;
+        --growth: #4ade80;
+        --paper: #eef3f6;
+        --sans: 'Geist', ui-sans-serif, system-ui, sans-serif;
+        --mono: 'Geist Mono', ui-monospace, monospace;
+        --blur: blur(36px) saturate(1.2);
+        --gutter: 72px;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 1080px;
+        height: 1920px;
+        overflow: hidden;
+        background: var(--ink);
+        color: var(--text);
+        font-family: var(--sans);
+        font-variant-numeric: tabular-nums;
+        -webkit-font-smoothing: antialiased;
+      }
+      #wrap-stage {
+        position: relative;
+        width: 1080px;
+        height: 1920px;
+        overflow: hidden;
+        background: var(--ink);
+      }
+      #scene-backdrop {
+        z-index: 0;
+      }
+      .scene-host {
+        z-index: 1;
+      }
+      /* Story-style progress: one segment per scene, filled while it plays. */
+      #wrap-progress {
+        position: absolute;
+        z-index: 2;
+        top: 72px;
+        left: var(--gutter);
+        right: var(--gutter);
+        display: flex;
+        gap: 10px;
+      }
+      #wrap-progress span {
+        flex: 1;
+        height: 6px;
+        border-radius: 3px;
+        background: var(--hair-strong);
+        overflow: hidden;
+      }
+      #wrap-progress i {
+        display: block;
+        height: 100%;
+        background: var(--ice);
+        transform-origin: left center;
+      }
+
+      /* Shared by the scenes: the frame between the progress bar and the footer, and its type. */
+      .scene-body {
+        position: absolute;
+        inset: 0;
+        padding: 200px var(--gutter) 220px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 40px;
+      }
+      .eyebrow {
+        font: 500 30px/1.2 var(--mono);
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--ice);
+      }
+      .title {
+        font-weight: 600;
+        font-size: 84px;
+        line-height: 1.04;
+        letter-spacing: -0.035em;
+        text-wrap: balance;
+      }
+      .lede {
+        font-size: 38px;
+        line-height: 1.35;
+        color: var(--text-muted);
+        text-wrap: pretty;
+      }
+      .glass {
+        border-radius: 40px;
+        border: 2px solid var(--hair-strong);
+        background: var(--glass);
+        backdrop-filter: var(--blur);
+        -webkit-backdrop-filter: var(--blur);
+        box-shadow: inset 0 2px 0 rgb(255 255 255 / 0.05);
+      }
+      .art {
+        width: 936px;
+        aspect-ratio: 300 / 168;
+      }
+      .art svg {
+        display: block;
+        width: 100%;
+        height: 100%;
+        overflow: visible;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="wrap-stage"
+      data-composition-id="wrap"
+      data-start="0"
+      data-duration="30"
+      data-fps="30"
+      data-width="1080"
+      data-height="1920"
+    >
+      <div
+        id="scene-backdrop"
+        data-composition-id="backdrop"
+        data-composition-src="scenes/backdrop.html"
+        data-start="0"
+        data-duration="30"
+        data-track-index="0"
+        data-width="1080"
+        data-height="1920"
+      ></div>
+      <div
+        id="scene-intro"
+        class="scene-host"
+        data-composition-id="intro"
+        data-composition-src="scenes/intro.html"
+        data-start="0"
+        data-duration="3.5"
+        data-track-index="1"
+        data-width="1080"
+        data-height="1920"
+      ></div>
+      <div
+        id="scene-count"
+        class="scene-host"
+        data-composition-id="count"
+        data-composition-src="scenes/count.html"
+        data-start="3.5"
+        data-duration="4"
+        data-track-index="1"
+        data-width="1080"
+        data-height="1920"
+      ></div>
+      <div
+        id="scene-metrics"
+        class="scene-host"
+        data-composition-id="metrics"
+        data-composition-src="scenes/metrics.html"
+        data-start="7.5"
+        data-duration="4"
+        data-track-index="1"
+        data-width="1080"
+        data-height="1920"
+      ></div>
+      <div
+        id="scene-huella"
+        class="scene-host"
+        data-composition-id="huella"
+        data-composition-src="scenes/huella.html"
+        data-start="11.5"
+        data-duration="3.5"
+        data-track-index="1"
+        data-width="1080"
+        data-height="1920"
+      ></div>
+      <div
+        id="scene-cordillera"
+        class="scene-host"
+        data-composition-id="cordillera"
+        data-composition-src="scenes/cordillera.html"
+        data-start="15"
+        data-duration="3.5"
+        data-track-index="1"
+        data-width="1080"
+        data-height="1920"
+      ></div>
+      <div
+        id="scene-constelacion"
+        class="scene-host"
+        data-composition-id="constelacion"
+        data-composition-src="scenes/constelacion.html"
+        data-start="18.5"
+        data-duration="6"
+        data-track-index="1"
+        data-width="1080"
+        data-height="1920"
+      ></div>
+      <div
+        id="scene-outro"
+        class="scene-host"
+        data-composition-id="outro"
+        data-composition-src="scenes/outro.html"
+        data-start="24.5"
+        data-duration="5.5"
+        data-track-index="1"
+        data-width="1080"
+        data-height="1920"
+      ></div>
+      <div id="wrap-progress"></div>
+    </div>
+    <script>
+      // Every scene drives its own timeline; the root fills the progress from the scenes' slots.
+      (function () {
+        var tl = gsap.timeline({ paused: true });
+        var progress = document.getElementById('wrap-progress');
+        document.querySelectorAll('#wrap-stage > .scene-host').forEach(function (host) {
+          var segment = document.createElement('span');
+          var fill = document.createElement('i');
+          segment.appendChild(fill);
+          progress.appendChild(segment);
+          tl.fromTo(
+            fill,
+            { scaleX: 0 },
+            {
+              scaleX: 1,
+              duration: parseFloat(host.getAttribute('data-duration')),
+              ease: 'none',
+            },
+            parseFloat(host.getAttribute('data-start')),
+          );
+        });
+        tl.set({}, {}, 30);
+        window.__timelines = window.__timelines || {};
+        window.__timelines['wrap'] = tl;
+      })();
+    </script>
+  </body>
+</html>

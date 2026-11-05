@@ -28,3 +28,8 @@ coverage/
 # Playwright output
 test-results/
 playwright-report/
+
+# browser bundles built from a package (packages/art/build/art.iife.js)
+/packages/*/build/
+# vendored at build time from node_modules into the video composition (GSAP, the art bundle)
+/apps/renderer/compositions/wrap/vendor/

@@ -1,0 +1,96 @@
+<!--
+  24.5–30 s · The way back: the wrap's public URL and its QR (dark on light paper, so any phone
+  reads it), held still long enough to scan from the screen.
+-->
+<template id="outro-template">
+  <style>
+    #outro-root {
+      position: absolute;
+      inset: 0;
+    }
+    #outro-body {
+      align-items: center;
+      text-align: center;
+      gap: 44px;
+    }
+    #outro-scan {
+      font-weight: 600;
+      font-size: 64px;
+      line-height: 1.08;
+      letter-spacing: -0.03em;
+      max-width: 900px;
+      text-wrap: balance;
+    }
+    #outro-qr {
+      width: 600px;
+      height: 600px;
+      padding: 28px;
+      border-radius: 44px;
+      background: var(--paper);
+      box-shadow: 0 40px 120px rgb(0 0 0 / 0.55);
+    }
+    #outro-qr svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+    #outro-url {
+      max-width: 936px;
+      font: 500 40px/1.25 var(--mono);
+      color: var(--ice);
+      overflow-wrap: anywhere;
+    }
+    #outro-cta {
+      font-size: 34px;
+      color: var(--text-muted);
+    }
+  </style>
+
+  <div
+    id="outro-root"
+    data-composition-id="outro"
+    data-width="1080"
+    data-height="1920"
+    data-duration="5.5"
+  >
+    <div id="outro-body" class="scene-body">
+      <p id="outro-scan"></p>
+      <div id="outro-qr"></div>
+      <p id="outro-url"></p>
+      <p id="outro-cta"></p>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      const V = window.WrapVideo;
+      const D = V.data();
+      const DURATION = 5.5;
+
+      document.getElementById('outro-scan').textContent = D.copy.scan;
+      document.getElementById('outro-qr').innerHTML = D.qr;
+      document.getElementById('outro-cta').textContent = D.copy.cta(D.host);
+      // The whole URL on one line when it fits; long logins wrap at a character, never shrink
+      // under the readable floor.
+      const url = document.getElementById('outro-url');
+      url.textContent = D.urlText;
+      url.style.fontSize =
+        Math.max(30, Math.min(40, Math.floor(936 / (0.6 * D.urlText.length)))) + 'px';
+
+      const tl = gsap.timeline({ paused: true });
+      V.enter(tl, '#outro-scan', 0.05);
+      tl.fromTo(
+        '#outro-qr',
+        { autoAlpha: 0, y: 80, scale: 0.94 },
+        { autoAlpha: 1, y: 0, scale: 1, duration: V.MOTION.reveal, ease: 'gw-out' },
+        0.2,
+      );
+      V.enter(tl, ['#outro-url', '#outro-cta'], 0.55, 0.12);
+      // Held, with the faintest float: the code stays readable to the last frame.
+      tl.fromTo('#outro-body', { y: 10 }, { y: -10, duration: DURATION, ease: 'gw-in-out' }, 0);
+      tl.set({}, {}, DURATION);
+
+      V.register('outro', tl);
+    })();
+  </script>
+</template>

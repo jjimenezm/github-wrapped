@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-# Throwaway image for the video render spike: Node 22, HyperFrames, its pinned chrome-headless-shell
+# Throwaway image for the video render benchmark: Node 22, HyperFrames, its pinned chrome-headless-shell
 # and a pinned static FFmpeg, on the same Debian base as the renderer image. Built on the server by
 # run.sh; nothing here ships.
 FROM node:22-bookworm-slim

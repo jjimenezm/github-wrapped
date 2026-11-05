@@ -1,0 +1,91 @@
+<!-- 11.5–15 s · Huella: the weekly rhythm drawn as a fingerprint in the top languages' colors. -->
+<template id="huella-template">
+  <style>
+    #huella-root {
+      position: absolute;
+      inset: 0;
+    }
+    #huella-head {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    #huella-art {
+      margin: 24px 0;
+    }
+    #huella-legend {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px 36px;
+      font: 500 32px/1 var(--mono);
+      color: var(--text-soft);
+    }
+    #huella-legend li {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    #huella-legend i {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+    }
+  </style>
+
+  <div
+    id="huella-root"
+    data-composition-id="huella"
+    data-width="1080"
+    data-height="1920"
+    data-duration="3.5"
+  >
+    <div id="huella-body" class="scene-body">
+      <div id="huella-head">
+        <p id="huella-eyebrow" class="eyebrow"></p>
+        <h2 id="huella-title" class="title"></h2>
+      </div>
+      <div id="huella-art" class="art"></div>
+      <ul id="huella-legend"></ul>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      const V = window.WrapVideo;
+      const D = V.data();
+      const DURATION = 3.5;
+
+      document.getElementById('huella-eyebrow').textContent = D.copy.styles.huella;
+      document.getElementById('huella-title').textContent = D.copy.huella;
+      const art = document.getElementById('huella-art');
+      art.innerHTML = D.art.huella;
+
+      // The legend: the languages whose colors draw the rings (none when GitHub gave none).
+      const legend = document.getElementById('huella-legend');
+      D.languages.forEach((name, i) => {
+        const item = document.createElement('li');
+        const dot = document.createElement('i');
+        dot.style.background = D.palette[i];
+        item.appendChild(dot);
+        item.appendChild(document.createTextNode(name));
+        legend.appendChild(item);
+      });
+      if (!D.languages.length) legend.remove();
+
+      const tl = gsap.timeline({ paused: true });
+      V.enter(tl, '#huella-head > *', 0.05, 0.1);
+      V.animateArt(tl, art, 0.2, DURATION);
+      tl.fromTo(
+        art,
+        { scale: 0.94, rotate: -4 },
+        { scale: 1.02, rotate: 3, duration: DURATION, ease: 'gw-in-out' },
+        0,
+      );
+      if (D.languages.length) V.enter(tl, legend.children, 0.9, 0.1);
+      V.exit(tl, ['#huella-head', art, '#huella-legend'], DURATION);
+
+      V.register('huella', tl);
+    })();
+  </script>
+</template>

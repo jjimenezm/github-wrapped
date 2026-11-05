@@ -12,3 +12,6 @@ allowBuilds:
   '@prisma/client': true
   '@prisma/engines': true
   prisma: true
+
+minimumReleaseAgeExclude:
+  - hyperframes@0.9.16

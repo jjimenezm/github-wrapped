@@ -1,32 +1,53 @@
 #!/usr/bin/env bash
-# Video render spike, on the production server with every service up. Builds a throwaway image
-# with HyperFrames, then renders the composition three times, one at a time, each in a fresh
-# container (no network, 2 GB without swap) so its cgroup measures that render alone.
+# Video render benchmark, on the production server with every service up. Builds a throwaway image
+# with HyperFrames, then renders the composition in a fresh container (no network, 2 GB without
+# swap) so its cgroup measures that render alone. By default it runs the production settings
+# (`looks`, BeginFrame capture, one worker); ALL=1 adds the two low-memory profiles of the spike.
 # Results: $OUT/summary.txt (and one .log and .mp4 per render).
-#   bash bench/run.sh            # from the spike folder; needs docker (or run it with sudo)
+#
+#   bash bench/run.sh [composition-dir]      # default ../wrap; needs docker (or sudo)
+#   VARS=vars.json bash bench/run.sh         # render a wrap's variables instead of the demo
+#
+# The composition needs its vendor/ folder (pnpm --filter @wrapped/renderer composition:vendor);
+# it is copied with its symlinks resolved, so the fonts come along.
 set -uo pipefail
 
-SPIKE=$(cd "$(dirname "$0")/.." && pwd)
-OUT=${OUT:-/tmp/hf-spike/out}
-IMG=hf-spike:0.9.16
+BENCH=$(cd "$(dirname "$0")" && pwd)
+COMP=$(cd "${1:-$BENCH/../wrap}" && pwd)
+OUT=${OUT:-/tmp/hf-bench/out}
+IMG=hf-bench:0.9.16
 LIMIT=${LIMIT:-2g}
 NET=none
-mkdir -p "$OUT" && chmod 777 "$OUT" && chmod -R a+rwX "$SPIKE"
+WORK="$OUT/work"
+mkdir -p "$OUT" && chmod 777 "$OUT"
 S="$OUT/summary.txt"
 : >"$S"
 log() { echo "$*" | tee -a "$S"; }
+
+if [ ! -f "$COMP/vendor/gsap.min.js" ] || [ ! -f "$COMP/vendor/art.iife.js" ]; then
+  echo "ABORT: $COMP/vendor is incomplete; run: pnpm --filter @wrapped/renderer composition:vendor"
+  exit 1
+fi
+rm -rf "$WORK" && cp -RL "$COMP" "$WORK" && rm -rf "$WORK/.hyperframes"
+VARFLAGS=()
+if [ -n "${VARS:-}" ]; then
+  cp "$VARS" "$WORK/vars.json"
+  VARFLAGS=(--variables-file /work/vars.json --strict-variables)
+fi
+chmod -R a+rwX "$WORK" "$BENCH"
 
 log "== host $(date -u +%FT%TZ)"
 log "$(uname -m) · kernel $(uname -r) · $(nproc) vCPU ·$(grep -m1 'model name' /proc/cpuinfo | cut -d: -f2)"
 log "$(awk '/^(MemTotal|MemAvailable|SwapTotal|SwapFree):/{printf "%s %.0fMB  ", $1, $2/1024}' /proc/meminfo)"
 log "cgroup $(stat -fc %T /sys/fs/cgroup) · docker $(docker version --format '{{.Server.Version}}' 2>/dev/null || echo '?')"
+log "composition $(basename "$COMP") · variables ${VARS:-defaults}"
 if [ "$(uname -m)" != x86_64 ]; then log "ABORT: Chrome for Testing no publica linux-arm64"; exit 1; fi
 log "== servicios antes"
 docker stats --no-stream --format '{{.Name}} {{.MemUsage}} cpu {{.CPUPerc}}' | sort | tee -a "$S"
 
 log "== build $IMG"
 t0=$(date +%s)
-if ! docker build --progress=plain -t "$IMG" "$SPIKE/bench" >"$OUT/build.log" 2>&1; then
+if ! docker build --progress=plain -t "$IMG" "$BENCH" >"$OUT/build.log" 2>&1; then
   log "BUILD FALLÓ"
   tail -30 "$OUT/build.log" | tee -a "$S"
   exit 1
@@ -46,7 +67,7 @@ run() {
   docker rm -f "$c" >/dev/null 2>&1
   log "== render $name ($*) · red $NET · límite $LIMIT"
   if ! docker run -d --name "$c" --network "$NET" -m "$LIMIT" --memory-swap "$LIMIT" --shm-size 512m \
-    -v "$SPIKE:/work" -v "$OUT:/out" "$IMG" sh /work/bench/measure.sh "$name" "$@" >/dev/null; then
+    -v "$WORK:/work" -v "$BENCH:/bench:ro" -v "$OUT:/out" "$IMG" sh /bench/measure.sh "$name" "$@" >/dev/null; then
     log "  no arrancó"
     return
   fi
@@ -70,17 +91,19 @@ run() {
   if [ "$code" != 0 ]; then
     tail -15 "$OUT/$name.log" | tee -a "$S"
     if [ "$NET" = none ] && grep -q -E 'ENOTFOUND|EAI_AGAIN|fetch failed|ERR_NAME' "$OUT/$name.log"; then
-      log "  (pidió red: se repite con red)"
+      log "  (pidió red: se repite con red; el render de producción no debería necesitarla)"
       NET=bridge
       run "$name" "$@"
     fi
   fi
 }
 
-run standard --quality standard
-run looks --quality looks
-run looks-beginframe --quality looks --no-low-memory-mode
+run looks-beginframe --quality looks --no-low-memory-mode "${VARFLAGS[@]}"
+if [ "${ALL:-0}" = 1 ]; then
+  run standard --quality standard "${VARFLAGS[@]}"
+  run looks --quality looks "${VARFLAGS[@]}"
+fi
 
-log "== servicios durante 'looks' (a los ~30 s)"
-cat "$OUT/stats-during-looks.txt" 2>/dev/null | tee -a "$S"
+log "== servicios durante el render (a los ~15 s)"
+cat "$OUT/stats-during-looks-beginframe.txt" 2>/dev/null | tee -a "$S"
 log "== listo · MP4 y logs en $OUT"

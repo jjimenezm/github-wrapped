@@ -1,0 +1,127 @@
+<!--
+  18.5–24.5 s · Constelación: every featured repo is a star (size = commits, color = language),
+  then the projects themselves, by commits. Without featured repos it stays a sky of dust.
+-->
+<template id="constelacion-template">
+  <style>
+    #constelacion-root {
+      position: absolute;
+      inset: 0;
+    }
+    #constelacion-body {
+      gap: 32px;
+    }
+    #constelacion-head {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    #constelacion-projects {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    .constelacion-repo {
+      display: flex;
+      align-items: center;
+      gap: 26px;
+      height: 116px;
+      padding: 0 40px;
+      border-radius: 30px;
+    }
+    .constelacion-repo svg {
+      flex: none;
+      width: 40px;
+      height: 40px;
+      color: var(--ice);
+    }
+    .constelacion-name {
+      flex: 1;
+      min-width: 0;
+      font: 500 38px/1.3 var(--mono);
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .constelacion-meta {
+      flex: none;
+      display: flex;
+      align-items: center;
+      gap: 22px;
+      font: 500 30px/1 var(--mono);
+      color: var(--text-muted);
+    }
+    .constelacion-stars {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .constelacion-stars svg {
+      width: 28px;
+      height: 28px;
+      color: var(--text-muted);
+    }
+  </style>
+
+  <div
+    id="constelacion-root"
+    data-composition-id="constelacion"
+    data-width="1080"
+    data-height="1920"
+    data-duration="6"
+  >
+    <div id="constelacion-body" class="scene-body">
+      <div id="constelacion-head">
+        <p id="constelacion-eyebrow" class="eyebrow"></p>
+        <h2 id="constelacion-title" class="title"></h2>
+      </div>
+      <!-- The art names the two busiest repos in small type; the list below is what reads. -->
+      <div id="constelacion-art" class="art" data-layout-ignore></div>
+      <ul id="constelacion-projects"></ul>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      const V = window.WrapVideo;
+      const D = V.data();
+      const DURATION = 6;
+
+      document.getElementById('constelacion-eyebrow').textContent = D.copy.styles.constelacion;
+      document.getElementById('constelacion-title').textContent = D.featured.length
+        ? D.copy.projects
+        : D.copy.constellation;
+      const art = document.getElementById('constelacion-art');
+      art.innerHTML = D.art.constelacion;
+
+      const list = document.getElementById('constelacion-projects');
+      D.featured.forEach((repo) => {
+        const row = document.createElement('li');
+        row.className = 'constelacion-repo glass';
+        row.innerHTML =
+          repo.icon +
+          '<span class="constelacion-name"></span><span class="constelacion-meta">' +
+          (repo.stars
+            ? '<span class="constelacion-stars">' + repo.starIcon + '<b></b></span>'
+            : '') +
+          '<span class="constelacion-commits"></span></span>';
+        row.querySelector('.constelacion-name').textContent = repo.name;
+        row.querySelector('.constelacion-commits').textContent = repo.commits;
+        if (repo.stars) row.querySelector('.constelacion-stars b').textContent = repo.stars;
+        list.appendChild(row);
+      });
+      if (!D.featured.length) list.remove();
+
+      const tl = gsap.timeline({ paused: true });
+      V.enter(tl, '#constelacion-head > *', 0.05, 0.1);
+      V.animateArt(tl, art, 0.2, DURATION);
+      tl.fromTo(art, { scale: 0.95 }, { scale: 1.05, duration: DURATION, ease: 'gw-in-out' }, 0);
+      if (D.featured.length) V.enter(tl, list.children, 2.2, 0.15);
+      V.exit(tl, ['#constelacion-head', art, '#constelacion-projects'], DURATION);
+
+      V.register('constelacion', tl);
+    })();
+  </script>
+</template>

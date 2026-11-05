@@ -1,0 +1,126 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://wrapped.jjimenezm.dev/schemas/wrap-video-variables.json",
+  "title": "Wrap video variables",
+  "description": "The `--variables-file` of a wrap video render (compositions/wrap). Every id matches a declaration in index.html's data-composition-variables, with the same type, so a render can run with --strict-variables. Whoever renders the video builds this object; test/composition.spec.ts holds it to this schema and to those declarations.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["snapshot", "locale", "url", "seed"],
+  "properties": {
+    "snapshot": {
+      "description": "The published wrap's snapshot (WrapSnapshot) as a JSON string: HyperFrames variables are strings, numbers, colors, booleans or enums, never objects.",
+      "type": "string",
+      "contentMediaType": "application/json",
+      "contentSchema": { "$ref": "#/$defs/WrapSnapshot" }
+    },
+    "locale": {
+      "description": "The wrap's language; the video renders only in it (R15, R17).",
+      "enum": ["es", "en"]
+    },
+    "url": {
+      "description": "The wrap's public URL, printed and encoded in the closing QR: <PUBLIC_BASE_URL>/@<login>/<year>.",
+      "type": "string",
+      "pattern": "^https?://[^/\\s]+(/[^\\s]*)?/@[A-Za-z0-9-]+/[0-9]{4}$"
+    },
+    "seed": {
+      "description": "Seed of the motion's small variations (the light's path): seedFor(githubUserId, year), the art's own seed, so a person's video always moves the same way.",
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 4294967295
+    },
+    "avatar": {
+      "description": "The GitHub avatar as a PNG or JPEG data URI (the render has no network). Empty: the login's initial instead.",
+      "type": "string",
+      "pattern": "^(data:image/(png|jpeg);base64,[A-Za-z0-9+/]+={0,2})?$"
+    }
+  },
+  "$defs": {
+    "Metric": {
+      "description": "A number GitHub returned, or null when it doesn't exist or failed: then the video leaves it out (R10).",
+      "type": ["integer", "null"],
+      "minimum": 0
+    },
+    "WrapSnapshot": {
+      "description": "@wrapped/shared WrapSnapshot: the fields the video reads, plus the rest of the frozen data.",
+      "type": "object",
+      "required": [
+        "githubUserId",
+        "login",
+        "period",
+        "metrics",
+        "privateContributions",
+        "activeDays",
+        "previousContributions",
+        "weekly",
+        "languages",
+        "featured"
+      ],
+      "properties": {
+        "githubUserId": { "type": "integer", "minimum": 1 },
+        "login": { "type": "string", "pattern": "^[A-Za-z0-9-]{1,39}$" },
+        "avatarUrl": { "type": "string" },
+        "period": {
+          "type": "object",
+          "required": ["year", "from", "to", "complete"],
+          "properties": {
+            "year": { "type": "integer", "minimum": 2008 },
+            "from": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" },
+            "to": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" },
+            "complete": { "type": "boolean" }
+          }
+        },
+        "generatedAt": { "type": "string" },
+        "metrics": {
+          "type": "object",
+          "required": ["contributions", "commits", "mergedPRs", "reviews", "issues"],
+          "properties": {
+            "contributions": { "$ref": "#/$defs/Metric" },
+            "commits": { "$ref": "#/$defs/Metric" },
+            "mergedPRs": { "$ref": "#/$defs/Metric" },
+            "reviews": { "$ref": "#/$defs/Metric" },
+            "issues": { "$ref": "#/$defs/Metric" }
+          }
+        },
+        "privateContributions": { "type": "integer", "minimum": 0 },
+        "activeDays": { "$ref": "#/$defs/Metric" },
+        "previousContributions": { "$ref": "#/$defs/Metric" },
+        "weekly": {
+          "type": "array",
+          "maxItems": 54,
+          "items": { "type": "number", "minimum": 0 }
+        },
+        "languages": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "color", "bytes"],
+            "properties": {
+              "name": { "type": "string" },
+              "color": { "type": ["string", "null"] },
+              "bytes": { "type": "number", "minimum": 0 }
+            }
+          }
+        },
+        "otherLanguagesBytes": { "type": "number", "minimum": 0 },
+        "featured": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "commits", "stars"],
+            "properties": {
+              "name": { "type": "string" },
+              "description": { "type": "string" },
+              "url": { "type": "string" },
+              "demoUrl": { "type": ["string", "null"] },
+              "stars": { "type": "integer", "minimum": 0 },
+              "commits": { "type": "integer", "minimum": 0 },
+              "topics": { "type": "array", "items": { "type": "string" } },
+              "languages": { "type": "array", "items": { "type": "string" } }
+            }
+          }
+        },
+        "failedMetrics": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  }
+}

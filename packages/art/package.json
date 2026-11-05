@@ -11,11 +11,13 @@
       "types": "./dist/cjs/index.d.ts",
       "import": "./dist/esm/index.js",
       "require": "./dist/cjs/index.js"
-    }
+    },
+    "./build/art.iife.js": "./build/art.iife.js"
   },
   "scripts": {
-    "clean": "rm -rf dist",
-    "build": "pnpm clean && tsc -p tsconfig.json && tsc -p tsconfig.esm.json",
+    "clean": "rm -rf dist build",
+    "build": "pnpm clean && tsc -p tsconfig.json && tsc -p tsconfig.esm.json && pnpm build:browser",
+    "build:browser": "esbuild src/browser.ts --bundle --format=iife --global-name=WrappedArt --target=es2022 --minify --legal-comments=inline --outfile=build/art.iife.js",
     "dev": "pnpm run \"/^watch:/\"",
     "watch:cjs": "tsc -p tsconfig.json --watch --preserveWatchOutput",
     "watch:esm": "tsc -p tsconfig.esm.json --watch --preserveWatchOutput",
@@ -32,6 +34,7 @@
     "@resvg/resvg-js": "^2.6.2",
     "@types/jest": "^30.0.0",
     "@types/node": "^22.20.5",
+    "esbuild": "0.28.2",
     "geist": "^1.9.0",
     "jest": "^30.0.0",
     "jsqr": "^1.4.0",

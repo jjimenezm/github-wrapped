@@ -1,0 +1,166 @@
+<!--
+  7.5–11.5 s · What's behind the number: one glass row per metric GitHub returned (a failed or zero
+  metric has no row, and the rest close ranks), then the weekly activity.
+-->
+<template id="metrics-template">
+  <style>
+    #metrics-root {
+      position: absolute;
+      inset: 0;
+    }
+    #metrics-body {
+      gap: 32px;
+    }
+    #metrics-head {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      margin-bottom: 8px;
+    }
+    #metrics-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .metrics-row {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      height: 132px;
+      padding: 0 44px;
+      border-radius: 32px;
+    }
+    .metrics-icon {
+      flex: none;
+      width: 52px;
+      height: 52px;
+      color: var(--ice);
+    }
+    .metrics-icon svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+    .metrics-value {
+      font: 500 68px/1 var(--mono);
+      letter-spacing: -0.02em;
+      color: var(--text);
+    }
+    .metrics-label {
+      font-size: 40px;
+      color: var(--text-muted);
+    }
+    #metrics-weekly {
+      padding: 36px 44px 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+    #metrics-weekly-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 24px;
+      font-size: 32px;
+      color: var(--text-soft);
+    }
+    #metrics-peak {
+      font: 500 28px/1 var(--mono);
+      color: var(--text-muted);
+    }
+    #metrics-bars {
+      display: flex;
+      align-items: flex-end;
+      gap: 6px;
+      height: 200px;
+    }
+    #metrics-bars i {
+      flex: 1;
+      min-height: 4px;
+      border-radius: 4px 4px 1px 1px;
+      background: var(--ice);
+      transform-origin: center bottom;
+    }
+  </style>
+
+  <div
+    id="metrics-root"
+    data-composition-id="metrics"
+    data-width="1080"
+    data-height="1920"
+    data-duration="4"
+  >
+    <div id="metrics-body" class="scene-body">
+      <div id="metrics-head">
+        <p id="metrics-eyebrow" class="eyebrow"></p>
+        <h2 id="metrics-title" class="title"></h2>
+      </div>
+      <ul id="metrics-list"></ul>
+      <section id="metrics-weekly" class="glass">
+        <div id="metrics-weekly-head">
+          <span id="metrics-weekly-title"></span>
+          <span id="metrics-peak"></span>
+        </div>
+        <div id="metrics-bars"></div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      const V = window.WrapVideo;
+      const D = V.data();
+      const DURATION = 4;
+
+      document.getElementById('metrics-eyebrow').textContent = D.copy.metricsEyebrow;
+      document.getElementById('metrics-title').textContent = D.copy.metricsTitle;
+      document.getElementById('metrics-weekly-title').textContent = D.copy.weekly;
+      document.getElementById('metrics-peak').textContent = D.peak || '';
+
+      const list = document.getElementById('metrics-list');
+      D.metrics.forEach((metric) => {
+        const row = document.createElement('li');
+        row.className = 'metrics-row glass';
+        row.setAttribute('data-metric', metric.key);
+        row.innerHTML =
+          '<span class="metrics-icon">' +
+          metric.icon +
+          '</span><strong class="metrics-value"></strong><span class="metrics-label"></span>';
+        row.querySelector('.metrics-value').textContent = metric.value;
+        row.querySelector('.metrics-label').textContent = metric.label;
+        list.appendChild(row);
+      });
+      if (!D.metrics.length) list.remove();
+
+      const bars = document.getElementById('metrics-bars');
+      const best = Math.max.apply(null, D.weekly.concat([1]));
+      D.weekly.forEach((week) => {
+        const bar = document.createElement('i');
+        bar.style.height = Math.max(2, (week / best) * 100) + '%';
+        bar.style.opacity = String(0.35 + 0.65 * (week / best));
+        bars.appendChild(bar);
+      });
+
+      const tl = gsap.timeline({ paused: true });
+      V.enter(tl, ['#metrics-eyebrow', '#metrics-title'], 0.05, 0.1);
+      const rows = list.querySelectorAll('.metrics-row');
+      if (rows.length) V.enter(tl, rows, 0.3, 0.1);
+      V.enter(tl, '#metrics-weekly', 0.45 + rows.length * 0.1);
+      tl.fromTo(
+        bars.children,
+        { scaleY: 0 },
+        {
+          scaleY: 1,
+          duration: V.MOTION.reveal,
+          ease: 'gw-out',
+          stagger: { amount: 0.6 },
+        },
+        0.75 + rows.length * 0.1,
+      );
+      V.exit(tl, ['#metrics-head', '#metrics-list', '#metrics-weekly'], DURATION);
+
+      V.register('metrics', tl);
+    })();
+  </script>
+</template>

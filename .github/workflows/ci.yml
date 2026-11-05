@@ -81,6 +81,17 @@ jobs:
       - name: Unit tests
         run: pnpm -r test
 
+      # The video composition in the Chrome HyperFrames pins: `hyperframes check`, then stills of
+      # two fixtures (every beat drawn, the closing QR read back, the English copy, no gap where a
+      # failed metric would go). Stills only: an MP4 takes minutes.
+      - name: Video composition
+        env:
+          HYPERFRAMES_NO_TELEMETRY: '1'
+          HYPERFRAMES_NO_UPDATE_CHECK: '1'
+        run: |
+          pnpm --filter @wrapped/renderer exec hyperframes browser ensure
+          pnpm --filter @wrapped/renderer test:composition
+
       # The api end to end over HTTP, with GitHub answered from fixtures (no network, no token).
       - name: E2E tests
         run: pnpm --filter @wrapped/api test:e2e
