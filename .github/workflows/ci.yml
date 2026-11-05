@@ -141,3 +141,6 @@ jobs:
     uses: ./.github/workflows/deploy.yml
     with:
       tag: ${{ needs.images.outputs.tag }}
+    # A called workflow only sees the secrets its caller hands down, environment secrets included:
+    # without this, the Dokploy secrets of the `production` environment arrive empty.
+    secrets: inherit
