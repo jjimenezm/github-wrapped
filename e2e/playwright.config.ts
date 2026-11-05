@@ -45,6 +45,8 @@ export default defineConfig({
         // Every test comes from the same address: real limits would turn a CI retry into a 429.
         RATE_LIMIT_PREVIEW_MAX: '1000',
         RATE_LIMIT_PUBLISH_MAX: '1000',
+        // Publishing queues the video as in production; nothing renders it, so it waits in line.
+        RENDER_VIDEO_ENABLED: 'true',
       },
     },
     {

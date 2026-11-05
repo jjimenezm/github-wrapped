@@ -178,6 +178,17 @@ describe('WrapApiService for published wraps', () => {
     expect(await result).toMatchObject({ imagesStatus: 'queued' });
   });
 
+  it('asks to render a failed video again', async () => {
+    const result = firstValueFrom(api.retryVideo('ana-dev', 2026));
+
+    const request = http.expectOne('/api/wraps/ana-dev/2026/video/retry');
+    expect(request.request.method).toBe('POST');
+    expect(request.request.withCredentials).toBe(true);
+    request.flush({ videoStatus: 'queued', videoQueuePosition: 1 });
+
+    expect(await result).toMatchObject({ videoStatus: 'queued', videoQueuePosition: 1 });
+  });
+
   it('deletes a wrap the session owns', async () => {
     const result = firstValueFrom(api.deleteWrap('ana-dev', 2026));
 

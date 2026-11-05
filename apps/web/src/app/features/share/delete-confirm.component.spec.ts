@@ -1,6 +1,5 @@
 import { ApplicationInitStatus } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { VIDEO_SHARING } from '../../core/config/features';
 import { provideI18n } from '../../core/i18n/i18n.providers';
 import { DeleteConfirmComponent } from './delete-confirm.component';
 
@@ -12,7 +11,7 @@ describe('DeleteConfirmComponent', () => {
 
   afterEach(() => vi.restoreAllMocks());
 
-  async function render(inputs: { busy?: boolean; error?: string | null } = {}) {
+  async function render(inputs: { busy?: boolean; error?: string | null; video?: boolean } = {}) {
     vi.spyOn(navigator, 'languages', 'get').mockReturnValue(['es-CL']);
     TestBed.configureTestingModule({
       imports: [DeleteConfirmComponent],
@@ -23,6 +22,7 @@ describe('DeleteConfirmComponent', () => {
     fixture.componentRef.setInput('year', 2026);
     fixture.componentRef.setInput('busy', inputs.busy ?? false);
     fixture.componentRef.setInput('error', inputs.error ?? null);
+    fixture.componentRef.setInput('video', inputs.video ?? false);
     confirmed = vi.fn<() => void>();
     cancelled = vi.fn<() => void>();
     fixture.componentInstance.confirmed.subscribe(confirmed);
@@ -43,16 +43,15 @@ describe('DeleteConfirmComponent', () => {
     expect(dialog?.getAttribute('aria-modal')).toBe('true');
     const title = el.querySelector(`#${dialog?.getAttribute('aria-labelledby')}`);
     expect(title?.textContent?.trim()).toBe('¿Eliminar tu wrap 2026?');
-    // Phase 1 has no video, so the list doesn't promise to delete one.
+    // Without a video (videos off, or a wrap from before them) the list doesn't promise one.
     expect([...el.querySelectorAll('li')].map((li) => li.textContent?.trim())).toEqual([
       'Tus datos, la tarjeta y la imagen',
       'El link y el QR dejan de funcionar',
     ]);
   });
 
-  it('lists the video too once videos exist', async () => {
-    TestBed.configureTestingModule({ providers: [{ provide: VIDEO_SHARING, useValue: true }] });
-    await render();
+  it('lists the video too when the wrap has one', async () => {
+    await render({ video: true });
 
     expect([...el.querySelectorAll('li')].map((li) => li.textContent?.trim())).toContain(
       'El video de 30 s',

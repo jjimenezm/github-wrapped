@@ -43,6 +43,7 @@
 
 .disc {
   --gw-icon-size: 18px;
+  position: relative;
   display: grid;
   place-items: center;
   width: 56px;
@@ -92,6 +93,30 @@
 
 .action--retry .action-name {
   color: var(--gw-text-soft);
+}
+
+/* The video is ready: green means "done" here, as it does for "Publicado". */
+.ready-dot {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--gw-growth);
+  box-shadow: 0 0 0 2px var(--gw-ink);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ready-dot {
+    animation: gw-dot-in var(--gw-dur) var(--gw-ease-out) both;
+  }
+}
+
+@keyframes gw-dot-in {
+  from {
+    transform: scale(0);
+  }
 }
 
 .glyph {

@@ -47,9 +47,35 @@
       [fileName]="fileName"
       [intents]="intents()"
       [retrying]="retrying()"
+      [video]="video()"
+      [videoUrl]="status()?.video ?? null"
+      [videoFileName]="videoFileName"
       (retry)="retryImages()"
       (showQr)="openQr()"
     />
+
+    <!-- Where the video is, under the icons; it keeps rendering if this screen closes. Its room
+         stays once the video is ready, so the card doesn't jump. -->
+    @if (video() !== 'none') {
+      <div class="video-line" data-testid="video-line" aria-live="polite">
+        @if (videoLine(); as line) {
+          @if (line.key === 'failed') {
+            <span>{{ 'share.video.failed' | transloco }}</span>
+            <span class="sep" aria-hidden="true">·</span>
+            <button
+              type="button"
+              class="video-retry"
+              [disabled]="videoRetrying()"
+              (click)="retryVideo()"
+            >
+              {{ 'share.video.retry' | transloco }}
+            </button>
+          } @else {
+            <span>{{ 'share.video.' + line.key | transloco: { position: line.position } }}</span>
+          }
+        }
+      </div>
+    }
 
     <p class="gw-visually-hidden" aria-live="polite">
       {{ 'share.images.' + images() | transloco }}
@@ -58,6 +84,12 @@
       <p class="error" role="alert">
         <gw-icon name="alert" />
         {{ 'share.errors.retry' | transloco }}
+      </p>
+    }
+    @if (videoRetryError()) {
+      <p class="error" role="alert">
+        <gw-icon name="alert" />
+        {{ 'share.errors.videoRetry' | transloco }}
       </p>
     }
 
@@ -92,6 +124,7 @@
     @if (deleteOpen()) {
       <gw-delete-confirm
         [year]="year"
+        [video]="hasVideo()"
         [busy]="deleting()"
         [error]="deleteError()"
         (confirmed)="confirmDelete()"

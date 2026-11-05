@@ -3,18 +3,22 @@ import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
-  inject,
   input,
   output,
   viewChild,
 } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { VIDEO_SHARING } from '../../../core/config/features';
 import { GridLoaderComponent } from '../../../ui/grid-loader/grid-loader.component';
 import { IconComponent } from '../../../ui/icon/icon.component';
 
 /** `ready` only when the PNGs of the version on screen exist, so no shared link lacks its preview. */
 export type ImagesState = 'pending' | 'ready' | 'failed';
+
+/**
+ * The video of the current data: `none` hides the icon (videos off, or a wrap from before them),
+ * `pending` while it waits or renders, `ready` to download, `failed` until the owner retries.
+ */
+export type VideoState = 'none' | 'pending' | 'ready' | 'failed';
 
 export interface ShareIntents {
   x: string;
@@ -22,9 +26,10 @@ export interface ShareIntents {
 }
 
 /**
- * Imagen, (Video), LinkedIn, X and QR as round glass icons with a label under each. The ones
+ * Imagen, Video, LinkedIn, X and QR as round glass icons with a label under each. The ones
  * that need the PNGs show the mini GridLoader and do nothing until they exist; if the render
- * failed, Imagen turns into a neutral "Reintentar" and the networks dim.
+ * failed, Imagen turns into a neutral "Reintentar" and the networks dim. Video has its own
+ * loader, then a green dot when its MP4 is ready (its retry lives in the status line below).
  */
 @Component({
   selector: 'gw-share-actions',
@@ -40,10 +45,13 @@ export class ShareActionsComponent {
   readonly fileName = input.required<string>();
   readonly intents = input<ShareIntents | null>(null);
   readonly retrying = input(false);
+  readonly video = input<VideoState>('none');
+  /** The MP4 of the current data, once it is ready. */
+  readonly videoUrl = input<string | null>(null);
+  readonly videoFileName = input('');
   readonly retry = output<void>();
   readonly showQr = output<void>();
 
-  protected readonly video = inject(VIDEO_SHARING);
   private readonly qrButton = viewChild.required<ElementRef<HTMLButtonElement>>('qrButton');
 
   /** Where focus goes back when the full-screen QR closes. */

@@ -26,6 +26,7 @@ const WRAP: PublicWrap = {
   images: { card: '/api/files/w/img/2/card.png', og: '/api/files/w/img/2/og.png' },
   videoReadyVersion: null,
   videoStatus: 'none',
+  video: null,
 };
 
 const apiError = (status: number, code: string) =>
@@ -155,6 +156,31 @@ describe('Public wrap page', () => {
       await open('/@ana-dev/2026');
 
       expect(el().querySelector('video, .video')).toBeNull();
+    });
+
+    it('plays the ready video under the card, inline and by byte ranges', async () => {
+      const mp4 = 'https://media.example.dev/wrapped/w/1.mp4';
+      await open('/@ana-dev/2026', {
+        ...WRAP,
+        videoStatus: 'ready',
+        videoReadyVersion: 1,
+        video: mp4,
+      });
+
+      const section = el().querySelector('section.video');
+      const head = [...(section?.querySelectorAll('h2 span') ?? [])].map((span) => text(span));
+      expect(head).toEqual(['El año en 30 segundos', '9:16']);
+      const player = section?.querySelector('video');
+      expect(player?.getAttribute('src')).toBe(`${mp4}#t=0.1`);
+      expect(player?.hasAttribute('controls')).toBe(true);
+      expect(player?.hasAttribute('playsinline')).toBe(true);
+      expect(player?.getAttribute('preload')).toBe('metadata');
+      expect(player?.getAttribute('aria-label')).toBe('Video del año en GitHub de @ana-dev');
+      // After the card and "Ver mi año", before the footer.
+      const order = [...el().querySelectorAll('.card, .see, section.video, .foot')].map(
+        (node) => node.className.split(' ')[0],
+      );
+      expect(order).toEqual(['card', 'gw-button', 'video', 'foot']);
     });
 
     it('offers the owner "¿Es tuyo? Gestionar" through GitHub', async () => {
