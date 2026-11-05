@@ -12,7 +12,8 @@ import { serverRoutes } from './app.routes.server';
 import { API_INTERNAL_URL, InternalApiBackend } from './core/api/internal-api.backend';
 import { PUBLIC_BASE_URL } from './core/config/public-base-url';
 
-// In production the api is another container; unset (ng serve, e2e), /api goes through the proxy.
+// In production the api is another container (the e2e suite sets it too); unset (plain ng serve),
+// /api goes through the proxy.
 const apiInternalUrl = process.env['API_INTERNAL_URL'];
 const internalApi: Provider[] = apiInternalUrl
   ? [

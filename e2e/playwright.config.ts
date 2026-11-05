@@ -7,8 +7,9 @@ const ci = !!process.env['CI'];
 
 /**
  * The real web (the dev server: SSR plus the /api proxy Traefik does in production) over the
- * real api in fixture mode: GitHub data and sign-in answered locally, wraps in memory. The api
- * must be built first (`pnpm -r build`).
+ * real api in fixture mode: GitHub data and sign-in answered locally, wraps in memory. As in
+ * production, server-side rendering reads the api directly (`API_INTERNAL_URL`) and the browser
+ * goes through the proxy. The api must be built first (`pnpm -r build`).
  */
 export default defineConfig({
   testDir: '.',
@@ -43,6 +44,10 @@ export default defineConfig({
       url: WEB,
       reuseExistingServer: false,
       timeout: 180_000,
+      // Going back through this dev server instead depends on how `localhost` resolves: in a
+      // container it may listen on ::1 only while Node's fetch dials 127.0.0.1. The api listens
+      // on both.
+      env: { API_INTERNAL_URL: API },
     },
   ],
 });

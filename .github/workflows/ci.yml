@@ -85,21 +85,6 @@ jobs:
       - name: E2E tests
         run: pnpm --filter @wrapped/api test:e2e
 
-      # The web in a real browser over the built api in fixture mode: the server-rendered public
-      # page, hydration and the sign-in round trips, with GitHub stubbed.
-      - name: Browser E2E tests
-        run: |
-          pnpm --filter @wrapped/e2e exec playwright install --with-deps chromium
-          pnpm --filter @wrapped/e2e test:e2e
-
-      - name: Browser E2E traces
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-traces
-          path: e2e/test-results/
-          retention-days: 7
-
       # Repositories, the BullMQ queue and the image worker against the real services above.
       - name: Integration tests
         env:
@@ -109,6 +94,50 @@ jobs:
           pnpm --filter @wrapped/api exec prisma migrate deploy
           pnpm --filter @wrapped/api test:integration
           pnpm --filter @wrapped/renderer test:integration
+
+  # The web in a real browser over the built api in fixture mode: the server-rendered public page,
+  # hydration and the sign-in round trips, with GitHub stubbed. It runs alongside `ci` in
+  # Playwright's own image, which already has Chromium and the system libraries it needs, so no
+  # `playwright install --with-deps` and no apt downloads (a slow mirror once took 12 minutes).
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    container:
+      # Keep in step with @playwright/test in the lockfile. If they drift, the tests fail asking
+      # for the matching image.
+      image: mcr.microsoft.com/playwright:v1.64.1-noble
+    env:
+      # The image may have no git; the hooks are for local commits anyway.
+      HUSKY: '0'
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      # The api it serves and the packages the web dev server compiles against.
+      - name: Build
+        run: pnpm --filter '@wrapped/api...' --filter '@wrapped/web^...' build
+
+      - name: Browser E2E tests
+        run: pnpm --filter @wrapped/e2e test:e2e
+
+      - name: Browser E2E traces
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-traces
+          path: e2e/test-results/
+          retention-days: 7
 
   # Whether this push ships anything: docs and tooling changes don't rebuild or redeploy.
   changes:
@@ -129,7 +158,7 @@ jobs:
         run: .github/scripts/needs-deploy.sh "$BEFORE" "$GITHUB_SHA" >> "$GITHUB_OUTPUT"
 
   images:
-    needs: [ci, changes]
+    needs: [ci, e2e, changes]
     if: needs.changes.outputs.deploy == 'true'
     permissions:
       contents: read
