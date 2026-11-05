@@ -4,7 +4,7 @@ Paste a GitHub username and get your year as story slides, plus a one-of-a-kind 
 
 **[Live demo](https://wrapped.jjimenezm.dev)** · Screenshots: coming with the first public release · [![CI](https://github.com/jjimenezm/github-wrapped/actions/workflows/ci.yml/badge.svg)](https://github.com/jjimenezm/github-wrapped/actions/workflows/ci.yml)
 
-Angular 21 (SSR) · NestJS 11 · Prisma + Postgres · BullMQ + Redis · resvg · Playwright · Docker on a single Dokploy VPS
+Angular 21 (SSR) · NestJS 11 · Prisma + Postgres · BullMQ + Redis · resvg · HyperFrames · Playwright · Docker on a single Dokploy VPS
 
 ## What it does
 
@@ -12,6 +12,7 @@ Angular 21 (SSR) · NestJS 11 · Prisma + Postgres · BullMQ + Redis · resvg ·
 - **Proof on every number:** each figure links to the GitHub search or view it comes from.
 - **A card nobody else has:** choose one of three generative designs (Huella, Cordillera or Constelación). Each is drawn from your own data, so two people with the same numbers still get different art.
 - **Publish and share:** sign in with GitHub to publish `/@you/2026`, with a 1080×1350 PNG, a QR code and a link preview. Only the owner can change or delete it; a deleted wrap answers `410 Gone`.
+- **A 30-second video:** after publishing, the server renders your year as a 9:16 video in your wrap's language. The share screen shows its place in line, and the public page plays it (Safari on iPhone included).
 - **Mobile first:** built for phones, with its own components rather than a desktop layout squeezed down.
 
 ## Technical decisions
@@ -24,7 +25,8 @@ Angular 21 (SSR) · NestJS 11 · Prisma + Postgres · BullMQ + Redis · resvg ·
 | **Runtime i18n with Transloco**                                                                                           | Each public page shows in the wrap's own language, which Angular's build-time i18n (one bundle per language) can't do.                                                                                                               | Translations load at runtime.                                                                                                                    |
 | **Ownership is GitHub's numeric id, and no user token is stored**                                                         | Renaming an account keeps your wrap; a recycled login can't take it. Sign-in only needs to prove who you are.                                                                                                                        | Nothing can run on the user's behalf later, which is by design.                                                                                  |
 | **The data snapshot is one JSONB column**                                                                                 | A wrap is always read whole and never queried by metric.                                                                                                                                                                             | No SQL over individual metrics, which nothing needs.                                                                                             |
-| **A separate `renderer` service on a BullMQ queue**                                                                       | Publishing returns at once, a slow render never blocks the api, and the video queue (phase 2) plugs into the same worker.                                                                                                            | One more service to run and to health-check.                                                                                                     |
+| **A separate `renderer` service on a BullMQ queue**                                                                       | Publishing returns at once, and a slow render never blocks the api. Two queues share the worker: PNGs take milliseconds; videos take ~3 minutes each and run one at a time, so a render never starves the site.                      | One more service to run and to health-check.                                                                                                     |
+| **Videos in an R2 bucket with its own domain**                                                                            | The server only lets Cloudflare in, and Cloudflare's CDN terms want video in its own storage. R2 serves byte ranges (Safari on iPhone needs them), with free egress.                                                                 | One more external service, and a bucket key in the renderer. A deleted video can stay at the edge for up to an hour (`s-maxage=3600`).           |
 | **Every green push to `main` ships: images built in GitHub Actions, published to GHCR, rolled out through Dokploy's API** | Compiling Angular never competes for RAM with live renders on a small server. Each service is pinned to its commit's image (`sha-<short>`), deployed api → renderer → web, and the next one waits until the previous one is healthy. | A deploy waits for the whole CI run, and a key to the Dokploy panel lives in GitHub's secrets (in a `production` environment limited to `main`). |
 | **One self-hosted VPS** (Dokploy: web, api, renderer, Postgres, Redis)                                                    | The only cost is the server. Backups go to free off-site storage.                                                                                                                                                                    | Scaling means a bigger server, not more of them. That's fine for a demo.                                                                         |
 
@@ -40,6 +42,7 @@ flowchart LR
   A <--> R[(Redis: cache, limits, queue)]
   R --> RD[renderer · BullMQ]
   RD -->|PNG| V[(files volume)]
+  RD -->|MP4| M[(R2 media bucket)]
   A -->|serves /api/files| V
   A --> GH[(GitHub GraphQL + OAuth)]
 ```
@@ -74,6 +77,6 @@ Without `DATABASE_URL` and `REDIS_URL`, the api keeps wraps in memory and nothin
 
 ## Limits and next steps
 
-- **Phase 2:** a 30-second video of your year, rendered with HyperFrames after publishing.
+- **Videos wait their turn:** one renders at a time, about 20 an hour on the demo server. The share screen says where yours is in line, and it keeps rendering if you close it.
 - **Phase 3:** dedicated desktop components. Until then, desktop shows the mobile app inside a phone frame.
 - **Contribution counts** use GitHub's own UTC range. They can differ by a few from the profile graph, which uses your local time zone.
