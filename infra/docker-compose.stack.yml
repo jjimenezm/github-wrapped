@@ -61,6 +61,7 @@ services:
       GITHUB_OAUTH_CLIENT_ID: local-stack-placeholder
       GITHUB_OAUTH_CLIENT_SECRET: local-stack-placeholder
       SESSION_SECRET: local-stack-placeholder-at-least-32-characters
+      RENDER_VIDEO_ENABLED: 'true'
     volumes: ['files:/data/files']
     depends_on:
       postgres: { condition: service_healthy }
@@ -77,7 +78,10 @@ services:
     volumes: ['files:/data/files']
     depends_on:
       api: { condition: service_healthy }
-    <<: *small
+    # A video render peaks at ~700 MB and 1.6 vCPU; the cap leaves room for web, api and Postgres.
+    deploy:
+      resources:
+        limits: { memory: 1536M, cpus: '1.5' }
 
   web:
     build: { context: .., dockerfile: apps/web/Dockerfile }
