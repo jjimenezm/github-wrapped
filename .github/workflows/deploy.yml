@@ -1,0 +1,68 @@
+name: Deploy
+
+# Points the three Dokploy applications at one image tag and deploys them in order: the api first (it
+# runs the migrations), then the renderer, then the web. Each one has to be healthy on the new image
+# before the next starts; a failure stops the rest, and Swarm keeps the previous version serving.
+#
+# - CI calls it after a green push to main, with that commit's images (sha-<short>).
+# - To roll back, run it by hand (Actions → Deploy → Run workflow) with an earlier tag: another
+#   sha-<short>, or a release such as 0.1.0.
+on:
+  workflow_call:
+    inputs:
+      tag:
+        description: Image tag to deploy
+        type: string
+        required: true
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Image tag to deploy (sha-1a2b3c4, or a release such as 0.1.0)
+        type: string
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    # The Dokploy secrets live in this environment; restrict it to main (Settings → Environments).
+    environment:
+      name: production
+      url: https://wrapped.jjimenezm.dev
+    # One deploy at a time. A newer one waits rather than cutting a running deploy halfway.
+    concurrency:
+      group: deploy-production
+      cancel-in-progress: false
+
+    env:
+      IMAGE_PREFIX: ghcr.io/${{ github.repository }}
+      IMAGE_TAG: ${{ inputs.tag }}
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+          sparse-checkout: .github/scripts
+
+      # A mistyped rollback tag fails here, before any service is touched.
+      - name: Check the images exist
+        run: |
+          for app in api renderer web; do
+            docker buildx imagetools inspect "$IMAGE_PREFIX-$app:$IMAGE_TAG" > /dev/null
+          done
+
+      - name: Deploy api, renderer and web
+        env:
+          DOKPLOY_URL: ${{ secrets.DOKPLOY_URL }}
+          DOKPLOY_API_KEY: ${{ secrets.DOKPLOY_API_KEY }}
+          DOKPLOY_APP_ID_API: ${{ secrets.DOKPLOY_APP_ID_API }}
+          DOKPLOY_APP_ID_RENDERER: ${{ secrets.DOKPLOY_APP_ID_RENDERER }}
+          DOKPLOY_APP_ID_WEB: ${{ secrets.DOKPLOY_APP_ID_WEB }}
+          # Only needed if the panel is ever put behind Cloudflare Access.
+          CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
+          CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
+          DEPLOY_NOTE: ${{ github.sha }} · ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: .github/scripts/dokploy-deploy.sh api renderer web

@@ -1,10 +1,19 @@
 name: Images
 
-# A release tag (v1.2.3) builds the three images and publishes them to GHCR; Dokploy only pulls
-# them, so compiling never competes for memory with the renders on the server.
+# Builds the three images and publishes them to GHCR. Dokploy only pulls them, so compiling never
+# competes for memory with the renders on the server.
+#
+# - CI calls it after a green push to main: sha-<short> (immutable, what gets deployed) and main
+#   (moves with the branch).
+# - A release tag (v1.2.3): 1.2.3, 1.2 and latest, kept for rollbacks.
 on:
   push:
     tags: ['v*.*.*']
+  workflow_call:
+    outputs:
+      tag:
+        description: The immutable tag of the images built from this commit (sha-<short>)
+        value: ${{ jobs.version.outputs.tag }}
   workflow_dispatch:
 
 permissions:
@@ -15,8 +24,19 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # One place decides the commit tag; the deploy uses exactly this value.
+  version:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    outputs:
+      tag: ${{ steps.sha.outputs.tag }}
+    steps:
+      - id: sha
+        run: echo "tag=sha-${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+
   image:
     name: ${{ matrix.app }}
+    needs: version
     runs-on: ubuntu-latest
     timeout-minutes: 30
     # Only this job writes, and only to this repository's packages.
@@ -41,15 +61,18 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # v1.2.3 → 1.2.3, 1.2 and latest; every image also gets its commit (sha-<short>).
+      # A branch gets sha-<short> and its name; v1.2.3 gets 1.2.3, 1.2 and latest. A release
+      # doesn't rewrite sha-<short>: the rebuild would get a new digest under the tag already
+      # deployed (and the release's commit is in the image's revision label anyway).
       - id: meta
         uses: docker/metadata-action@v6
         with:
           images: ghcr.io/${{ github.repository }}-${{ matrix.app }}
           tags: |
+            type=raw,value=${{ needs.version.outputs.tag }},enable=${{ !startsWith(github.ref, 'refs/tags/') }}
+            type=ref,event=branch
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
-            type=sha
           flavor: |
             latest=${{ startsWith(github.ref, 'refs/tags/v') }}
 

@@ -61,7 +61,14 @@ The private key of the origin certificate lives only on the server and in a pass
 
 ## 2. Images
 
-Pushing a tag `vX.Y.Z` runs [`images.yml`](../.github/workflows/images.yml), which publishes `ghcr.io/<owner>/github-wrapped-{web,api,renderer}` tagged `X.Y.Z`, `X.Y`, `sha-<commit>` and `latest`. Make the three packages public (Package settings → Visibility), or add GHCR as a registry in Dokploy with a token that can read packages.
+[`images.yml`](../.github/workflows/images.yml) builds `ghcr.io/<owner>/github-wrapped-{web,api,renderer}` in GitHub Actions and publishes them to GHCR:
+
+| Trigger                                          | Tags                                                                                         |
+| ------------------------------------------------ | -------------------------------------------------------------------------------------------- |
+| A push to `main` that passes CI and changes code | `sha-<short commit>` (immutable, the one that gets deployed) and `main` (follows the branch) |
+| A release tag `vX.Y.Z`                           | `X.Y.Z`, `X.Y` and `latest`                                                                  |
+
+Make the three packages public (Package settings → Visibility), or add GHCR as a registry in Dokploy with a token that can read packages.
 
 ## 3. Services
 
@@ -108,11 +115,51 @@ Values without quotes or spaces (Dokploy writes them as `KEY=value`). Secrets go
 
 Set by the images, so there's nothing to add: `NODE_ENV=production`, `PORT`, `FILES_DIR=/data/files`, `REQUIRE_FILES_VOLUME=true` (renderer), and `NG_TRUST_PROXY_HEADERS` (web). Without that last one, Angular falls back to client-side rendering for any request carrying Traefik's `X-Forwarded-*` headers, and link previews break. If the domain changes, also set `NG_ALLOWED_HOSTS` on the web (angular.json lists `wrapped.jjimenezm.dev` and `localhost`).
 
-## 6. Deploying a version
+## 6. Releases and rollback
 
-1. Push a tag `vX.Y.Z` and wait for **Images** to go green.
-2. In Dokploy, change the image tag of api, renderer and web (or keep `latest`), then Deploy each one, api first. The api runs `prisma migrate deploy` before it starts; Prisma takes a lock, so two starting tasks never race.
-3. Rollback: deploy the previous tag. Migrations only move forward, so a release that drops a column ships the code change first and the `DROP` in a later release.
+Every push to `main` that passes CI is deployed. One run of [`ci.yml`](../.github/workflows/ci.yml) chains it all:
+
+```mermaid
+flowchart LR
+  P[push to main] --> CI[ci: format, build, lint, tests, secret scan]
+  P --> CH{changes code?}
+  CI --> IM[images: sha-short + main to GHCR]
+  CH -->|yes| IM
+  CH -->|docs only| STOP[no images, no deploy]
+  IM --> D[deploy: api → renderer → web]
+```
+
+- **What ships:** [`needs-deploy.sh`](../.github/scripts/needs-deploy.sh) compares the push with the previous head. Markdown, `LICENSE`, editor and git settings, `.env.example`, the browser end-to-end suite (`e2e/`) and the local compose files don't rebuild or redeploy; anything else does, workflows included.
+- **How it deploys:** [`deploy.yml`](../.github/workflows/deploy.yml) runs [`dokploy-deploy.sh`](../.github/scripts/dokploy-deploy.sh) against the Dokploy API. For each service it sets the application's image to `…:sha-<short>` (`application.update`), deploys it (`application.deploy`), waits for Dokploy's deployment to finish, then for the Swarm service's rolling update to complete (`docker.getConfig` on the service, `UpdateStatus`). Dokploy updates start-first with automatic rollback, and a task only counts as running once its `HEALTHCHECK` passes, so the next service starts only when the previous one is healthy on the new image. The api goes first because it runs `prisma migrate deploy` before it starts (Prisma takes a lock, so two starting tasks never race).
+- **Traceability:** each application in Dokploy shows the exact commit in its image tag, each Dokploy deployment is titled with the tag and links the Actions run, and GitHub's **production** environment lists every deploy with its commit.
+- **One deploy at a time:** pushes to `main` queue instead of cancelling each other, so a deploy is never cut halfway and an older commit never lands after a newer one. While a run waits, a newer push replaces it.
+- **When it fails:** the failing service stays on its previous version (Swarm rolled it back, or never switched), its application is pointed back at its previous image, and the services after it aren't touched. The ones before it keep the new image; the run's summary lists which. Fix forward, or roll back.
+
+**Rollback:** Actions → **Deploy** → Run workflow on `main`, with an earlier tag: `sha-<short>` (from the deploy list of the `production` environment or the package versions in GHCR) or a release such as `0.1.0`. The workflow first checks that the three images exist. The next push to `main` deploys again on top of it; to stay on the old version, revert the commit on `main`. Migrations only move forward, so a rollback doesn't undo one: a release that drops a column ships the code change first and the `DROP` in a later release.
+
+**Releases:** a tag `vX.Y.Z` only publishes versioned images (that commit was already deployed from `main`). Use it to name a point you may want to roll back to.
+
+### One-time setup
+
+1. **API key.** In Dokploy, Settings → Profile → **API/CLI Keys** → Generate New Key: a name such as `github-actions`, an expiration (a year, with a reminder to rotate it), your organization, and rate limiting off (or at least 120 requests a minute: a deploy polls every 5 seconds). The key is shown once. It acts as the user who created it, so it can do anything that user can do on the panel: treat it like the panel's password, and delete it in the same place if it leaks.
+2. **Application ids.** Open each application (api, renderer, web) in Dokploy. The id is the last segment of the URL: `/dashboard/project/<projectId>/environment/<environmentId>/services/application/<applicationId>`.
+3. **GitHub environment.** Repository → Settings → Environments → New environment `production`. Under Deployment branches and tags, choose _Selected branches and tags_ and add `main`, so no other branch can reach these secrets. Then add these environment secrets (secrets rather than variables, because the logs of a public repository are public):
+
+   | Secret                    | Value                                                |
+   | ------------------------- | ---------------------------------------------------- |
+   | `DOKPLOY_URL`             | The panel's URL, such as `https://panel.example.dev` |
+   | `DOKPLOY_API_KEY`         | The key from step 1                                  |
+   | `DOKPLOY_APP_ID_API`      | The api's application id                             |
+   | `DOKPLOY_APP_ID_RENDERER` | The renderer's application id                        |
+   | `DOKPLOY_APP_ID_WEB`      | The web's application id                             |
+
+4. **The runner has to reach the panel.** GitHub's runners call the panel from changing cloud IPs, through Cloudflare like any visitor, so the firewall (Cloudflare IPs only) and Authenticated Origin Pulls let them through. What can stop them:
+   - **Bot Fight Mode** challenges automated clients, and on the free plan no WAF rule can skip it. Keep it off in the panel's zone, or the API answers 403 with a challenge page.
+   - A **WAF custom rule** or a high Security Level on the panel's host: let `/api/` through for requests carrying `x-api-key`.
+   - **Cloudflare Access** in front of the panel: create a service token, allow it in the application's policy (_Service Auth_), and add it as the secrets `CF_ACCESS_CLIENT_ID` and `CF_ACCESS_CLIENT_SECRET`; the script sends them when they're set.
+   - An **IP allowlist** that skips Cloudflare (the panel open only to your IP): hosted runners can't pass it. Use Access instead, or a self-hosted runner inside the allowlist.
+
+To check the setup without waiting for a push, run **Deploy** by hand with the tag that is already live.
 
 ## 7. Backups and restore
 

@@ -1,5 +1,7 @@
 name: CI
 
+# Every push and pull request runs the checks. A push to main that passes them and changes shipped
+# code then publishes its images and deploys them: ci → images → deploy, all in this one run.
 on:
   pull_request:
   push:
@@ -9,10 +11,11 @@ on:
 permissions:
   contents: read
 
-# A new push to the same branch or PR cancels the run in progress.
+# On a pull request, a new push cancels the run in progress. On main, runs wait for each other
+# instead: a deploy is never cut halfway, and an older commit never lands after a newer one.
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   ci:
@@ -106,3 +109,35 @@ jobs:
           pnpm --filter @wrapped/api exec prisma migrate deploy
           pnpm --filter @wrapped/api test:integration
           pnpm --filter @wrapped/renderer test:integration
+
+  # Whether this push ships anything: docs and tooling changes don't rebuild or redeploy.
+  changes:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      deploy: ${{ steps.diff.outputs.deploy }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - id: diff
+        env:
+          BEFORE: ${{ github.event.before }}
+        run: .github/scripts/needs-deploy.sh "$BEFORE" "$GITHUB_SHA" >> "$GITHUB_OUTPUT"
+
+  images:
+    needs: [ci, changes]
+    if: needs.changes.outputs.deploy == 'true'
+    permissions:
+      contents: read
+      packages: write
+    uses: ./.github/workflows/images.yml
+
+  deploy:
+    needs: images
+    uses: ./.github/workflows/deploy.yml
+    with:
+      tag: ${{ needs.images.outputs.tag }}
