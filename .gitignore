@@ -20,6 +20,8 @@ coverage/
 .superpowers/
 # local design-hook cache and ignore list, anywhere in the tree
 .impeccable/
+# HyperFrames writes its preview and render state next to each composition
+.hyperframes/
 .DS_Store
 *.log
 
