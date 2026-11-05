@@ -168,12 +168,20 @@
       "preparing": "getting ready",
       "imageHint": "Download the card as a PNG",
       "qrHint": "Show the QR full screen",
-      "retryHint": "Render the image again"
+      "retryHint": "Render the image again",
+      "videoHint": "Download the 30 s video"
     },
     "images": {
       "pending": "Getting the image and the link preview ready…",
       "ready": "The image and the link preview are ready.",
       "failed": "We couldn’t render the image. You can try again."
+    },
+    "video": {
+      "queued": "In line · position {{ position }}",
+      "waiting": "In line",
+      "rendering": "Making your 30 s video · it keeps going if you close this screen",
+      "failed": "We couldn’t make the video",
+      "retry": "Try again"
     },
     "foot": {
       "data": "Public GitHub data",
@@ -192,7 +200,8 @@
     },
     "home": "Back to start",
     "errors": {
-      "retry": "We couldn’t retry the image. Try again in a few seconds."
+      "retry": "We couldn’t retry the image. Try again in a few seconds.",
+      "videoRetry": "We couldn’t retry the video. Try again in a few seconds."
     },
     "qr": {
       "dialog": "Your wrap’s QR",
@@ -248,6 +257,12 @@
       "title": "We couldn’t load this wrap",
       "body": "It may be a connection problem. Try again in a few seconds.",
       "retry": "Try again"
+    },
+    "video": {
+      "title": "The year in 30 seconds",
+      "label": "@{{ login }}’s year on GitHub video",
+      "fallback": "Your browser can’t play this video.",
+      "download": "Download it"
     }
   },
   "sample": {

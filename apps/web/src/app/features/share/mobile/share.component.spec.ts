@@ -8,16 +8,16 @@ import type { PublicWrap, WrapStatusView } from '@wrapped/shared';
 import { installMatchMedia, type FakeMatchMedia } from '../../../../testing/match-media';
 import { demoSnapshot } from '../../../../testing/snapshot';
 import { ExternalNavigation } from '../../../core/browser/external-navigation';
-import { VIDEO_SHARING } from '../../../core/config/features';
 import { PUBLIC_BASE_URL } from '../../../core/config/public-base-url';
 import { provideI18n } from '../../../core/i18n/i18n.providers';
 import { wrapMatcher } from '../../../core/routing/wrap-url';
 import { EntryComponent } from '../../entry/mobile/entry.component';
 import { ChangeCardComponent } from '../../publish/mobile/change-card.component';
-import { STATUS_POLL_MS, ShareComponent } from './share.component';
+import { STATUS_POLL_MAX_MS, STATUS_POLL_MS, ShareComponent, pollDelay } from './share.component';
 
 const PUBLIC_URL = 'https://wrapped.jjimenezm.dev/@ana-dev/2026';
 const V1 = { card: '/api/files/w/img/1/card.png', og: '/api/files/w/img/1/og.png' };
+const MP4 = '/api/files/w/video/1.mp4';
 
 const WRAP: PublicWrap = {
   login: 'ana-dev',
@@ -30,6 +30,7 @@ const WRAP: PublicWrap = {
   images: null,
   videoReadyVersion: null,
   videoStatus: 'none',
+  video: null,
 };
 
 const status = (overrides: Partial<WrapStatusView> = {}): WrapStatusView => ({
@@ -40,6 +41,8 @@ const status = (overrides: Partial<WrapStatusView> = {}): WrapStatusView => ({
   videoReadyVersion: null,
   queuePosition: 1,
   images: null,
+  videoQueuePosition: null,
+  video: null,
   ...overrides,
 });
 
@@ -271,18 +274,102 @@ describe('ShareComponent', () => {
       await settle();
       expect(el().querySelector('[role="dialog"]')).toBeNull();
     });
+  });
 
-    it('hides the Video action in phase 1', async () => {
+  describe('the video', () => {
+    // Its parts sit side by side in a flex row; read them as a sentence.
+    const line = () =>
+      [...(el().querySelector('[data-testid="video-line"]')?.children ?? [])]
+        .map((part) => text(part))
+        .join(' ');
+    const video = (overrides: Partial<WrapStatusView>) =>
+      status({ ...READY, videoStatus: 'queued', videoQueuePosition: 2, ...overrides });
+
+    it('hides the Video action and its line when the wrap has no video', async () => {
       await open();
 
       expect(action('Video')).toBeUndefined();
+      expect(el().querySelector('[data-testid="video-line"]')).toBeNull();
       expect(action('QR')).toBeDefined();
     });
 
-    it('shows the Video action once videos exist', async () => {
-      await open({ providers: [{ provide: VIDEO_SHARING, useValue: true }] });
+    it('goes from the mini loader, in line and rendering, to the green dot and the MP4', async () => {
+      await open({ status: video({}) });
 
-      expect(action('Video')).toBeDefined();
+      expect(isWaiting(action('Video'))).toBe(true);
+      expect(line()).toBe('En cola · posición 2');
+
+      await settle(pollDelay(1));
+      answerStatus(video({ videoStatus: 'rendering', videoQueuePosition: null }));
+      await settle();
+      expect(isWaiting(action('Video'))).toBe(true);
+      expect(line()).toBe('Preparando tu video de 30 s · sigue aunque cierres esta pantalla');
+
+      await settle(pollDelay(2));
+      answerStatus(video({ videoStatus: 'ready', videoReadyVersion: 1, video: MP4 }));
+      await settle();
+      const ready = action('Video');
+      expect(ready?.tagName).toBe('A');
+      expect(ready?.getAttribute('href')).toBe(MP4);
+      expect(ready?.getAttribute('download')).toBe('github-wrapped-ana-dev-2026.mp4');
+      expect(ready?.getAttribute('target')).toBe('_blank');
+      expect(ready?.getAttribute('rel')).toBe('noopener');
+      expect(ready?.querySelector('.ready-dot')).not.toBeNull();
+      expect(line()).toBe('');
+
+      // Everything is ready: no more questions.
+      await settle(STATUS_POLL_MAX_MS * 2);
+      http.expectNone('/api/wraps/ana-dev/2026/status');
+    });
+
+    it('says a failed video in a neutral line; "Reintentar" puts it back in line', async () => {
+      await open({ status: video({ videoStatus: 'failed', videoQueuePosition: null }) });
+
+      expect(line()).toBe('No pudimos generar el video · Reintentar');
+      expect(el().querySelector('[data-testid="video-line"] .error')).toBeNull();
+      const icon = action('Video') as HTMLButtonElement;
+      expect(icon.disabled).toBe(true);
+      expect(icon.querySelector('gw-grid-loader')).toBeNull();
+
+      button('Reintentar')?.click();
+      const request = http.expectOne('/api/wraps/ana-dev/2026/video/retry');
+      expect(request.request.method).toBe('POST');
+      request.flush(video({ videoQueuePosition: 1 }));
+      await settle();
+
+      expect(line()).toBe('En cola · posición 1');
+      expect(isWaiting(action('Video'))).toBe(true);
+      await settle(STATUS_POLL_MS);
+      answerStatus(video({ videoStatus: 'rendering', videoQueuePosition: null }));
+      await settle();
+      expect(line()).toContain('Preparando tu video');
+    });
+
+    it('says only "En cola" while the render waits for its automatic retry', async () => {
+      await open({ status: video({ videoQueuePosition: null }) });
+
+      expect(line()).toBe('En cola');
+      await settle(pollDelay(1));
+      answerStatus(READY);
+      await settle();
+    });
+
+    it('asks less and less often while it waits, up to every 15 s', () => {
+      expect([1, 2, 3, 4, 5, 6, 7].map(pollDelay)).toEqual([
+        2_000, 3_000, 4_500, 6_750, 10_125, 15_000, 15_000,
+      ]);
+    });
+
+    it('lists the video in the deletion sheet when there is one', async () => {
+      await open({ status: video({}) });
+
+      button('Eliminar mi wrap')?.click();
+      await settle();
+      expect(text(el().querySelector('[role="dialog"]'))).toContain('El video de 30 s');
+      button('Cancelar')?.click();
+      await settle(pollDelay(1));
+      answerStatus(READY);
+      await settle();
     });
   });
 

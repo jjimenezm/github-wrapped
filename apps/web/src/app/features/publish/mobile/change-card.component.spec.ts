@@ -26,6 +26,7 @@ const WRAP: PublicWrap = {
   images: { card: '/api/files/w/img/1/card.png', og: '/api/files/w/img/1/og.png' },
   videoReadyVersion: null,
   videoStatus: 'none',
+  video: null,
 };
 
 describe('ChangeCardComponent', () => {

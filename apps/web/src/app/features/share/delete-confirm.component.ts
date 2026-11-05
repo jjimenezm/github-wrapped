@@ -3,13 +3,11 @@ import {
   Component,
   ElementRef,
   afterNextRender,
-  inject,
   input,
   output,
   viewChild,
 } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { VIDEO_SHARING } from '../../core/config/features';
 import { IconComponent } from '../../ui/icon/icon.component';
 
 /**
@@ -39,7 +37,7 @@ import { IconComponent } from '../../ui/icon/icon.component';
       <p id="delete-lead" class="lead">{{ 'share.delete.lead' | transloco }}</p>
       <ul>
         <li>{{ 'share.delete.items.data' | transloco }}</li>
-        @if (video) {
+        @if (video()) {
           <li>{{ 'share.delete.items.video' | transloco }}</li>
         }
         <li>{{ 'share.delete.items.link' | transloco }}</li>
@@ -212,8 +210,8 @@ export class DeleteConfirmComponent {
   readonly error = input<string | null>(null);
   readonly confirmed = output<void>();
   readonly cancelled = output<void>();
-
-  protected readonly video = inject(VIDEO_SHARING);
+  /** Whether the wrap has (or is getting) a video, so the list says it goes too. */
+  readonly video = input(false);
   private readonly cancelButton = viewChild.required<ElementRef<HTMLButtonElement>>('cancelButton');
 
   constructor() {

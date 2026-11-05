@@ -46,8 +46,8 @@ const OWN_TAGS = [
 /**
  * `/@login/year`, the page a shared link opens (R8), rendered on the server in the wrap's
  * language: the card first, "Ver mi año" for the slides, "Crea el tuyo" up top, and "¿Es tuyo?
- * Gestionar" in the footer. Without a wrap it says why (404, 410) and invites to make one.
- * Phase 2 adds the video under the card.
+ * Gestionar" in the footer, and the 30-second video under the card once it is ready. Without a
+ * wrap it says why (404, 410) and invites to make one.
  */
 @Component({
   selector: 'gw-public-wrap',

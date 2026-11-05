@@ -38,6 +38,27 @@
       {{ 'public.see' | transloco }}
     </a>
 
+    @if (w.video; as video) {
+      <section class="video" aria-labelledby="video-title">
+        <h2 id="video-title" class="video-head">
+          <span>{{ 'public.video.title' | transloco }}</span>
+          <span class="gw-mono ratio" aria-hidden="true">9:16</span>
+        </h2>
+        <!-- #t=0.1 makes Safari on iPhone show the first frame instead of a black box. -->
+        <video
+          class="player"
+          controls
+          playsinline
+          preload="metadata"
+          [src]="video + '#t=0.1'"
+          [attr.aria-label]="'public.video.label' | transloco: { login: w.login }"
+        >
+          {{ 'public.video.fallback' | transloco }}
+          <a [href]="video">{{ 'public.video.download' | transloco }}</a>
+        </video>
+      </section>
+    }
+
     <footer class="foot">
       <span>{{ 'public.data' | transloco: { date: updated() } }}</span>
       <gw-manage-link [login]="w.login" [year]="w.year" />

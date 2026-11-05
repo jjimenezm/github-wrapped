@@ -7,8 +7,8 @@ import { WEB } from './servers';
 /**
  * The whole journey on a phone, the way a person makes and shares their wrap: entry → loading →
  * slides → choose a card → publish with GitHub → share screen → public page → delete. GitHub's
- * data and sign-in come from fixtures; nothing renders the PNGs, so the image actions stay in
- * their "getting ready" state.
+ * data and sign-in come from fixtures; nothing renders the PNGs or the video, so the image actions
+ * stay in their "getting ready" state and the video waits in line.
  */
 
 /** What each language prints on the way; every journey starts in a Spanish phone. */
@@ -28,6 +28,7 @@ const COPY = {
     copied: 'Enlace copiado',
     preparing: (action: string) => new RegExp(`^${action}\\b.*preparando$`),
     image: 'Imagen',
+    inLine: /^En cola · posición \d+$/,
     seeYear: 'Ver mi año',
     remove: 'Eliminar mi wrap',
     confirm: (year: number) => `¿Eliminar tu wrap ${year}?`,
@@ -51,6 +52,7 @@ const COPY = {
     copied: 'Link copied',
     preparing: (action: string) => new RegExp(`^${action}\\b.*getting ready$`),
     image: 'Image',
+    inLine: /^In line · position \d+$/,
     seeYear: 'See my year',
     remove: 'Delete my wrap',
     confirm: (year: number) => `Delete your ${year} wrap?`,
@@ -212,6 +214,9 @@ for (const journey of JOURNEYS) {
       for (const action of [copy.image, 'LinkedIn', 'X']) {
         await expect(page.getByRole('button', { name: copy.preparing(action) })).toBeDisabled();
       }
+      // Publishing queued the video too; the line under the icons says where it is.
+      await expect(page.getByRole('button', { name: copy.preparing('Video') })).toBeDisabled();
+      await expect(page.getByTestId('video-line')).toHaveText(copy.inLine);
     });
 
     await test.step('the public page, in the wrap’s language', async () => {

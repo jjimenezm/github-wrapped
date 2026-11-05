@@ -33,13 +33,43 @@
     }
   </li>
 
-  @if (video) {
-    <!-- Phase 2 wires the video in (its queue, the ring while it renders, the ready dot). -->
+  @if (video() !== 'none') {
     <li>
-      <button type="button" class="action" disabled>
-        <span class="disc"><gw-icon name="video" /></span>
-        <span class="action-name">{{ 'share.actions.video' | transloco }}</span>
-      </button>
+      @switch (video()) {
+        @case ('ready') {
+          <!-- From the media domain, browsers ignore "download": a new tab plays it to save. -->
+          <a
+            class="action"
+            data-testid="video-action"
+            [href]="videoUrl()"
+            [attr.download]="videoFileName()"
+            target="_blank"
+            rel="noopener"
+            [title]="'share.actions.videoHint' | transloco"
+          >
+            <span class="disc">
+              <gw-icon name="video" />
+              <span class="ready-dot" aria-hidden="true"></span>
+            </span>
+            <span class="action-name">{{ 'share.actions.video' | transloco }}</span>
+          </a>
+        }
+        @case ('failed') {
+          <ng-container
+            [ngTemplateOutlet]="off"
+            [ngTemplateOutletContext]="{
+              name: 'share.actions.video' | transloco,
+              glyph: videoGlyph,
+            }"
+          />
+        }
+        @default {
+          <ng-container
+            [ngTemplateOutlet]="waiting"
+            [ngTemplateOutletContext]="{ name: 'share.actions.video' | transloco }"
+          />
+        }
+      }
     </li>
   }
 
@@ -104,6 +134,8 @@
     <span class="action-name">{{ name }}</span>
   </button>
 </ng-template>
+
+<ng-template #videoGlyph><gw-icon name="video" /></ng-template>
 
 <!-- Brand marks (Simple Icons, CC0) and a QR glyph; Octicons has none of them. -->
 <ng-template #linkedinGlyph>

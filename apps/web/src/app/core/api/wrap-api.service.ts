@@ -66,6 +66,15 @@ export class WrapApiService {
     );
   }
 
+  /** Only for a video that failed (its automatic retry included): the same render goes back in line. */
+  retryVideo(login: string, year: number): Observable<WrapStatusView> {
+    return asApiError(
+      this.http.post<WrapStatusView>(`${this.wrapUrl(login, year)}/video/retry`, null, {
+        withCredentials: true,
+      }),
+    );
+  }
+
   /** The public URL and the QR answer 410 from then on; the owner can publish again. */
   deleteWrap(login: string, year: number): Observable<null> {
     return asApiError(this.http.delete<null>(this.wrapUrl(login, year), { withCredentials: true }));

@@ -44,10 +44,17 @@ import {
   ShareActionsComponent,
   type ImagesState,
   type ShareIntents,
+  type VideoState,
 } from './share-actions.component';
 
-/** How often the screen asks whether the images of the current version are ready. */
+/** The first wait between two status checks: the images take about a second. */
 export const STATUS_POLL_MS = 2_000;
+/** The longest one: a video takes minutes, and asking every 2 s for that long is just noise. */
+export const STATUS_POLL_MAX_MS = 15_000;
+
+/** The wait before the n-th repeated check (1-based): 2 s, 3 s, 4.5 s… up to 15 s. */
+export const pollDelay = (repeat: number) =>
+  Math.min(STATUS_POLL_MS * 1.5 ** (repeat - 1), STATUS_POLL_MAX_MS);
 
 type View = 'loading' | 'ready' | 'gate' | 'gone' | 'failed';
 type CopyState = 'idle' | 'copied' | 'manual';
@@ -55,13 +62,26 @@ type CopyState = 'idle' | 'copied' | 'manual';
 const rendering = (status: WrapStatusView) =>
   status.imagesStatus !== 'failed' && status.imagesReadyVersion !== status.imagesVersion;
 
+const videoInFlight = (status: WrapStatusView) =>
+  status.videoStatus === 'queued' || status.videoStatus === 'rendering';
+
+/** Something this screen is waiting for: the PNGs, or the video. */
+const working = (status: WrapStatusView) => rendering(status) || videoInFlight(status);
+
+/** The line under the icons while the video isn't ready: a `share.video` key and its position. */
+export interface VideoLine {
+  key: 'queued' | 'waiting' | 'rendering' | 'failed';
+  position: number | null;
+}
+
 /** Answers that polling again won't change: the screen shows them instead. */
 const PERMANENT = new Set(['UNAUTHENTICATED', 'NOT_OWNER', 'WRAP_DELETED', 'WRAP_NOT_FOUND']);
 
 /**
  * `/@login/year/share`, the end of the journey (R7): the chosen card, its link, the ways to share
  * it and the way to delete it. Only the owner gets here; another session confirms with GitHub
- * first. Imagen, LinkedIn and X wait for the PNGs of the version on screen.
+ * first. Imagen, LinkedIn and X wait for the PNGs of the version on screen; Video waits for the
+ * MP4 of the current data, and the line under the icons says where it is.
  */
 @Component({
   selector: 'gw-share',
@@ -108,6 +128,8 @@ export class ShareComponent {
   protected readonly copyState = signal<CopyState>('idle');
   protected readonly retrying = signal(false);
   protected readonly retryError = signal(false);
+  protected readonly videoRetrying = signal(false);
+  protected readonly videoRetryError = signal(false);
   protected readonly qrOpen = signal(false);
   protected readonly deleteOpen = signal(false);
   protected readonly deleting = signal(false);
@@ -124,6 +146,43 @@ export class ShareComponent {
     const status = this.status();
     if (status?.imagesStatus === 'failed') return 'failed';
     return status?.images && !rendering(status) ? 'ready' : 'pending';
+  });
+
+  protected readonly video = computed<VideoState>(() => {
+    const status = this.status();
+    switch (status?.videoStatus) {
+      case undefined:
+      case 'none':
+        return 'none';
+      case 'failed':
+        return 'failed';
+      case 'ready':
+        return status.video ? 'ready' : 'pending';
+      default:
+        return 'pending';
+    }
+  });
+
+  protected readonly videoLine = computed<VideoLine | null>(() => {
+    const status = this.status();
+    switch (status?.videoStatus) {
+      case 'queued': {
+        const position = status.videoQueuePosition;
+        return position ? { key: 'queued', position } : { key: 'waiting', position: null };
+      }
+      case 'rendering':
+        return { key: 'rendering', position: null };
+      case 'failed':
+        return { key: 'failed', position: null };
+      default:
+        return null;
+    }
+  });
+
+  /** The deletion sheet lists the video when there is (or will be) one. */
+  protected readonly hasVideo = computed(() => {
+    const status = this.status();
+    return !!status && (status.videoStatus !== 'none' || status.video !== null);
   });
 
   protected readonly publicUrl = computed(() => {
@@ -161,6 +220,7 @@ export class ShareComponent {
   });
 
   protected readonly fileName = `github-wrapped-${this.login}-${this.year}.png`;
+  protected readonly videoFileName = `github-wrapped-${this.login}-${this.year}.mp4`;
 
   constructor() {
     this.load();
@@ -184,12 +244,15 @@ export class ShareComponent {
     this.watchStatus();
   }
 
-  /** Polls until the images of the current version are ready or failed; network hiccups retry. */
+  /**
+   * Polls, each time a little less often, until the images of the current version and the video
+   * of the current data are ready or failed; network hiccups retry.
+   */
   private watchStatus(delay = 0): void {
     this.polling?.unsubscribe();
     const status$ = defer(() => this.api.status(this.login, this.year)).pipe(
-      repeat({ delay: STATUS_POLL_MS }),
-      takeWhile(rendering, true),
+      repeat({ delay: (count) => timer(pollDelay(count)) }),
+      takeWhile(working, true),
       retry({
         delay: (failure: ApiError) =>
           PERMANENT.has(failure.code) ? throwError(() => failure) : timer(STATUS_POLL_MS * 2),
@@ -263,6 +326,28 @@ export class ShareComponent {
           this.retrying.set(false);
           if (failure.code === 'UNAUTHENTICATED') return this.manage();
           this.retryError.set(true);
+        },
+      });
+  }
+
+  protected retryVideo(): void {
+    this.videoRetrying.set(true);
+    this.videoRetryError.set(false);
+    this.api
+      .retryVideo(this.login, this.year)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (status) => {
+          this.videoRetrying.set(false);
+          this.status.set(status);
+          this.watchStatus(STATUS_POLL_MS);
+        },
+        error: (failure: ApiError) => {
+          this.videoRetrying.set(false);
+          if (failure.code === 'UNAUTHENTICATED') return this.manage();
+          // Someone (another tab) already retried it: show where it is now.
+          if (failure.code === 'VIDEO_NOT_FAILED') return this.watchStatus();
+          this.videoRetryError.set(true);
         },
       });
   }
