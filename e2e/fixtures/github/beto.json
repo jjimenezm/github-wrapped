@@ -1,0 +1,195 @@
+{
+  "UserYear": {
+    "data": {
+      "user": {
+        "databaseId": 7777,
+        "login": "beto",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/7777",
+        "contributionsCollection": {
+          "totalCommitContributions": 80,
+          "totalIssueContributions": 4,
+          "totalPullRequestReviewContributions": 9,
+          "contributionCalendar": {
+            "totalContributions": 120,
+            "weeks": [
+              {
+                "contributionDays": [
+                  {
+                    "date": "2026-01-01",
+                    "contributionCount": 2
+                  },
+                  {
+                    "date": "2026-01-02",
+                    "contributionCount": 0
+                  },
+                  {
+                    "date": "2026-01-03",
+                    "contributionCount": 4
+                  }
+                ]
+              },
+              {
+                "contributionDays": [
+                  {
+                    "date": "2026-01-04",
+                    "contributionCount": 1
+                  },
+                  {
+                    "date": "2026-01-05",
+                    "contributionCount": 0
+                  },
+                  {
+                    "date": "2026-01-06",
+                    "contributionCount": 3
+                  },
+                  {
+                    "date": "2026-01-07",
+                    "contributionCount": 0
+                  },
+                  {
+                    "date": "2026-01-08",
+                    "contributionCount": 2
+                  },
+                  {
+                    "date": "2026-01-09",
+                    "contributionCount": 0
+                  },
+                  {
+                    "date": "2026-01-10",
+                    "contributionCount": 4
+                  }
+                ]
+              },
+              {
+                "contributionDays": [
+                  {
+                    "date": "2026-01-11",
+                    "contributionCount": 1
+                  },
+                  {
+                    "date": "2026-01-12",
+                    "contributionCount": 0
+                  },
+                  {
+                    "date": "2026-01-13",
+                    "contributionCount": 3
+                  },
+                  {
+                    "date": "2026-01-14",
+                    "contributionCount": 0
+                  },
+                  {
+                    "date": "2026-01-15",
+                    "contributionCount": 2
+                  },
+                  {
+                    "date": "2026-01-16",
+                    "contributionCount": 0
+                  },
+                  {
+                    "date": "2026-01-17",
+                    "contributionCount": 4
+                  }
+                ]
+              },
+              {
+                "contributionDays": [
+                  {
+                    "date": "2026-01-18",
+                    "contributionCount": 1
+                  },
+                  {
+                    "date": "2026-01-19",
+                    "contributionCount": 0
+                  },
+                  {
+                    "date": "2026-01-20",
+                    "contributionCount": 3
+                  },
+                  {
+                    "date": "2026-01-21",
+                    "contributionCount": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "commitContributionsByRepository": [
+            {
+              "contributions": {
+                "totalCount": 40
+              },
+              "repository": {
+                "name": "bot-feria",
+                "nameWithOwner": "beto/bot-feria",
+                "owner": {
+                  "login": "beto"
+                },
+                "description": "Precios de la feria por Telegram.",
+                "url": "https://github.com/beto/bot-feria",
+                "homepageUrl": null,
+                "stargazerCount": 3,
+                "isFork": false,
+                "isEmpty": false,
+                "isPrivate": false,
+                "languages": {
+                  "nodes": [
+                    {
+                      "name": "Python"
+                    }
+                  ]
+                },
+                "repositoryTopics": {
+                  "nodes": []
+                }
+              }
+            }
+          ],
+          "restrictedContributionsCount": 0
+        }
+      }
+    }
+  },
+  "PreviousYear": {
+    "data": {
+      "user": {
+        "contributionsCollection": {
+          "contributionCalendar": {
+            "totalContributions": 90
+          }
+        }
+      }
+    }
+  },
+  "MergedPullRequests": {
+    "data": {
+      "search": {
+        "issueCount": 12
+      }
+    }
+  },
+  "OwnLanguages": {
+    "data": {
+      "user": {
+        "repositories": {
+          "nodes": [
+            {
+              "isFork": false,
+              "languages": {
+                "edges": [
+                  {
+                    "size": 220000,
+                    "node": {
+                      "name": "Python",
+                      "color": "#3572A5"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

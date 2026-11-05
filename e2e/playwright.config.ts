@@ -24,7 +24,12 @@ export default defineConfig({
     baseURL: WEB,
     trace: 'retain-on-failure',
   },
-  projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
+  projects: [
+    // The public page as a computer opens it: server rendering, hydration, the phone frame.
+    { name: 'desktop', testMatch: 'public-wrap.spec.ts', use: { ...devices['Desktop Chrome'] } },
+    // The whole journey on a phone, from the entry to deleting the wrap.
+    { name: 'phone', testMatch: 'mobile-flow.spec.ts', use: { ...devices['Pixel 7'] } },
+  ],
   webServer: [
     {
       command: 'node dist/main',
@@ -33,9 +38,13 @@ export default defineConfig({
       reuseExistingServer: false,
       env: {
         PORT: '3201',
-        GITHUB_FIXTURES_DIR: here('../apps/api/test/fixtures/github'),
+        // The people in fixtures/people.ts; the api's own e2e tests keep theirs.
+        GITHUB_FIXTURES_DIR: here('fixtures/github'),
         PUBLIC_BASE_URL: WEB,
         API_BASE_URL: API,
+        // Every test comes from the same address: real limits would turn a CI retry into a 429.
+        RATE_LIMIT_PREVIEW_MAX: '1000',
+        RATE_LIMIT_PUBLISH_MAX: '1000',
       },
     },
     {

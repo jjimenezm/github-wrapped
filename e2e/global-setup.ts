@@ -1,5 +1,6 @@
 import { request, type APIRequestContext } from '@playwright/test';
-import { ANA, API, BETO } from './servers';
+import { ANA, BETO } from './fixtures/people';
+import { API } from './servers';
 
 /**
  * Publishes through the real sign-in, skipping only GitHub: start → (GitHub) → callback with a

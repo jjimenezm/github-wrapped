@@ -1,0 +1,202 @@
+{
+  "UserYear": {
+    "data": {
+      "user": {
+        "databaseId": 8383,
+        "login": "nico-ux",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/8383",
+        "contributionsCollection": {
+          "totalCommitContributions": 60,
+          "totalIssueContributions": 5,
+          "totalPullRequestReviewContributions": 14,
+          "contributionCalendar": {
+            "totalContributions": 95,
+            "weeks": [
+              {
+                "contributionDays": [
+                  {
+                    "date": "2026-01-01",
+                    "contributionCount": 1
+                  },
+                  {
+                    "date": "2026-01-02",
+                    "contributionCount": 3
+                  },
+                  {
+                    "date": "2026-01-03",
+                    "contributionCount": 0
+                  }
+                ]
+              },
+              {
+                "contributionDays": [
+                  {
+                    "date": "2026-01-04",
+                    "contributionCount": 2
+                  },
+                  {
+                    "date": "2026-01-05",
+                    "contributionCount": 0
+                  },
+                  {
+                    "date": "2026-01-06",
+                    "contributionCount": 4
+                  },
+                  {
+                    "date": "2026-01-07",
+                    "contributionCount": 1
+                  },
+                  {
+                    "date": "2026-01-08",
+                    "contributionCount": 1
+                  },
+                  {
+                    "date": "2026-01-09",
+                    "contributionCount": 3
+                  },
+                  {
+                    "date": "2026-01-10",
+                    "contributionCount": 0
+                  }
+                ]
+              },
+              {
+                "contributionDays": [
+                  {
+                    "date": "2026-01-11",
+                    "contributionCount": 2
+                  },
+                  {
+                    "date": "2026-01-12",
+                    "contributionCount": 0
+                  },
+                  {
+                    "date": "2026-01-13",
+                    "contributionCount": 4
+                  },
+                  {
+                    "date": "2026-01-14",
+                    "contributionCount": 1
+                  },
+                  {
+                    "date": "2026-01-15",
+                    "contributionCount": 1
+                  },
+                  {
+                    "date": "2026-01-16",
+                    "contributionCount": 3
+                  },
+                  {
+                    "date": "2026-01-17",
+                    "contributionCount": 0
+                  }
+                ]
+              },
+              {
+                "contributionDays": [
+                  {
+                    "date": "2026-01-18",
+                    "contributionCount": 2
+                  },
+                  {
+                    "date": "2026-01-19",
+                    "contributionCount": 0
+                  },
+                  {
+                    "date": "2026-01-20",
+                    "contributionCount": 4
+                  },
+                  {
+                    "date": "2026-01-21",
+                    "contributionCount": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "commitContributionsByRepository": [
+            {
+              "contributions": {
+                "totalCount": 33
+              },
+              "repository": {
+                "name": "figma-tokens",
+                "nameWithOwner": "nico-ux/figma-tokens",
+                "owner": {
+                  "login": "nico-ux"
+                },
+                "description": "Tokens de diseño exportados desde Figma.",
+                "url": "https://github.com/nico-ux/figma-tokens",
+                "homepageUrl": null,
+                "stargazerCount": 2,
+                "isFork": false,
+                "isEmpty": false,
+                "isPrivate": false,
+                "languages": {
+                  "nodes": [
+                    {
+                      "name": "TypeScript"
+                    }
+                  ]
+                },
+                "repositoryTopics": {
+                  "nodes": []
+                }
+              }
+            }
+          ],
+          "restrictedContributionsCount": 0
+        }
+      }
+    }
+  },
+  "PreviousYear": {
+    "data": {
+      "user": {
+        "contributionsCollection": {
+          "contributionCalendar": {
+            "totalContributions": 110
+          }
+        }
+      }
+    }
+  },
+  "MergedPullRequests": {
+    "data": {
+      "search": {
+        "issueCount": 9
+      }
+    }
+  },
+  "OwnLanguages": {
+    "data": {
+      "user": {
+        "repositories": {
+          "nodes": [
+            {
+              "isFork": false,
+              "languages": {
+                "edges": [
+                  {
+                    "size": 40000,
+                    "node": {
+                      "name": "CSS",
+                      "color": "#663399"
+                    }
+                  },
+                  {
+                    "size": 400000,
+                    "node": {
+                      "name": "TypeScript",
+                      "color": "#3178c6"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}
