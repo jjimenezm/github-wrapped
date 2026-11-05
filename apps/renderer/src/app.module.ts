@@ -6,6 +6,8 @@ import { redisProbe, volumeProbe } from './health/health.probes';
 import { ImagesWorker } from './images/images.worker';
 import { PrismaRenderStore } from './images/prisma-render-store';
 import { RENDER_STORE } from './images/render-store';
+import { VideoWorker } from './video/video.worker';
+import { createVideoStorage, VIDEO_STORAGE } from './video/video-storage';
 
 @Module({
   controllers: [HealthController],
@@ -17,7 +19,13 @@ import { RENDER_STORE } from './images/render-store';
       useFactory: (config: RendererConfig) =>
         new PrismaRenderStore(new PrismaClient({ datasourceUrl: config.databaseUrl })),
     },
+    {
+      provide: VIDEO_STORAGE,
+      inject: [RENDERER_CONFIG],
+      useFactory: (config: RendererConfig) => createVideoStorage(config),
+    },
     ImagesWorker,
+    VideoWorker,
     {
       provide: HEALTH_PROBES,
       inject: [RENDERER_CONFIG, ImagesWorker],

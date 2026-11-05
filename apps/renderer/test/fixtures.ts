@@ -47,5 +47,8 @@ export const renderableWrap = (overrides: Partial<RenderableWrap> = {}): Rendera
   imagesVersion: 1,
   imagesReadyVersion: null,
   imagesStatus: 'queued',
+  dataVersion: 1,
+  videoReadyVersion: null,
+  videoStatus: 'queued',
   ...overrides,
 });
