@@ -30,6 +30,7 @@ export const e2eConfig = (overrides: Partial<AppConfig> = {}): AppConfig => ({
     publish: { max: 20, windowSeconds: 3600 },
   },
   trustProxyHops: 1,
+  video: { enabled: false, mediaBaseUrl: null },
   ...overrides,
 });
 

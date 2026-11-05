@@ -36,7 +36,21 @@ describe('loadConfig', () => {
         publish: { max: 3, windowSeconds: 3600 },
       },
       trustProxyHops: 1,
+      video: { enabled: false, mediaBaseUrl: null },
     });
+  });
+
+  it('queues videos only when RENDER_VIDEO_ENABLED is "true"', () => {
+    expect(loadConfig({ ...PRODUCTION, RENDER_VIDEO_ENABLED: 'true' }).video.enabled).toBe(true);
+    expect(loadConfig({ ...PRODUCTION, RENDER_VIDEO_ENABLED: '1' }).video.enabled).toBe(false);
+  });
+
+  it('plays videos from the media origin when one is set, over https in production', () => {
+    const media = { ...PRODUCTION, PUBLIC_MEDIA_URL: 'https://media.jjimenezm.dev/' };
+    expect(loadConfig(media).video.mediaBaseUrl).toBe('https://media.jjimenezm.dev');
+    expect(() =>
+      loadConfig({ ...PRODUCTION, PUBLIC_MEDIA_URL: 'http://media.jjimenezm.dev' }),
+    ).toThrow(/PUBLIC_MEDIA_URL/);
   });
 
   it('counts the proxies in front of the api (Traefik, plus Cloudflare when proxied)', () => {

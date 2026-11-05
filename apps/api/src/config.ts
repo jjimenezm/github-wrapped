@@ -32,6 +32,20 @@ export interface AppConfig {
    * entry that many hops back, so nothing a client adds to the header can change it.
    */
   trustProxyHops: number;
+  video: VideoConfig;
+}
+
+export interface VideoConfig {
+  /**
+   * RENDER_VIDEO_ENABLED, the same switch the renderer reads: publishing and regenerating queue a
+   * video. Off, wraps keep `videoStatus = none` and the web shows no video at all.
+   */
+  enabled: boolean;
+  /**
+   * PUBLIC_MEDIA_URL: the origin videos play from when they live in object storage (a bucket with
+   * its own domain). Unset, they live on the shared volume and the api serves them.
+   */
+  mediaBaseUrl: string | null;
 }
 
 export type RateLimitName = keyof AppConfig['rateLimit'];
@@ -117,6 +131,7 @@ export function loadConfig(
       },
       rateLimit: rateLimits(env),
       trustProxyHops: positiveInt(env, 'TRUST_PROXY_HOPS', 1),
+      video: videoConfig(env, true),
     };
   } else {
     config = {
@@ -132,6 +147,7 @@ export function loadConfig(
       oauth,
       rateLimit: rateLimits(env),
       trustProxyHops: positiveInt(env, 'TRUST_PROXY_HOPS', 1),
+      video: videoConfig(env, false),
     };
   }
 
@@ -139,6 +155,17 @@ export function loadConfig(
     throw new Error(`SESSION_SECRET must have at least ${MIN_SECRET_LENGTH} characters`);
   }
   return config;
+}
+
+function videoConfig(env: Env, production: boolean): VideoConfig {
+  const mediaBaseUrl = value(env, 'PUBLIC_MEDIA_URL');
+  if (production && mediaBaseUrl && !mediaBaseUrl.startsWith('https://')) {
+    throw new Error('PUBLIC_MEDIA_URL must use https in production');
+  }
+  return {
+    enabled: value(env, 'RENDER_VIDEO_ENABLED') === 'true',
+    mediaBaseUrl: mediaBaseUrl ? withoutTrailingSlash(mediaBaseUrl) : null,
+  };
 }
 
 function rateLimits(env: Env): AppConfig['rateLimit'] {

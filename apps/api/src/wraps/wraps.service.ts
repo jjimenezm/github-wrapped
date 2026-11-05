@@ -4,14 +4,17 @@ import {
   normalizeLogin,
   resolveWrapPeriod,
   wrapImages,
+  wrapVideo,
   type CardStyle,
   type Locale,
   type PublicWrap,
+  type VideoStatus,
   type WrapSnapshot,
   type WrapStatusView,
 } from '@wrapped/shared';
 import type { Identity } from '../auth/github-identity';
 import { CLOCK, type Clock } from '../common/clock';
+import type { VideoConfig } from '../config';
 import { WRAP_FILES, type WrapFileStore } from '../files/wrap-files';
 import { RENDER_QUEUE, type RenderQueue } from '../render/render-queue';
 import { PreviewService } from './preview.service';
@@ -20,6 +23,7 @@ import {
   ImagesNotFailedError,
   NotOwnerError,
   RegenerateTooSoonError,
+  VideoNotFailedError,
   WrapDeletedError,
   WrapExistsError,
   WrapNotFoundError,
@@ -39,6 +43,17 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 const readyImages = (wrap: WrapRecord) =>
   wrap.imagesReadyVersion ? wrapImages(wrap.id, wrap.imagesReadyVersion) : null;
 
+/** Whether videos render, and where they play from (the api's config). */
+export const VIDEO_CONFIG = Symbol('VIDEO_CONFIG');
+
+const VIDEO_OFF: VideoConfig = { enabled: false, mediaBaseUrl: null };
+
+/** What the owner sees of the current data's video: the stored status, checked against the queue. */
+interface VideoView {
+  status: VideoStatus;
+  position: number | null;
+}
+
 export interface PublishChoice {
   cardStyle: CardStyle;
   locale: Locale;
@@ -56,6 +71,7 @@ export class WrapsService {
     @Inject(WRAP_FILES) private readonly files: WrapFileStore,
     private readonly previews: PreviewService,
     @Inject(CLOCK) private readonly clock: Clock,
+    @Inject(VIDEO_CONFIG) private readonly video: VideoConfig = VIDEO_OFF,
   ) {}
 
   async publish(identity: Identity, rawLogin: string, choice: PublishChoice): Promise<WrapRecord> {
@@ -82,12 +98,12 @@ export class WrapsService {
         imagesReadyVersion: null,
         imagesStatus: 'queued',
         videoReadyVersion: null,
-        videoStatus: 'none',
+        videoStatus: this.video.enabled ? 'queued' : 'none',
         publishedAt: now,
         regeneratedAt: now,
         deletedAt: null,
       });
-      await this.queue.enqueueImages(wrap.id, wrap.imagesVersion);
+      await this.queueRenders(wrap);
       return wrap;
     } catch (error) {
       if (!(error instanceof WrapExistsError)) throw error;
@@ -112,11 +128,12 @@ export class WrapsService {
         dataVersion: wrap.dataVersion + 1,
         imagesVersion: wrap.imagesVersion + 1,
         imagesStatus: 'queued',
+        ...this.newVideo(wrap),
         regeneratedAt: now,
       },
       () => new RegenerateTooSoonError(new Date(now.getTime() + DAY_MS)),
     );
-    await this.queue.enqueueImages(updated.id, updated.imagesVersion);
+    await this.queueRenders(updated);
     return updated;
   }
 
@@ -132,12 +149,16 @@ export class WrapsService {
     return updated;
   }
 
-  /** The URL and QR answer 410 from now on; only what the 410 and the daily limit need remains. */
+  /**
+   * The URL and QR answer 410 from now on; only what the 410 and the daily limit need remains.
+   * Videos in the media bucket are deleted by the renderer, which holds the bucket's keys.
+   */
   async remove(wrap: WrapRecord): Promise<void> {
     if (wrap.status === 'deleted') return;
     await this.write(wrap, { status: 'deleted', snapshot: null, deletedAt: this.clock() });
     await this.files.remove(wrap.id);
     await this.queue.cancelWrap(wrap.id);
+    if (this.video.mediaBaseUrl) await this.queue.purgeVideos(wrap.id);
   }
 
   async retryImages(wrap: WrapRecord): Promise<WrapRecord> {
@@ -145,6 +166,15 @@ export class WrapsService {
     if (wrap.imagesStatus !== 'failed') throw new ImagesNotFailedError();
     const updated = await this.write(wrap, { imagesStatus: 'queued' });
     await this.queue.retryImages(updated.id, updated.imagesVersion);
+    return updated;
+  }
+
+  /** The owner's second chance after the render (and its automatic retry) failed. */
+  async retryVideo(wrap: WrapRecord): Promise<WrapRecord> {
+    if (wrap.status === 'deleted') throw new WrapDeletedError();
+    if ((await this.videoView(wrap)).status !== 'failed') throw new VideoNotFailedError();
+    const updated = await this.write(wrap, { videoStatus: 'queued' });
+    await this.queue.retryVideo(updated.id, updated.dataVersion);
     return updated;
   }
 
@@ -172,17 +202,20 @@ export class WrapsService {
   }
 
   async status(wrap: WrapRecord): Promise<WrapStatusView> {
+    const video = await this.videoView(wrap);
     return {
       imagesStatus: wrap.imagesStatus,
       imagesVersion: wrap.imagesVersion,
       imagesReadyVersion: wrap.imagesReadyVersion,
-      videoStatus: wrap.videoStatus,
+      videoStatus: video.status,
       videoReadyVersion: wrap.videoReadyVersion,
       queuePosition:
         wrap.imagesStatus === 'queued'
           ? await this.queue.imagesPosition(wrap.id, wrap.imagesVersion)
           : null,
       images: readyImages(wrap),
+      videoQueuePosition: video.position,
+      video: this.readyVideo(wrap),
     };
   }
 
@@ -199,6 +232,7 @@ export class WrapsService {
       images: readyImages(wrap),
       videoReadyVersion: wrap.videoReadyVersion,
       videoStatus: wrap.videoStatus,
+      video: this.readyVideo(wrap),
     };
   }
 
@@ -222,12 +256,58 @@ export class WrapsService {
         dataVersion: existing.dataVersion + 1,
         imagesVersion: existing.imagesVersion + 1,
         imagesStatus: 'queued',
+        ...this.newVideo(existing),
         regeneratedAt: now,
       },
       () => new RegenerateTooSoonError(new Date(now.getTime() + DAY_MS)),
     );
-    await this.queue.enqueueImages(updated.id, updated.imagesVersion);
+    await this.queueRenders(updated);
     return updated;
+  }
+
+  /**
+   * New data means a new video. The ready one keeps playing until it is replaced, unless the wrap
+   * was deleted: its file went with it.
+   */
+  private newVideo(wrap: WrapRecord): WrapChanges {
+    const changes: WrapChanges = {};
+    if (this.video.enabled) changes.videoStatus = 'queued';
+    if (wrap.status === 'deleted') {
+      changes.videoReadyVersion = null;
+      changes.videoStatus ??= 'none';
+    }
+    return changes;
+  }
+
+  private async queueRenders(wrap: WrapRecord): Promise<void> {
+    await this.queue.enqueueImages(wrap.id, wrap.imagesVersion);
+    if (this.video.enabled) await this.queue.enqueueVideo(wrap.id, wrap.dataVersion);
+  }
+
+  /**
+   * The renderer stores `rendering`, `ready` and `failed`; the queue knows better while a job is
+   * in flight (its place in line, or that it failed after the renderer stopped without saying so).
+   */
+  private async videoView(wrap: WrapRecord): Promise<VideoView> {
+    const stored = { status: wrap.videoStatus, position: null };
+    if (wrap.videoStatus !== 'queued' && wrap.videoStatus !== 'rendering') return stored;
+    const progress = await this.queue.videoProgress(wrap.id, wrap.dataVersion);
+    switch (progress.state) {
+      case 'waiting':
+        return { status: 'queued', position: progress.position };
+      case 'active':
+        return { status: 'rendering', position: null };
+      case 'failed':
+        return { status: 'failed', position: null };
+      default:
+        return stored;
+    }
+  }
+
+  private readyVideo(wrap: WrapRecord): string | null {
+    return wrap.videoReadyVersion
+      ? wrapVideo(wrap.id, wrap.videoReadyVersion, this.video.mediaBaseUrl)
+      : null;
   }
 
   /** Regenerating: only the year in course (or last year, until January 31), once a day. */

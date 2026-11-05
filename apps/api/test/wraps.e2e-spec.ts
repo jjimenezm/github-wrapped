@@ -272,6 +272,8 @@ describe('Wraps and GitHub login (e2e)', () => {
         videoReadyVersion: null,
         queuePosition: 1,
         images: null,
+        videoQueuePosition: null,
+        video: null,
       });
     });
 
@@ -338,6 +340,96 @@ describe('Wraps and GitHub login (e2e)', () => {
       t.later(24);
       await signIn(agent, ana).expect(302);
       await t.http().get('/api/wraps/ana-dev/2026').expect(200);
+    });
+  });
+
+  describe('video', () => {
+    beforeEach(async () => {
+      await t.app.close();
+      t = await createE2eApp(
+        '2026-03-01T12:00:00Z',
+        e2eConfig({ video: { enabled: true, mediaBaseUrl: null } }),
+      );
+    });
+
+    const published = async (agent: TestAgent) => {
+      await signIn(agent, ana).expect(302);
+      const wrap = await t.repo.findByOwner(ana.id, 2026);
+      if (!wrap) throw new Error('not published');
+      return wrap;
+    };
+
+    it('queues the video when publishing and tells the owner its place in line', async () => {
+      const agent = t.agent();
+      const wrap = await published(agent);
+      expect(t.queue.videoJobs).toEqual([
+        { id: `video-${wrap.id}-1`, wrapId: wrap.id, version: 1, state: 'waiting' },
+      ]);
+      const status = (await agent.get('/api/wraps/ana-dev/2026/status').expect(200))
+        .body as WrapStatusView;
+      expect(status).toMatchObject({ videoStatus: 'queued', videoQueuePosition: 1, video: null });
+    });
+
+    it('lets only the owner retry a failed video, and only a failed one', async () => {
+      const agent = t.agent();
+      const wrap = await published(agent);
+      const notFailed = await agent.post('/api/wraps/ana-dev/2026/video/retry').expect(409);
+      expect((notFailed.body as ErrorBody).code).toBe('VIDEO_NOT_FAILED');
+
+      t.queue.setVideoState(wrap.id, 1, 'failed');
+      await t.repo.update(wrap.id, { videoStatus: 'failed' }, wrap);
+      const betoAgent = t.agent();
+      await signIn(betoAgent, beto).expect(302);
+      await betoAgent.post('/api/wraps/ana-dev/2026/video/retry').expect(403);
+      await t.http().post('/api/wraps/ana-dev/2026/video/retry').expect(401);
+
+      const retried = (await agent.post('/api/wraps/ana-dev/2026/video/retry').expect(200))
+        .body as WrapStatusView;
+      expect(retried).toMatchObject({ videoStatus: 'queued', videoQueuePosition: 1 });
+      const anaJobs = t.queue.videoJobs.filter((job) => job.wrapId === wrap.id);
+      expect(anaJobs.map((job) => [job.id, job.state])).toEqual([
+        [`video-${wrap.id}-1`, 'waiting'],
+      ]);
+    });
+
+    it('serves the ready MP4 by byte ranges, to the owner and on the public page', async () => {
+      const agent = t.agent();
+      const wrap = await published(agent);
+      t.queue.setVideoState(wrap.id, 1, 'done');
+      await t.repo.update(wrap.id, { videoStatus: 'ready', videoReadyVersion: 1 }, wrap);
+      await mkdir(join(t.config.filesDir, wrap.id, 'video'), { recursive: true });
+      await writeFile(join(t.config.filesDir, wrap.id, 'video/1.mp4'), 'mp4-bytes');
+
+      const video = `/api/files/${wrap.id}/video/1.mp4`;
+      const status = (await agent.get('/api/wraps/ana-dev/2026/status').expect(200))
+        .body as WrapStatusView;
+      expect(status).toMatchObject({ videoStatus: 'ready', videoReadyVersion: 1, video });
+      const page = (await t.http().get('/api/wraps/ana-dev/2026').expect(200)).body as PublicWrap;
+      expect(page.video).toBe(video);
+      const range = await t.http().get(video).set('Range', 'bytes=0-1').expect(206);
+      expect(range.headers['accept-ranges']).toBe('bytes');
+      expect(range.headers['content-length']).toBe('2');
+    });
+
+    it('changing the card keeps the video; regenerating queues the next one', async () => {
+      const agent = t.agent();
+      const wrap = await published(agent);
+      await t.repo.update(wrap.id, { videoStatus: 'ready', videoReadyVersion: 1 }, wrap);
+      t.queue.setVideoState(wrap.id, 1, 'done');
+
+      await agent.put('/api/wraps/ana-dev/2026/card').send({ cardStyle: 'cordillera' }).expect(200);
+      expect(t.queue.videoJobs).toHaveLength(1);
+      t.later(24);
+      // The session expired overnight: the owner confirms with GitHub again (no new version).
+      await signIn(agent, ana, { intent: 'manage', year: 2026 }).expect(302);
+      const page = (await agent.post('/api/wraps/ana-dev/2026/regenerate').expect(200))
+        .body as PublicWrap;
+      expect(page).toMatchObject({ videoStatus: 'queued', videoReadyVersion: 1 });
+      expect(page.video).toBe(`/api/files/${wrap.id}/video/1.mp4`);
+      expect(t.queue.videoJobs.map((job) => job.id)).toEqual([
+        `video-${wrap.id}-1`,
+        `video-${wrap.id}-2`,
+      ]);
     });
   });
 
